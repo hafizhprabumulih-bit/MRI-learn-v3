@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang='id'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>MODUL 8B: Aliran dan Artefak Aliran</title>
+<style>
+/* TETAP: awal */
+:root{--latar:#fff;--permukaan:#f4f6f8;--teks:#1b1f24;--lembut:#5a6572;--aksen:#1f6feb;--t1:#d9480f;--t2:#0b7285;--b0:#2f6bff;--benar:#2b8a3e;--salah:#c92a2a;--garis:#d5dbe3;--radius:10px;--font:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+@media(prefers-color-scheme:dark){:root{--latar:#14171a;--permukaan:#1e2328;--teks:#e8ecef;--lembut:#9aa5b1;--aksen:#5aa2ff;--t1:#ff922b;--t2:#3bc9db;--b0:#6f9bff;--garis:#2e353d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--latar);color:var(--teks);font:16px/1.6 var(--font)}
+main{max-width:860px;margin:0 auto;padding:16px}
+a{color:var(--aksen)}
+.atas{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
+h1{font-size:1.6rem;margin:.6em 0 .2em}
+h2{font-size:1.25rem;margin-top:1.6em}
+.lembut{color:var(--lembut)}
+.kartu{background:var(--permukaan);border:1px solid var(--garis);border-radius:var(--radius);padding:14px;margin:12px 0}
+.lanjut{border-left:4px solid var(--aksen)}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--garis);background:var(--permukaan);color:var(--teks);cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--aksen);outline-offset:2px}
+canvas{max-width:100%;background:var(--permukaan);border-radius:var(--radius)}
+input[type=range]{width:100%}
+.ok{color:var(--benar)}
+.no{color:var(--salah)}
+/* TETAP: akhir */
+/* KELAS UTILITAS TAMBAHAN */
+h3{font-size:1.1rem;margin:1.2em 0 .3em}
+canvas{height:auto;display:block;width:100%}
+.baris{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.lencana{background:var(--aksen);color:var(--latar);border-radius:6px;padding:1px 8px;font-size:.8rem;font-weight:700}
+button[aria-pressed=true]{background:var(--aksen);border-color:var(--aksen);color:var(--latar)}
+button:disabled{opacity:.6;cursor:default}
+select{font:inherit;padding:8px;border-radius:8px;border:1px solid var(--garis);background:var(--permukaan);color:var(--teks)}
+select:focus-visible{outline:2px solid var(--aksen);outline-offset:2px}
+label{display:block;font-weight:600;margin-top:6px}
+.hasil{font-weight:600;margin:6px 0}
+table{width:100%;border-collapse:collapse;margin:8px 0}
+th,td{border-bottom:1px solid var(--garis);padding:6px;text-align:left}
+.terbaik{font-weight:700}
+.tag{font-size:.8rem;font-weight:700;color:var(--aksen);text-transform:uppercase;letter-spacing:.04em}
+.pilih{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.pilih button[aria-pressed=true]{background:var(--aksen);color:var(--latar);border-color:var(--aksen);font-weight:600}
+.bm[data-mode=singkat] .l,.bm[data-mode=lengkap] .s{display:none}
+.bm .l,.bm .s{animation:masuk .4s ease}
+.opsi{display:block;width:100%;text-align:left;margin:6px 0}
+.opsi.benar{background:var(--benar);border-color:var(--benar);color:#fff;font-weight:600}
+.opsi.salah{background:var(--salah);border-color:var(--salah);color:#fff}
+.navkuis{display:flex;gap:8px;justify-content:space-between;margin-top:10px}
+.bungkus-tabel{overflow-x:auto}
+.tabel{border-collapse:collapse;width:100%;font-size:.92rem}
+.tabel caption{text-align:left;font-weight:600;padding-bottom:4px}
+.tabel th,.tabel td{border:1px solid var(--garis);padding:6px 8px;text-align:center}
+.tabel th{background:var(--latar)}
+button:active{transform:scale(.96)}
+.denyut{border-color:var(--b0);animation:denyut 1.6s infinite}
+.muncul{animation:muncul .45s ease}
+@keyframes denyut{0%,100%{box-shadow:0 0 0 0 rgba(47,107,255,.55)}50%{box-shadow:0 0 0 9px rgba(47,107,255,0)}}
+@keyframes muncul{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@keyframes masuk{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.denyut,.muncul,.bm .l,.bm .s{animation:none}}
+.sumber{font-size:.85rem}
+.kisi{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:320px;margin:8px 0}
+.sel{padding:0;min-height:40px}
+svg{max-width:100%;height:auto;display:block}
+.tabel tr.terbaik td{background:var(--latar);font-weight:700}
+.bm .a{display:none;border-left:3px solid var(--t2);padding-left:10px}
+.bm[data-mode=analogi] .a{display:block;animation:masuk .4s ease}
+.bm[data-mode=analogi] .l,.bm[data-mode=analogi] .s{display:none}
+.meter{height:10px;border-radius:99px;background:var(--garis);overflow:hidden;margin:6px 0}
+.meter i{display:block;height:100%;width:0;background:var(--b0);transition:width .6s ease}
+.lencana.ok{background:var(--benar);color:#fff;animation:hijau 1.8s infinite}
+@keyframes hijau{0%,100%{box-shadow:0 0 0 0 rgba(43,138,62,.5)}50%{box-shadow:0 0 0 7px rgba(43,138,62,0)}}
+@media(prefers-reduced-motion:reduce){.meter i{transition:none}.lencana.ok,.bm[data-mode=analogi] .a{animation:none}}
+/* ISI MODUL: CSS tambahan */
+.tabel.kiri th,.tabel.kiri td{text-align:left;vertical-align:top}
+.tabel td.n,.tabel th.n{text-align:right;font-variant-numeric:tabular-nums}
+.dua{display:flex;flex-wrap:wrap;gap:12px}
+.dua>figure{flex:1 1 200px;min-width:0;margin:0}
+.dua figcaption{font-size:.9rem;color:var(--lembut);margin-bottom:4px}
+.dua canvas.k{image-rendering:pixelated}
+.kontrol{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 16px}
+.kontrol label{font-size:.92rem}
+.kontrol output{font-weight:600;font-variant-numeric:tabular-nums}
+.rinci dt{font-weight:600;margin-top:.6em}
+.rinci dd{margin:0}
+.bar{position:relative;height:12px;min-width:96px;background:var(--latar);border:1px solid var(--garis);border-radius:6px}
+.bar .band{position:absolute;left:25%;width:50%;top:0;bottom:0;background:var(--garis);opacity:.7}
+.bar .mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--lembut)}
+.bar .pen{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);transition:left .25s}
+.bar .pen-ok{background:var(--benar)}
+.bar .pen-no{background:var(--salah)}
+@media(prefers-reduced-motion:reduce){.bar .pen{transition:none}}
+.kartu.bm .tag+.pilih{margin-top:4px}
+.bm ul{margin:.4em 0;padding-left:1.2em}
+.bm h4{margin:.8em 0 .1em;font-size:.95rem}
+.sv-t{font-size:12px;fill:var(--lembut)}
+.sv-b{font-size:12px;fill:var(--teks);font-weight:600}
+.tebak{max-width:340px}
+.skor{font-weight:700;font-variant-numeric:tabular-nums}
+.pil{display:flex;flex-wrap:wrap;gap:8px}
+/* TAMBAHAN M08A/B/C: judul tingkat, tautan simpul, kartu capstone, blok prasyarat */
+.tingkat-judul{margin:1.8em 0 .2em;padding-bottom:4px;border-bottom:2px solid var(--garis);font-size:1.1rem}
+.tautan{font-size:.9rem;color:var(--lembut);margin:.6em 0 0}
+.tautan a{font-weight:600}
+.kode{font-variant-numeric:tabular-nums;font-weight:700}
+.kartu.capstone{border-left:4px solid var(--t1)}
+.prasyarat{display:flex;flex-wrap:wrap;gap:6px;margin:.4em 0}
+.prasyarat .lencana{background:var(--permukaan);color:var(--teks);border:1px solid var(--garis)}
+.kartu h4{margin:1em 0 .2em;font-size:1rem}
+</style>
+</head>
+<body>
+<main>
+<nav class='atas'><a href='modul8-native.html'>&larr; Gabungan Modul 8</a><a href='m08a-native.html'>&larr; Sebelumnya</a><a href='m08c-native.html'>Berikutnya &rarr;</a></nav>
+<h1>MODUL 8B: Aliran dan Artefak Aliran</h1>
+<p class='lembut'>Media belajar, bukan untuk keputusan klinis. Prosedur nyata mengikuti SOP dan kebijakan fasilitas setempat yang berlaku.</p>
+<div class='kartu'><b>Prasyarat</b><div class='prasyarat'><span class='lencana' title=''>&#9873; M03A</span><span class='lencana' title='gradien'>&#9873; M04A</span></div><p class='lembut'>Modul ini bagian dari M08 (Klinis, Artefak, dan QA). Urutan: <a href='m08a-native.html'>M08A</a>, <a href='m08b-native.html'>M08B</a>, <a href='m08c-native.html'>M08C</a>.</p></div>
+<!-- BAGIAN MATERI -->
+<h2>Materi</h2>
+<p class='lembut'>Tiap kartu punya pilihan sendiri: materi singkat, materi lengkap, atau analogi.</p>
+<div class='kartu'>
+<b>Tujuan belajar</b>
+<ul>
+<li>Menjelaskan entry-slice phenomenon dan time-of-flight.</li>
+<li>Membedakan aliran laminar dan turbulen, dan dampaknya pada dephasing.</li>
+<li>Memilih teknik kompensasi aliran: GMN atau presaturasi spasial.</li>
+</ul>
+</div>
+<h3 class='tingkat-judul'>Tingkat 1 (Dasar)</h3>
+<div class='kartu bm' id='mat-T1-1' data-mode='singkat'>
+<span class='tag'><span class='kode'>T1.1</span> Aliran darah dan artefak aliran: gambaran umum</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<!-- [BARU] Gabungan tiga kartu M08 asli: "Artefak aliran, gambaran umum", "Aliran darah dan artefak", dan "Artefak aliran" (Tingkat 2). Detail ESP dan TOF dipindah ke T1.2 dan T2.1-T2.2. -->
+<p>Darah dan cairan serebrospinal (CSF) yang mengalir membuat sinyal di lumen sangat berbeda dari jaringan di sekitarnya. Dua fenomena utamanya adalah entry-slice phenomenon (ESP) dan time-of-flight (TOF). Selain itu, spin yang mengalir sepanjang gradien mendapat fase yang berbeda-beda.</p>
+<p class='s'>Singkatnya: ESP membuat lumen tampak terang (peningkatan terkait aliran), TOF membuat lumen tampak gelap pada kecepatan tinggi, dan fase yang tersebar membuat sinyal melemah (dephasing intravoksel) atau salah petak (pemetaan fase salah).</p>
+<div class='l'>
+<h4>Sisi buruk dan sisi baik</h4>
+<p>Aliran arteri yang berdenyut dapat menghasilkan pemetaan fase yang keliru, dan saturasi pada aliran lambat dapat memberi kesan ukuran pembuluh yang salah. Di sisi lain, bila parameter sekuens diatur agar sinyal latar tersaturasi sementara pembuluh tetap terang, kita memperoleh citra angiografi.</p>
+<h4>Dua penyebab sinyal lumen berubah</h4>
+<ul>
+<li><b>Efek inflow (ESP):</b> spin yang baru masuk irisan belum jenuh, sehingga lebih terang daripada jaringan diam. Lihat <a href='#mat-T1-2'>T1.2</a> dan <a href='#mat-T2-1'>T2.1</a>.</li>
+<li><b>Efek keluar irisan (TOF):</b> pada kecepatan tinggi, spin yang tereksitasi sudah meninggalkan irisan sebelum direfase. Lihat <a href='#mat-T2-2'>T2.2</a>.</li>
+</ul>
+<h4>Dephasing intravoksel</h4>
+<p>Dalam satu voksel ada spin dengan kecepatan berbeda: lambat di tepi pembuluh, cepat di tengah. Fase mereka menyebar dan sinyalnya saling meniadakan. Voksel yang lebih besar menampung sebaran yang lebih lebar. Lihat <a href='#mat-T2-3'>T2.3</a> dan <a href='#mat-T3-1'>T3.1</a>.</p>
+<h4>Pemetaan fase salah</h4>
+<p>Bila sinyal tinggi berpindah tempat di antara langkah penyandian fase, posisinya pada arah fase menjadi keliru.</p>
+<ul>
+<li>Dari sisi kualitas citra, sinyal tinggi atau rendah dari pembuluh tidak selalu merugikan.</li>
+<li>Masalah muncul pada sekuens gradient-echo seimbang saat sinyal tinggi bergerak antar langkah penyandian fase.</li>
+<li>Perbaikan: pulsa presaturasi di luar volume citra (<a href='#mat-T2-5'>T2.5</a>). Bila sinyal tinggi dari pembuluh memang dibutuhkan (angiografi inflow), pakai GMN (<a href='#mat-T2-4'>T2.4</a>).</li>
+</ul>
+<p class='lembut'>Artefak lain yang tidak berkaitan dengan aliran dibahas di modul lain: sudut ajaib di <a href='m08a-native.html#mat-T2-4'>M08A T2.4</a> dan kegagalan peralatan di <a href='m08c-native.html#mat-T2-5'>M08C T2.5</a>.</p>
+</div>
+<p class='a'><b>Analogi:</b> seperti memotret air sungai: air yang baru datang tampak jernih dan terang, air yang sudah lama berputar tampak keruh, dan air yang melaju terlalu cepat tidak sempat terekam.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A6'>A6 Latihan: sebab dan teknik perbaikan artefak aliran</a></p>
+</div>
+<div class='kartu bm' id='mat-T1-2' data-mode='singkat'>
+<span class='tag'><span class='kode'>T1.2</span> Entry-slice phenomenon (ESP)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Inti yang diam di dalam irisan menerima pulsa eksitasi RF berulang. Karena TR tidak cukup panjang untuk pemulihan longitudinal penuh, inti itu tersaturasi dan sinyalnya rendah. Inti darah yang baru masuk belum pernah terkena pulsa tersebut.</p>
+<p class='s'>Singkatnya: darah yang baru masuk irisan masih "segar" (tidak jenuh), sehingga sinyalnya lebih tinggi daripada jaringan diam di sekitarnya.</p>
+<div class='l'>
+<p>Inti yang masuk belum berada pada frekuensi resonansi pulsa selektif-irisan sebelum memasuki irisan, jadi momen magnetiknya masih dominan searah B0 (spin-up). Saat pertama kali terkena pulsa eksitasi, magnetisasinya dapat dibalik ke bidang transversal dan menghasilkan sinyal besar. Efek ini paling kuat bila aliran tegak lurus irisan dan paling jelas pada irisan pertama dalam tumpukan. Makin dalam ke tumpukan, spin telah menerima banyak pulsa, sehingga efeknya menurun.</p>
+</div>
+<p class='a'><b>Analogi:</b> Papan tulis jaringan diam sudah penuh coretan (jenuh); darah yang baru masuk seperti papan tulis bersih yang siap ditulisi.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A1'>A1 Aliran dan entry-slice (ESP)</a></p>
+</div>
+<h3 class='tingkat-judul'>Tingkat 2 (Menengah)</h3>
+<div class='kartu bm' id='mat-T2-1' data-mode='singkat'>
+<span class='tag'><span class='kode'>T2.1</span> Faktor yang memengaruhi ESP</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Intensitas sinyal darah pada irisan tengah bergantung pada TR, sudut balik, tebal irisan, kecepatan, dan arah aliran terhadap arah eksitasi irisan.</p>
+<p class='s'>Singkatnya: arah aliran faktor terpenting. Searah eksitasi (co-current) cepat jenuh; berlawanan arah (counter-current) tetap segar.</p>
+<div class='l'>
+<div class='bungkus-tabel'><table class='tabel kiri'>
+<caption>Pengaruh parameter pada ESP</caption>
+<thead><tr><th>Faktor</th><th>Perubahan</th><th>Efek pada ESP</th></tr></thead>
+<tbody>
+<tr><td>TR</td><td>Lebih pendek</td><td>Spin menerima banyak pulsa, saturasi naik, ESP berkurang</td></tr>
+<tr><td>Sudut balik</td><td>Lebih besar</td><td>Saturasi naik, ESP berkurang</td></tr>
+<tr><td>Tebal irisan</td><td>Lebih tebal</td><td>Spin lebih lama di irisan, lebih banyak pulsa, ESP berkurang (lebih jelas pada irisan tipis)</td></tr>
+<tr><td>Kecepatan</td><td>Lebih cepat</td><td>Hanya satu atau dua pulsa, ESP lebih jelas</td></tr>
+<tr><td>Arah</td><td>Berlawanan eksitasi</td><td>Spin tetap tak jenuh, sinyal menembus lebih dalam</td></tr>
+</tbody></table></div>
+<h4>ESP dalam praktik: aorta dan IVC</h4>
+<p>Pada empat irisan aksial abdomen yang dieksitasi dari inferior ke superior, irisan 1 menampilkan IVC terang dan aorta gelap. Pada irisan 4 kebalikannya. IVC (aliran searah eksitasi) di irisan 4 lebih redup daripada aorta (aliran berlawanan) di irisan 1. Di klinik efek ini jarang tampak karena kompensasi aliran, misalnya presaturasi spasial.</p>
+<p class='lembut'>Coba pada A1 tahap 2.</p>
+</div>
+<p class='a'><b>Analogi:</b> Antrean loket: yang berjalan searah antrean sudah diperiksa berkali-kali; yang datang dari arah berlawanan baru pertama kali diperiksa di tiap loket.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A1'>A1 Aliran dan entry-slice (ESP)</a></p>
+</div>
+<div class='kartu bm' id='mat-T2-2' data-mode='singkat'>
+<span class='tag'><span class='kode'>T2.2</span> Time-of-flight (TOF)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Agar menghasilkan sinyal, inti harus menerima pulsa eksitasi dan pulsa rephasing. Inti diam selalu menerima keduanya; inti yang mengalir belum tentu.</p>
+<p class='s'>Singkatnya: darah yang keluar irisan sebelum pulsa 180°, atau baru masuk setelah pulsa 90°, tidak menghasilkan sinyal, sehingga pembuluh tampak gelap.</p>
+<div class='l'>
+<p>Pada spin-echo, inti yang terkena 90° tetapi sudah keluar saat 180° tiba tereksitasi tanpa direfase. Inti yang baru hadir saat 180° tidak pernah tereksitasi. Keduanya tidak bersinyal.</p>
+<div class='bungkus-tabel'><table class='tabel kiri'>
+<caption>Faktor TOF pada spin-echo</caption>
+<thead><tr><th>Faktor</th><th>Naik/turun</th><th>Hasil</th></tr></thead>
+<tbody>
+<tr><td>Kecepatan</td><td>Naik</td><td>Signal void makin kuat (high-velocity signal loss)</td></tr>
+<tr><td>TE</td><td>Naik</td><td>Lebih banyak inti keluar irisan, sinyal turun</td></tr>
+<tr><td>Tebal irisan</td><td>Turun</td><td>Inti lebih mudah keluar, sinyal turun</td></tr>
+</tbody></table></div>
+<p>Pada gradient-echo, TE biasanya jauh lebih pendek, dan rephasing oleh gradien berlaku untuk seluruh volume, bukan hanya satu irisan. Inti yang menerima pulsa eksitasi cenderung direfase di mana pun posisinya, sehingga sekuens ini disebut peka-aliran (flow-sensitive).</p>
+<p class='lembut'>Coba pada A2.</p>
+</div>
+<p class='a'><b>Analogi:</b> Fotografer yang menekan "ambil" (90°) lalu "simpan" (180°): bila objek berlari keluar bingkai di antara dua langkah itu, fotonya kosong.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A2'>A2 Simulasi TOF pada spin-echo</a></p>
+</div>
+<div class='kartu bm' id='mat-T2-3' data-mode='singkat'>
+<span class='tag'><span class='kode'>T2.3</span> Jenis-jenis aliran</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Ada empat jenis aliran utama, dan masing-masing menimbulkan masalah pencitraan yang berbeda.</p>
+<p class='s'>Singkatnya: laminar (berlapis), spiral (sekrup), vorteks (pusaran), turbulen (acak).</p>
+<div class='l'>
+<div class='bungkus-tabel'><table class='tabel kiri'>
+<caption>Empat jenis aliran</caption>
+<thead><tr><th>Jenis</th><th>Ciri</th><th>Masalah</th></tr></thead>
+<tbody>
+<tr><td>Laminar (parabolik)</td><td>Kecepatan berbeda tetapi konsisten; tengah lumen lebih cepat daripada dekat dinding</td><td>Dephasing intravoksel; aliran lambat dekat dinding cepat jenuh sehingga pembuluh tampak lebih sempit (dapat diperparah penyakit sel sabit)</td></tr>
+<tr><td>Spiral (heliks)</td><td>Kecepatan melilit seperti sekrup; khas pada pembuluh besar seperti aorta torakalis</td><td>Arah ganda; mungkin perlu angiografi kontras fase</td></tr>
+<tr><td>Vorteks</td><td>Pusaran, mis. setelah striktur atau di dalam aneurisma</td><td>Spin lama tinggal sehingga jenuh; dephasing intravoksel</td></tr>
+<tr><td>Turbulen</td><td>Perbedaan kecepatan berubah acak</td><td>Dispersi fase dalam voksel</td></tr>
+</tbody></table></div>
+<p class='lembut'>Coba pada A3.</p>
+</div>
+<p class='a'><b>Analogi:</b> Laminar seperti lajur jalan tol, vorteks seperti bundaran, turbulen seperti pasar yang ramai.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A3'>A3 Aliran laminar atau turbulen (Reynolds)</a></p>
+</div>
+<div class='kartu bm' id='mat-T2-4' data-mode='singkat'>
+<span class='tag'><span class='kode'>T2.4</span> Gradient moment rephasing (GMN)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>GMN, juga disebut gradient moment nulling atau flow compensation, menambahkan gradien ekstra agar fase spin yang mengalir kembali ke nilai awalnya.</p>
+<p class='s'>Singkatnya: lobe positif, negatif ganda, lalu positif membuat fase tambahan akibat aliran kembali ke nol.</p>
+<div class='l'>
+<p>Prinsipnya sama dengan sistem gradien seimbang pada gradient-echo (Modul 4). GMN dilakukan pada gradien pemilih irisan dan atau gradien penyandi frekuensi. Polaritas gradien berubah dari positif ke negatif ganda lalu kembali positif. Pada gambar buku, inti yang mengalir memperoleh 90 derajat fase pada lobe pertama, kehilangan 180 derajat pada lobe negatif ganda, lalu dikoreksi pada lobe positif terakhir sehingga perubahan netonya nol. <!-- TODO-VERIFIKASI: sudut 90 dan 180 derajat dari buku adalah gambaran sederhana; A4 langkah 2 menghitung dengan momen gradien --></p>
+<ul>
+<li>Terutama mengurangi dephasing intravoksel.</li>
+<li>Mengandaikan kecepatan dan arah konstan. Paling efektif pada aliran lambat laminar, sehingga disebut kompensasi gerak orde pertama.</li>
+<li>Aliran berdenyut tidak benar-benar konstan, jadi GMN lebih efektif pada vena daripada arteri. Kurang efektif pada aliran cepat turbulen yang tegak lurus irisan.</li>
+<li>Konsekuensi: gradien ekstra menaikkan TE minimum. Irisan yang tersedia untuk TR tertentu berkurang, atau TR dan waktu pindai naik.</li>
+</ul>
+<p class='lembut'>Coba pada A4 langkah 2 dan 3.</p>
+</div>
+<p class='a'><b>Analogi:</b> Seperti menyeimbangkan timbangan: dorong ke kanan, dorong ke kiri dua kali, lalu ke kanan lagi, sehingga akhirnya kembali ke titik awal.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A4'>A4 Dephasing intravoksel (tiga langkah)</a></p>
+</div>
+<div class='kartu bm' id='mat-T2-5' data-mode='singkat'>
+<span class='tag'><span class='kode'>T2.5</span> Presaturasi spasial</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Presaturasi spasial mengirim pulsa RF 90 derajat ke volume jaringan di luar FOV, untuk meniadakan sinyal dari inti yang mengalir masuk.</p>
+<p class='s'>Singkatnya: spin yang melewati volume itu sudah jenuh, sehingga saat masuk irisan ia tidak menghasilkan sinyal.</p>
+<div class='l'>
+<p>Spin yang mengalir di dalam volume jenuh menerima pulsa 90 derajat. Saat ia masuk ke tumpukan irisan dan menerima pulsa eksitasi 90 derajat, ia sudah jenuh dan tidak punya komponen magnetisasi transversal, jadi tidak ada sinyal. Dengan begitu efek entry-slice dan TOF diminimalkan. Prinsipnya mirip pulsa saturasi yang meniadakan sinyal jaringan tertentu untuk memperbaiki CNR (Modul 7).</p>
+<h4>Penempatan</h4>
+<ul>
+<li>Letakkan di antara asal aliran dan volume citra.</li>
+<li>Pada sagital dan aksial biasanya di atas dan di bawah FOV: aliran arteri datang dari atas, aliran vena dari bawah.</li>
+<li>Pada koronal, terutama di dada, pita kanan dan kiri berguna untuk aliran dari pembuluh subklavia.</li>
+<li>Dapat pula ditaruh di dalam FOV, di atas sumber artefak seperti aorta.</li>
+</ul>
+<h4>Konsekuensi</h4>
+<ul>
+<li>RF ekstra menambah pemanasan (SAR, lihat Modul 7) dan mengurangi irisan yang tersedia.</li>
+<li>Pulsa diberikan di sekitar tiap irisan sesaat sebelum eksitasi, jadi TR dan jumlah irisan menentukan jedanya. Gunakan semua irisan yang diizinkan untuk TR tertentu.</li>
+<li>Karena meniadakan sinyal, umumnya dipakai pada citra berbobot T1 dan PD.</li>
+</ul>
+<p class='lembut'>Coba pada A5.</p>
+</div>
+<p class='a'><b>Analogi:</b> Seperti menghapus papan tulis tepat sebelum murid masuk kelas: begitu ia tiba, tidak ada catatan yang tersisa untuk dibaca.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A5'>A5 Presaturasi: animasi spin yang melewati pita</a></p>
+</div>
+<div class='kartu bm' id='mat-T2-6' data-mode='singkat'>
+<span class='tag'><span class='kode'>T2.6</span> Ringkasan teknik kompensasi aliran</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Ada tiga teknik utama untuk mengatasi artefak aliran.</p>
+<p class='s'>Singkatnya: even-echo rephasing dan GMN mengurangi dephasing, presaturasi meniadakan sinyal inti yang masuk.</p>
+<div class='l'>
+<div class='bungkus-tabel'>
+<table class='tabel kiri'>
+<caption>Teknik kompensasi aliran</caption>
+<thead><tr><th>Teknik</th><th>Cara kerja</th><th>Catatan</th></tr></thead>
+<tbody>
+<tr><td>Even-echo rephasing</td><td>Echo seimbang: echo genap mengalami dephasing lebih sedikit daripada echo ganjil.</td><td>Mengurangi dephasing intravoksel. Terutama pada sekuens berbobot T2.</td></tr>
+<tr><td>GMN</td><td>Gradien tambahan mengoreksi nilai fase yang berubah.</td><td>Mengurangi artefak dari dephasing intravoksel. Paling efektif pada aliran lambat laminar di dalam irisan.</td></tr>
+<tr><td>Presaturasi</td><td>Pulsa RF tambahan meniadakan sinyal inti yang mengalir.</td><td>Mengurangi artefak akibat time-of-flight dan entry-slice. Efektif pada aliran cepat dan lambat. Menambah deposisi RF.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<p class='a'><b>Analogi:</b> Seperti tiga alat di kotak perkakas: masing-masing cocok untuk satu jenis masalah.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A6'>A6 Latihan: sebab dan teknik perbaikan artefak aliran</a></p>
+</div>
+<h3 class='tingkat-judul'>Tingkat 3 (Lanjut)</h3>
+<div class='kartu bm lanjut' id='mat-T3-1' data-mode='singkat'>
+<span class='tag'><span class='kode'>T3.1</span> Dephasing intravoksel dan rumus</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Gradien mengubah frekuensi presesi dan fase momen magnetik. Spin yang bergerak sepanjang gradien memperoleh atau kehilangan fase menurut jarak yang ditempuh. Di dalam satu voksel, kecepatan yang berbeda menghasilkan fase yang berbeda.</p>
+<p class='s'>Singkatnya: fase yang saling berlawanan saling meniadakan, sehingga amplitudo sinyal voksel turun (dephasing intravoksel).</p>
+<div class='l'>
+<ul>
+<li>Pada aliran laminar dengan kecepatan dan arah konstan (first-order motion), dephasing dapat dikompensasi dengan gradient moment rephasing.</li>
+<li>Aliran dipercepat (second-order) dan tersentak (third-order) tidak terkompensasi; pada aliran turbulen efeknya tidak dapat dibalik.</li>
+<li>Dephasing berkurang dengan TE pendek dan voksel lebih kecil, karena voksel besar mencakup lebih banyak spin dengan fase beragam.</li>
+<li>Kecepatan yang diperlukan agar seluruh spin jenuh dalam irisan terganti spin segar dalam satu TR: v = tebal irisan / TR. Contoh: <b id='ctT'>5</b> mm dan TR <b id='ctR'>500</b> ms memberi <b id='ctV'>1,0</b> cm/s.</li>
+<li>Bilangan Reynolds: Re = (densitas × kecepatan × diameter) / viskositas. Re di bawah 2100: laminar; di atasnya: turbulen.</li>
+</ul>
+<!-- TODO-VERIFIKASI: satuan Persamaan 8.6 di buku (cm/s dengan mm dan ms) tidak konsisten; dihitung di sini dengan 1 mm/ms = 100 cm/s. Persamaan 8.5 pada pindaian tidak terbaca jelas; bentuk SI ~ 1 - v(TE/2)/tebal dipakai secara kualitatif. Densitas darah 1,06 g/cm3 adalah asumsi. -->
+<p class='lembut'>Coba pada A3 dan A4 langkah 1.</p>
+</div>
+<p class='a'><b>Analogi:</b> Sekelompok pelari dengan kecepatan berbeda: makin lama dan makin lebar jarak mereka, makin sulit menyebut posisi "rata-rata" kelompok.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A4'>A4 Dephasing intravoksel (tiga langkah)</a></p>
+</div>
+<div class='kartu bm lanjut' id='mat-T3-2' data-mode='singkat'>
+<span class='tag'><span class='kode'>T3.2</span> Momen gradien dan orde kompensasi</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Fase spin yang bergerak di sepanjang gradien dapat diuraikan menurut momen gradien.</p>
+<p class='s'>Singkatnya: M0 (luas lobe) mengatur fase spin diam, M1 mengatur fase akibat kecepatan, M2 akibat percepatan. GMN menolkan M0 dan M1.</p>
+<div class='l'>
+<p>Untuk posisi x(t) = x0 + v t + (a/2) t kuadrat, fase sebanding dengan x0·M0 + v·M1 + (a/2)·M2, dengan M-n adalah integral G(t)·t pangkat n. Pada lobe +1, -2, +1 dengan durasi sama (satuan waktu = durasi satu lobe), hasil hitungan: M0 = <b id='m8M0'>0</b>, M1 = <b id='m8M1'>0</b>, M2 = <b id='m8M2'>1</b>. Jadi kecepatan konstan terkompensasi, tetapi percepatan (aliran berdenyut) tidak sepenuhnya. Kompensasi orde lebih tinggi butuh lobe tambahan dan TE minimum lebih panjang. <!-- TODO-VERIFIKASI: orde lebih tinggi tidak dibahas di buku; ditulis sebagai konsep umum --></p>
+<p class='lembut'>Coba pada A4 langkah 3 dengan slider sifat pulsatil.</p>
+</div>
+<p class='a'><b>Analogi:</b> Seperti menyamakan posisi dua mobil: kecepatan yang sama bisa disamakan, tetapi mobil yang terus menambah kecepatan tetap menyimpang.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A4'>A4 Dephasing intravoksel (tiga langkah)</a></p>
+</div>
+<!-- BAGIAN AKTIVITAS -->
+<h2>Aktivitas</h2>
+<div class='kartu'>
+<b>Kemajuan aktivitas</b> <span class='lencana' id='mtrL'></span>
+<div class='meter' id='mtrBar' role='progressbar' aria-valuemin='0' aria-label='Kemajuan aktivitas'><i id='mtr'></i></div>
+<p class='lembut' id='mtrT' aria-live='polite'></p>
+<div class='baris'><button type='button' id='resetMtr'>Reset kemajuan</button></div>
+</div>
+<div class='kartu' id='akt-A1'>
+<h3>A1. Aliran dan entry-slice (ESP)</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T1-2'>T1.2 Entry-slice phenomenon (ESP)</a>, <a href='#mat-T2-1'>T2.1 Faktor yang memengaruhi ESP</a></p>
+<!-- asal: M08 #8 + #14 digabung -->
+<div class='baris' role='group' aria-label='Tahap simulasi'>
+<button type='button' id='espT1' aria-pressed='true'>Tahap 1: dasar (enam irisan)</button>
+<button type='button' id='espT2' aria-pressed='false'>Tahap 2: lanjut (empat irisan: TR, sudut balik, kecepatan)</button>
+</div>
+<div id='espP1'>
+<p>Tujuan: lihat bagaimana TR, sudut flip, tebal irisan, kecepatan, dan arah aliran mengubah sinyal lumen di tumpukan enam irisan. Model sangat disederhanakan.</p>
+<div class='baris' id='fDir' role='group' aria-label='Arah aliran'></div>
+<div class='kontrol'>
+<div><label for='fTR'>TR: <output id='fTRO'></output> ms</label><input type='range' id='fTR' min='50' max='1000' step='10' value='100'></div>
+<div><label for='fAl'>Sudut flip: <output id='fAlO'></output>°</label><input type='range' id='fAl' min='5' max='90' value='40'></div>
+<div><label for='fTh'>Tebal irisan: <output id='fThO'></output> mm</label><input type='range' id='fTh' min='2' max='10' value='5'></div>
+<div><label for='fV'>Kecepatan aliran: <output id='fVO'></output> mm/s</label><input type='range' id='fV' min='5' max='200' value='30'></div>
+</div>
+<svg id='svgF' viewBox='0 0 640 290' role='img' aria-label='Pembuluh melewati enam irisan'></svg>
+<dl class='rinci' id='fInfo' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset8'>Reset</button></div>
+
+</div>
+<div id='espP2' hidden>
+<p>Tujuan: melihat bagaimana TR, sudut balik, tebal irisan, kecepatan, dan arah aliran mengubah sinyal darah pada irisan 1 sampai 4 (model sederhana, bukan hasil pemindaian).</p>
+<div class='pilih' id='eDirG' role='group' aria-label='Arah aliran'><button type='button' data-d='co'>Searah eksitasi</button><button type='button' data-d='ct'>Berlawanan eksitasi</button></div>
+<div class='kontrol'>
+<div><label for='eTR'>TR: <output id='eTRO'></output> ms</label><input type='range' id='eTR' min='100' max='2000' step='50' value='500'></div>
+<div><label for='eFA'>Sudut balik: <output id='eFAO'></output>°</label><input type='range' id='eFA' min='10' max='90' step='5' value='60'></div>
+<div><label for='eTh'>Tebal irisan: <output id='eThO'></output> mm</label><input type='range' id='eTh' min='3' max='10' step='1' value='5'></div>
+<div><label for='eV'>Kecepatan darah: <output id='eVO'></output> cm/s</label><input type='range' id='eV' min='0.2' max='20' step='0.2' value='0.5'></div>
+</div>
+<svg id='svgE' viewBox='0 0 640 200' role='img' aria-label='Empat irisan dan sinyal darah'></svg>
+<dl class='rinci' id='eInfo' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset14'>Reset</button></div>
+
+</div>
+</div>
+<div class='kartu' id='akt-A2'>
+<h3>A2. Simulasi TOF pada spin-echo</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T2-2'>T2.2 Time-of-flight (TOF)</a></p>
+<!-- asal: M08 #15 -->
+<p>Tujuan: melihat apakah spin darah masih berada di irisan saat pulsa 180° tiba. Tekan Putar untuk animasi.</p>
+<div class='kontrol'>
+<div><label for='tV'>Kecepatan: <output id='tVO'></output> cm/s</label><input type='range' id='tV' min='0' max='60' step='1' value='20'></div>
+<div><label for='tTE'>TE: <output id='tTEO'></output> ms</label><input type='range' id='tTE' min='10' max='120' step='5' value='20'></div>
+<div><label for='tTh'>Tebal irisan: <output id='tThO'></output> mm</label><input type='range' id='tTh' min='3' max='10' step='1' value='5'></div>
+</div>
+<svg id='svgT' viewBox='0 0 700 190' role='img' aria-label='Spin darah melintasi irisan'></svg>
+<dl class='rinci' id='tInfo' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='tPlay'>Putar animasi</button><button type='button' id='reset15'>Reset</button></div>
+</div>
+<div class='kartu' id='akt-A3'>
+<h3>A3. Aliran laminar atau turbulen (Reynolds)</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T2-3'>T2.3 Jenis-jenis aliran</a></p>
+<!-- asal: M08 #16 -->
+<p>Tujuan: mengubah kecepatan, diameter, dan viskositas untuk melihat kapan aliran berubah dari laminar menjadi turbulen (batas Re 2100).</p>
+<div class='kontrol'>
+<div><label for='rV'>Kecepatan: <output id='rVO'></output> cm/s</label><input type='range' id='rV' min='10' max='120' step='5' value='20'></div>
+<div><label for='rD'>Diameter pembuluh: <output id='rDO'></output> cm</label><input type='range' id='rD' min='0.5' max='3' step='0.1' value='2.5'></div>
+<div><label for='rMu'>Viskositas: <output id='rMuO'></output> g/(cm s)</label><input type='range' id='rMu' min='0.02' max='0.06' step='0.005' value='0.035'></div>
+</div>
+<canvas id='rCv' width='640' height='140' role='img' aria-label='Partikel darah mengalir dalam pembuluh'></canvas>
+<dl class='rinci' id='rInfo' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset16'>Reset</button></div>
+</div>
+<div class='kartu' id='akt-A4'>
+<h3>A4. Dephasing intravoksel (tiga langkah)</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T2-4'>T2.4 Gradient moment rephasing (GMN)</a>, <a href='#mat-T3-1'>T3.1 Dephasing intravoksel dan rumus</a>, <a href='#mat-T3-2'>T3.2 Momen gradien dan orde kompensasi</a></p>
+<!-- asal: M08 #17 + #18 + #19 digabung -->
+<h4>Langkah 1. Sebaran kecepatan dalam voksel</h4>
+<p>Tujuan: melihat bagaimana sebaran kecepatan, TE, dan ukuran voksel memencarkan fase spin dan mengecilkan sinyal. Panah tipis: 12 spin; panah tebal: jumlah (sinyal).</p>
+<div class='pil'><button type='button' id='dKomp' aria-pressed='false'>Kompensasi gerak</button><button type='button' id='dTurb' aria-pressed='false'>Aliran turbulen</button></div>
+<div class='kontrol'>
+<div><label for='dV'>Sebaran kecepatan: <output id='dVO'></output> cm/s</label><input type='range' id='dV' min='0' max='60' step='2' value='20'></div>
+<div><label for='dTE'>TE: <output id='dTEO'></output> ms</label><input type='range' id='dTE' min='10' max='100' step='5' value='40'></div>
+<div><label for='dVx'>Ukuran voksel: <output id='dVxO'></output> mm</label><input type='range' id='dVx' min='1' max='5' step='0.5' value='3'></div>
+</div>
+<svg id='svgD' viewBox='0 0 640 200' role='img' aria-label='Fase spin dalam satu voksel'></svg>
+<dl class='rinci' id='dInfo' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset17'>Reset</button></div>
+
+<h4>Langkah 2. Fase spin yang mengalir saat gradien bekerja</h4>
+<p>Tujuan: melihat fase akibat aliran terkumpul pada lobe pertama, lalu kembali ke nol bila GMN dinyalakan.</p>
+<div class='baris'><button type='button' id='a1Gm' aria-pressed='false'>GMN: mati</button><button type='button' id='a1Pl'>Putar</button></div>
+<div class='kontrol'>
+<div><label for='a1V'>Kecepatan aliran (relatif): <output id='a1VO'></output> %</label><input type='range' id='a1V' min='0' max='100' step='5' value='50'></div>
+<div><label for='a1T'>Waktu pulsa: <output id='a1TO'></output> %</label><input type='range' id='a1T' min='0' max='100' step='1' value='0'></div>
+</div>
+<canvas id='cv1' width='640' height='260' role='img' aria-label='Gradien, spin diam, spin mengalir, dan dua jam fase'></canvas>
+<dl class='rinci' id='a1Info' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset18'>Reset</button></div>
+
+<h4>Langkah 3. Dephasing dengan GMN</h4>
+<p>Tujuan: melihat bagaimana sebaran kecepatan memecah fase, dan bagaimana GMN menyatukannya kembali.</p>
+<div class='baris'><button type='button' id='a2Gm' aria-pressed='false'>GMN: mati</button></div>
+<div class='kontrol'>
+<div><label for='a2V'>Kecepatan puncak aliran: <output id='a2VO'></output> %</label><input type='range' id='a2V' min='0' max='100' step='5' value='60'></div>
+<div><label for='a2F'>Bagian pembuluh dalam voksel: <output id='a2FO'></output> %</label><input type='range' id='a2F' min='10' max='100' step='10' value='100'></div>
+<div><label for='a2A'>Sifat pulsatil (percepatan): <output id='a2AO'></output> %</label><input type='range' id='a2A' min='0' max='100' step='5' value='0'></div>
+</div>
+<svg id='svg2' viewBox='0 0 640 200' role='img' aria-label='Panah fase spin dan profil kecepatan pembuluh'></svg>
+<div class='meter' aria-hidden='true'><i id='a2M'></i></div>
+<dl class='rinci' id='a2Info' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset19'>Reset</button></div>
+</div>
+<div class='kartu' id='akt-A5'>
+<h3>A5. Presaturasi: animasi spin yang melewati pita</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T2-5'>T2.5 Presaturasi spasial</a></p>
+<!-- asal: M08 #20 -->
+<p>Tujuan: menempatkan pita presaturasi dan melihat sinyal pembuluh di dalam irisan. Warna biru: spin segar. Abu-abu: spin jenuh.</p>
+<div class='pilih' id='a3Pt' role='group' aria-label='Pilih penempatan pita presaturasi'></div>
+<div class='pilih' id='a3Ar' role='group' aria-label='Pilih arah aliran'></div>
+<div class='kontrol'><div><label for='a3V'>Kecepatan aliran: <output id='a3VO'></output></label><input type='range' id='a3V' min='1' max='5' step='1' value='3'></div></div>
+<div class='baris'><button type='button' id='a3Pl'>Jeda</button></div>
+<canvas id='cv3' width='640' height='300' role='img' aria-label='Pembuluh vertikal dengan pita presaturasi, irisan, dan spin yang mengalir'></canvas>
+<div class='meter' aria-hidden='true'><i id='a3M'></i></div>
+<dl class='rinci' id='a3Info' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset20'>Reset</button></div>
+</div>
+<div class='kartu' id='akt-A6'>
+<h3>A6. Latihan: sebab dan teknik perbaikan artefak aliran</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T1-1'>T1.1 Aliran darah dan artefak aliran: gambaran umum</a>, <a href='#mat-T2-6'>T2.6 Ringkasan teknik kompensasi aliran</a></p>
+<!-- asal: M08 #22 -->
+<p>Tujuan: memilih jawaban dari skenario dan melihat umpan balik langsung.</p>
+<p id='cPert' class='hasil'></p>
+<div id='cOpsi'></div>
+<p id='cUmpan' class='hasil' role='status' aria-live='polite'></p>
+<p class='skor' id='cSkor'></p>
+<div class='baris'><button type='button' id='cLanjut'>Pertanyaan berikutnya</button><button type='button' id='reset22'>Reset</button></div>
+</div>
+<!-- BAGIAN KUIS -->
+<h2>Cek pemahaman</h2>
+<p class='lembut'>Pilih tingkat soal. Soal Tingkat 3 bersifat lanjutan dan boleh dilewati.</p>
+<div class='pilih' id='kuis-pilih' role='group' aria-label='Pilih tingkat soal kuis'></div>
+<p class='lembut' id='kuis-info' role='status' aria-live='polite'></p>
+<div id='kuis'></div>
+<h2>Tautan silang</h2>
+<div class='kartu'>
+<ul>
+<li>Artefak umum lain: <a href='m08a-native.html'>M08A</a></li>
+<li>Cakupan lintas artefak (capstone): <a href='m08c-native.html'>M08C</a></li>
+<li>Perangkat keras gradien: M06A</li>
+</ul>
+</div>
+<p class='sumber lembut'>Catatan sumber: Materi artefak aliran (ESP, TOF, jenis aliran, GMN, presaturasi, Tabel 8.8) disusun ulang dari Bab 8 hlm. 280-297 buku MRI in Practice. Gambar pada PDF tidak disalin. Ilustrasi di modul ini dibuat oleh kode.</p>
+</main>
+<script>
+/* TETAP: awal */
+const DATA={
+ FISIKA:{gamma_MHz_per_T:42.58,larmor_MHz:{1.5:63.87,3:127.74},geser_kimia_lemak_air_ppm:3.5},
+ JARINGAN:[
+  {id:'csf',nama:'Cairan serebrospinal',T1_ms:2400,T2_ms:180,PD:1.00},
+  {id:'gm',nama:'Substansia grisea',T1_ms:925,T2_ms:100,PD:0.86},
+  {id:'wm',nama:'Substansia alba',T1_ms:790,T2_ms:92,PD:0.77},
+  {id:'fat',nama:'Lemak',T1_ms:260,T2_ms:85,PD:1.00},
+  {id:'muscle',nama:'Otot',T1_ms:875,T2_ms:47},
+  {id:'kidney',nama:'Ginjal',T1_ms:650,T2_ms:58},
+  {id:'liver',nama:'Hati',T1_ms:500,T2_ms:43}],
+ SKALA_B0:{1.5:{T1:1,T2:1},3:{T1:1.17,T2:0.9}},
+ INSTRUMEN:{suhu_K:4.2,gradien_mT_per_m:[20,80],slew_T_per_m_per_s:[100,200],bore_cm:[60,70]},
+ KESELAMATAN:{sar_tubuh_W_per_kg:{normal:2,tingkat1:4},sar_kepala_normal_W_per_kg:3.2,garis_gauss_mT:{standar:0.5,alternatif:0.9}}
+};
+function waktuRelaksasi(j,B0){const s=DATA.SKALA_B0[B0];return{T1:Math.round(j.T1_ms*s.T1),T2:Math.round(j.T2_ms*s.T2)};}
+function jalankanKuis(el,soal){
+ let i=0,skor=0;
+ function tampil(){
+  if(i>=soal.length){el.innerHTML='<div class="kartu"><b>Skor: '+skor+' / '+soal.length+'</b></div>';return;}
+  const s=soal[i];
+  const kartu=document.createElement('div');kartu.className='kartu';
+  const p=document.createElement('p');p.innerHTML='<b>'+(i+1)+'/'+soal.length+'.</b> '+s.pertanyaan;
+  kartu.appendChild(p);
+  s.pilihan.forEach((teks,k)=>{
+   const b=document.createElement('button');b.textContent=teks;b.style.display='block';b.style.margin='6px 0';
+   b.onclick=()=>{
+    kartu.querySelectorAll('button').forEach(x=>x.disabled=true);
+    const benar=(k===s.jawaban);if(benar)skor++;
+    const info=document.createElement('p');info.className=benar?'ok':'no';
+    info.textContent=(benar?'Benar. ':'Belum tepat. ')+s.penjelasan;
+    const n=document.createElement('button');n.textContent='Lanjut';n.onclick=()=>{i++;tampil();};
+    kartu.append(info,n);
+   };
+   kartu.appendChild(b);
+  });
+  el.innerHTML='';el.appendChild(kartu);
+ }
+ tampil();
+}
+/* TETAP: akhir */
+
+/* UTILITAS UMUM */
+const $=id=>document.getElementById(id);
+const fmt=(x,d)=>x.toFixed(d).replace('.',',');
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* pembantu SVG/slider yang dipakai beberapa aktivitas */
+const sv=(id,h)=>{$(id).innerHTML=h;};
+const sl=(ids)=>ids.forEach(i=>$(i).addEventListener('input',()=>$(i+'O').textContent=$(i).value.replace('.',',')));
+
+/* LOGIKA KARTU MATERI BERLAPIS */
+document.querySelectorAll('.bm').forEach(k=>{
+ if(!k.dataset.mode) k.dataset.mode='singkat';
+ const g=k.querySelector('.pilih');
+ if(g){
+  const btns=g.querySelectorAll('button');
+  btns.forEach(b=>{
+   b.onclick=()=>{
+    k.dataset.mode=b.dataset.mode;
+    btns.forEach(x=>x.setAttribute('aria-pressed',x===b));
+   };
+  });
+ }
+});
+
+/* PUSTAKA CITRA SINTETIS (dipakai M08A dan M08C): fantom, DFT 2D, gambar ke canvas */
+const N=96;
+function G(fn){const a=new Float32Array(N*N);for(let y=0;y<N;y++)for(let x=0;x<N;x++)a[y*N+x]=fn((x+.5)/N*2-1,(y+.5)/N*2-1);return a;}
+const el=(u,v,cx,cy,a,b)=>((u-cx)/a)**2+((v-cy)/b)**2<=1;
+function tis(u,v){let t=0;if(el(u,v,0,0,.55,.73))t=.6;if(el(u,v,0,0,.42,.58))t=.45;if(el(u,v,-.12,.05,.07,.18)||el(u,v,.12,.05,.07,.18))t=.12;return t;}
+function lem(u,v){return(el(u,v,0,0,.62,.8)&&!el(u,v,0,0,.55,.73))?.95:0;}
+const dasar=(u,v)=>tis(u,v)+lem(u,v);
+const BASE=G(dasar);
+
+const CW=new Float64Array(N),SW=new Float64Array(N);
+for(let i=0;i<N;i++){CW[i]=Math.cos(2*Math.PI*i/N);SW[i]=Math.sin(2*Math.PI*i/N);}
+function dft2(re,im,sg){
+ const r1=new Float64Array(N*N),i1=new Float64Array(N*N),r2=new Float64Array(N*N),i2=new Float64Array(N*N);
+ for(let y=0;y<N;y++)for(let k=0;k<N;k++){let a=0,b=0;for(let n=0;n<N;n++){const w=(k*n)%N,c=CW[w],s=sg*SW[w],xr=re[y*N+n],xi=im[y*N+n];a+=xr*c-xi*s;b+=xr*s+xi*c;}r1[y*N+k]=a;i1[y*N+k]=b;}
+ for(let x=0;x<N;x++)for(let k=0;k<N;k++){let a=0,b=0;for(let n=0;n<N;n++){const w=(k*n)%N,c=CW[w],s=sg*SW[w],xr=r1[n*N+x],xi=i1[n*N+x];a+=xr*c-xi*s;b+=xr*s+xi*c;}r2[k*N+x]=a;i2[k*N+x]=b;}
+ return[r2,i2];
+}
+let BF=null;
+function gibbs(s){
+ if(!BF)BF=dft2(BASE,new Float64Array(N*N),-1);
+ const K=Math.round(40-30*s),r=new Float64Array(N*N),i=new Float64Array(N*N);
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){const ky=y<N/2?y:y-N,kx=x<N/2?x:x-N;if(Math.abs(kx)<=K&&Math.abs(ky)<=K){r[y*N+x]=BF[0][y*N+x];i[y*N+x]=BF[1][y*N+x];}}
+ const o=dft2(r,i,1);const a=new Float32Array(N*N);for(let q=0;q<N*N;q++)a[q]=o[0][q]/(N*N);return a;
+}
+
+function gambar(cv,arr){
+ const ctx=cv.getContext('2d'),im=ctx.createImageData(N,N);
+ for(let q=0;q<N*N;q++){const g=Math.max(0,Math.min(255,Math.round(arr[q]*235)));im.data[q*4]=g;im.data[q*4+1]=g;im.data[q*4+2]=g;im.data[q*4+3]=255;}
+ ctx.putImageData(im,0,0);
+}
+function gambarWarna(cv,fn){
+ const ctx=cv.getContext('2d'),im=ctx.createImageData(N,N);
+ for(let q=0;q<N*N;q++){const c=fn(q);im.data[q*4]=c[0];im.data[q*4+1]=c[1];im.data[q*4+2]=c[2];im.data[q*4+3]=255;}
+ ctx.putImageData(im,0,0);
+}
+function peta(t){t=Math.max(0,Math.min(1,t));
+ const a=[20,24,32],b=[217,72,15],c=[255,212,59];
+ const m=(p,q,f)=>p.map((x,i)=>Math.round(x+(q[i]-x)*f));
+ return t<.5?m(a,b,t*2):m(b,c,(t-.5)*2);}
+function katSev(v){return v<34?'rendah':v<67?'sedang':'tinggi';}
+
+/* === pustaka momen-gradien.js === */
+/* PUSTAKA MOMEN GRADIEN (M08B: A4 dan T3.2) */
+const M8={Phi:180,PhiPos:90}; /* TODO-VERIFIKASI: skala fase hanya ilustrasi (derajat per satuan) */
+const LOBE={tanpa:[1,-1],gmn:[1,-2,1]}; /* amplitudo relatif tiap lobe, durasi sama */
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+const RM=reduce;
+function momen(lobes,tt){let m0=0,m1=0,m2=0;lobes.forEach((a,k)=>{const s0=k,s1=Math.min(tt,k+1);if(s1<=s0)return;m0+=a*(s1-s0);m1+=a*(s1*s1-s0*s0)/2;m2+=a*(s1**3-s0**3)/3;});return[m0,m1,m2];}
+{const [a,b,c]=momen(LOBE.gmn,3);$('m8M0').textContent=fmt(a+0,0);$('m8M1').textContent=fmt(b+0,0);$('m8M2').textContent=fmt(c,0);}
+
+/* --- materi T3.1 --- */
+(function(){
+$('ctT').textContent=5;$('ctR').textContent=500;$('ctV').textContent=fmt(5/500*100,1);
+})();
+
+
+/* --- A1-esp.1.js --- */
+(function(){
+/* A1 Aliran dan entry-slice (ESP) (asal: M08 #8 + #14 digabung) */
+/* A1: pindah antara Tahap 1 (dasar) dan Tahap 2 (lanjut). Dua simulasi asli (M08 #8 dan #14) digabung. */
+const p1=$('espP1'),p2=$('espP2'),b1=$('espT1'),b2=$('espT2');
+function tahap(n){p1.hidden=n!==1;p2.hidden=n!==2;b1.setAttribute('aria-pressed',n===1);b2.setAttribute('aria-pressed',n===2);}
+b1.onclick=()=>tahap(1);b2.onclick=()=>tahap(2);
+tahap(1);
+})();
+
+
+/* --- A1-esp.2.js --- */
+(function(){
+/* A1 Aliran dan entry-slice (ESP) (asal: M08 #8 + #14 digabung) */
+const NSF=6;let fArah='co';
+function sinyalAliran(co,n,al,E1){
+ const sa=Math.sin(al),ca=Math.cos(al),out=[];let M=1;
+ for(let j=0;j<NSF;j++){
+  if(!co)M=1;
+  let acc=0;
+  for(let m=0;m<n;m++){acc+=M*sa;M=1-(1-M*ca)*E1;}
+  out.push(acc/n);
+ }
+ return out;
+}
+function segarF(){
+ const TR=+$('fTR').value,aD=+$('fAl').value,th=+$('fTh').value,v=+$('fV').value,al=aD*Math.PI/180;
+ $('fTRO').textContent=TR;$('fAlO').textContent=aD;$('fThO').textContent=th;$('fVO').textContent=v;
+ const n=Math.max(1,Math.round(th/(v*TR/1000)));
+ const T1f=DATA.JARINGAN.find(x=>x.id==='csf').T1_ms,T1s=waktuRelaksasi(DATA.JARINGAN.find(x=>x.id==='wm'),1.5).T1;
+ const E1f=Math.exp(-TR/T1f),E1s=Math.exp(-TR/T1s);
+ const Ss=(1-E1s)*Math.sin(al)/(1-E1s*Math.cos(al));
+ const co=fArah==='co',S=sinyalAliran(co,n,al,E1f);
+ const rasio=S.map(x=>x/Ss);
+ const order=co?[0,1,2,3,4,5]:[5,4,3,2,1,0];
+ const W=88,x0=56;
+ let s='<text x="8" y="16" class="sv-t">Urutan eksitasi irisan: 1 ke 6 (kiri ke kanan)</text>';
+ for(let i=0;i<NSF;i++){
+  const x=x0+i*W;
+  s+='<rect x="'+x+'" y="26" width="'+(W-8)+'" height="110" style="fill:var(--aksen);fill-opacity:.12;stroke:var(--aksen);stroke-dasharray:3 3"/>';
+  s+='<text x="'+(x+(W-8)/2)+'" y="40" text-anchor="middle" class="sv-t">irisan '+(i+1)+'</text>';
+ }
+ /* jaringan diam */
+ s+='<rect x="'+x0+'" y="108" width="'+(W*NSF-8)+'" height="22" style="fill:var(--lembut);fill-opacity:.35"/><text x="'+(x0+4)+'" y="124" class="sv-t">jaringan diam (jenuh)</text>';
+ /* pembuluh */
+ for(let k=0;k<NSF;k++){
+  const i=order[k],L=Math.min(1,S[k]/Math.sin(al));
+  s+='<rect x="'+(x0+i*W)+'" y="64" width="'+(W-8)+'" height="30" style="fill:var(--t1);fill-opacity:'+(.12+.88*L).toFixed(2)+'"/>';
+ }
+ s+='<rect x="'+x0+'" y="64" width="'+(W*NSF-8)+'" height="30" style="fill:none;stroke:var(--t1);stroke-width:2"/>';
+ const ax=co?x0+W*NSF-30:x0+14,ax2=co?x0+W*NSF+6:x0-20;
+ s+='<line x1="'+(co?x0-18:x0+W*NSF-4)+'" y1="79" x2="'+(co?x0-2:x0+W*NSF+12)+'" y2="79" style="stroke:var(--t1);stroke-width:3"/><text x="'+(co?x0-22:x0+W*NSF+16)+'" y="70" text-anchor="'+(co?'start':'start')+'" class="sv-t" style="fill:var(--t1)">aliran</text>';
+ /* batang rasio */
+ const base=275,sc=Math.min(30,120/Math.max(1.5,...rasio));
+ s+='<line x1="'+x0+'" y1="'+(base-sc*1)+'" x2="'+(x0+W*NSF-8)+'" y2="'+(base-sc*1)+'" style="stroke:var(--lembut);stroke-dasharray:4 3"/><text x="8" y="'+(base-sc+4)+'" class="sv-t">1×</text>';
+ s+='<line x1="'+x0+'" y1="'+base+'" x2="'+(x0+W*NSF-8)+'" y2="'+base+'" style="stroke:var(--garis)"/>';
+ for(let k=0;k<NSF;k++){
+  const i=order[k],h=Math.max(1,rasio[k]*sc),x=x0+i*W+14;
+  s+='<rect x="'+x+'" y="'+(base-h)+'" width="'+(W-36)+'" height="'+h+'" style="fill:var(--t1)"/>';
+  s+='<text x="'+(x+(W-36)/2)+'" y="'+(base-h-4)+'" text-anchor="middle" class="sv-t">'+fmt(rasio[k],1)+'×</text>';
+ }
+ s+='<text x="8" y="150" class="sv-t">Sinyal lumen dibanding jaringan diam:</text>';
+ $('svgF').innerHTML=s;
+ $('svgF').setAttribute('aria-label','Sinyal lumen enam irisan, '+(co?'searah':'berlawanan')+' eksitasi. Irisan masuk pertama '+fmt(rasio[0],1)+' kali jaringan diam, terakhir '+fmt(rasio[NSF-1],1)+' kali.');
+ const pen=rasio[0]>0?(rasio[NSF-1]/rasio[0]):0;
+ $('fInfo').innerHTML='<dt>Pulsa per irisan yang dilewati</dt><dd>sekitar '+n+' pulsa (tebal irisan dibagi jarak tempuh per TR)</dd><dt>Sinyal di irisan masuk pertama</dt><dd>'+fmt(rasio[0],1)+' kali jaringan diam</dd><dt>Sinyal di irisan terakhir</dt><dd>'+fmt(rasio[NSF-1],1)+' kali jaringan diam ('+fmt(pen*100,0)+' % dari irisan pertama)</dd><dt>Makna</dt><dd>'+(co?'Searah eksitasi: spin menerima pulsa berulang dari irisan ke irisan, sehingga jenuh dan ESP cepat berkurang.':'Berlawanan arah: spin relatif tidak jenuh, sehingga sinyal tinggi menembus lebih dalam ke tumpukan.')+'</dd>';
+ [...$('fDir').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.d===fArah));
+ /* TODO-VERIFIKASI: model disederhanakan; T1 cairan dari data CSF, T1 jaringan diam dari substansia alba pada 1,5 T. */
+}
+[['co','Searah eksitasi (co-current)'],['counter','Berlawanan (counter-current)']].forEach(([k,t])=>{const b=document.createElement('button');b.type='button';b.dataset.d=k;b.textContent=t;b.onclick=()=>{fArah=k;segarF();};$('fDir').appendChild(b);});
+['fTR','fAl','fTh','fV'].forEach(id=>$(id).addEventListener('input',segarF));
+$('reset8').onclick=()=>{fArah='co';$('fTR').value=100;$('fAl').value=40;$('fTh').value=5;$('fV').value=30;segarF();};
+segarF();
+})();
+
+
+/* --- A1-esp.3.js --- */
+(function(){
+/* A1 Aliran dan entry-slice (ESP) (asal: M08 #8 + #14 digabung) */
+let eD='co';
+function segarE(){
+ const tr=+$('eTR').value,fa=+$('eFA').value,th=+$('eTh').value,v=+$('eV').value;
+ ['eTR','eFA','eTh','eV'].forEach(i=>$(i+'O').textContent=$(i).value.replace('.',','));
+ const disp=v*10*tr/1000,r=Math.max(.05,Math.min(1,disp/th)),fac=eD==='co'?1:.25;
+ let h='<rect x="20" y="70" width="600" height="40" style="fill:var(--t1);opacity:.25"/>';
+ const S=[0,1,2,3].map(k=>Math.exp(-k*fac/r*fa/90*.6));
+ S.forEach((s,k)=>{const x=70+k*140;
+  h+='<rect x="'+x+'" y="20" width="90" height="150" style="fill:none;stroke:var(--aksen)"/><circle cx="'+(x+45)+'" cy="90" r="20" style="fill:hsl(45,100%,'+(12+70*s).toFixed(0)+'%);stroke:var(--garis)"/>'+
+  '<circle cx="'+(x+45)+'" cy="40" r="8" style="fill:hsl(210,10%,22%)"/><text x="'+(x+45)+'" y="190" text-anchor="middle" class="sv-b">Irisan '+(k+1)+'</text>';});
+ h+='<text x="20" y="62" class="sv-t">'+(eD==='co'?'aliran → searah urutan eksitasi':'← aliran berlawanan urutan eksitasi')+'</text><text x="20" y="130" class="sv-t">Titik kecil: jaringan diam (jenuh)</text>';
+ sv('svgE',h);
+ $('eInfo').innerHTML='<dt>Perpindahan darah per TR</dt><dd>'+fmt(disp,1)+' mm ('+fmt(r*100,0)+' % tebal irisan terganti)</dd><dt>Sinyal relatif irisan 1 sampai 4</dt><dd>'+S.map(s=>fmt(s*100,0)+' %').join(', ')+'</dd><dt>Penjelasan</dt><dd>'+(eD==='ct'?'Aliran berlawanan: spin hampir selalu segar, sinyal bertahan di semua irisan.':'Aliran searah: spin menumpuk pulsa RF, sinyal turun ke irisan berikutnya. Percepat aliran atau panjangkan TR agar efeknya lebih jauh menembus.')+'</dd>';
+ [...$('eDirG').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.d===eD));
+}
+['eTR','eFA','eTh','eV'].forEach(i=>$(i).addEventListener('input',segarE));
+[...$('eDirG').children].forEach(b=>b.onclick=()=>{eD=b.dataset.d;segarE();});
+$('reset14').onclick=()=>{eD='co';$('eTR').value=500;$('eFA').value=60;$('eTh').value=5;$('eV').value=.5;segarE();};
+segarE();
+})();
+
+
+/* --- A2-tof.js --- */
+(function(){
+/* A2 Simulasi TOF pada spin-echo (asal: M08 #15) */
+let tT=1,tRaf=0;
+function segarT(){
+ const v=+$('tV').value,te=+$('tTE').value,th=+$('tTh').value;
+ ['tV','tTE','tTh'].forEach(i=>$(i+'O').textContent=$(i).value);
+ const d=v*10*(te/2)/1000,S=Math.max(0,1-d/th),px=12,x0=100,x1=x0+th*px,xe=x0+d*px,xd=x0+d*px*tT;
+ const ok=xd>=x0&&xd<=x1;
+ let h='<rect x="20" y="70" width="660" height="40" style="fill:var(--t1);opacity:.25"/><rect x="'+x0+'" y="25" width="'+th*px+'" height="140" style="fill:var(--aksen);opacity:.18"/>'+
+ '<line x1="'+x0+'" y1="25" x2="'+x0+'" y2="165" style="stroke:var(--aksen)"/><line x1="'+x1+'" y1="25" x2="'+x1+'" y2="165" style="stroke:var(--aksen)"/>'+
+ '<text x="'+x0+'" y="18" class="sv-b">90° (spin tereksitasi di tepi kiri irisan)</text><text x="'+Math.min(xe,560)+'" y="182" text-anchor="middle" class="sv-b">180° (saat rephasing)</text>'+
+ '<line x1="'+xe+'" y1="25" x2="'+xe+'" y2="165" style="stroke:var(--lembut);stroke-dasharray:4 4"/>'+
+ '<circle cx="'+x0+'" cy="90" r="9" style="fill:none;stroke:var(--lembut)"/><circle cx="'+xd+'" cy="90" r="10" style="fill:'+(ok?'var(--benar)':'var(--salah)')+'"/>';
+ sv('svgT',h);
+ const kat=S>.66?'Sinyal kuat':S>.2?'Sinyal sebagian':'Signal void (pembuluh gelap)';
+ $('tInfo').innerHTML='<dt>Jarak tempuh antara 90° dan 180° (TE/2)</dt><dd>'+fmt(d,1)+' mm dari tebal '+th+' mm</dd><dt>Sinyal relatif (model: 1 − jarak/tebal)</dt><dd>'+fmt(S*100,0)+' % → '+kat+'</dd><dt>Penjelasan</dt><dd>'+(d>=th?'Spin sudah keluar irisan saat 180° tiba: tereksitasi tetapi tidak direfase.':'Spin masih di dalam irisan saat 180°: direfase dan menghasilkan sinyal.')+'</dd>';
+}
+function putarT(){
+ cancelAnimationFrame(tRaf);if(RM){tT=1;segarT();return;}
+ const t0=performance.now();
+ (function f(n){tT=Math.min(1,(n-t0)/1400);segarT();if(tT<1)tRaf=requestAnimationFrame(f);})(t0);
+}
+['tV','tTE','tTh'].forEach(i=>$(i).addEventListener('input',()=>{cancelAnimationFrame(tRaf);tT=1;segarT();}));
+$('tPlay').onclick=putarT;
+$('reset15').onclick=()=>{cancelAnimationFrame(tRaf);tT=1;$('tV').value=20;$('tTE').value=20;$('tTh').value=5;segarT();};
+segarT();
+})();
+
+
+/* --- A3-reynolds.js --- */
+(function(){
+/* A3 Aliran laminar atau turbulen (Reynolds) (asal: M08 #16) */
+const RHO=1.06;
+const fc=$('rCv').getContext('2d'),PT=[];
+for(let i=0;i<44;i++)PT.push({x:Math.random()*640,y:Math.random()*1.8-.9});
+let fRe=0;
+function gambarF(){
+ const turb=fRe>2100,v=+$('rV').value;
+ fc.clearRect(0,0,640,140);
+ fc.fillStyle=css('--t1');fc.globalAlpha=.2;fc.fillRect(0,20,640,100);fc.globalAlpha=1;
+ fc.fillStyle=css('--lembut');fc.fillRect(0,18,640,3);fc.fillRect(0,119,640,3);
+ fc.fillStyle=css(turb?'--salah':'--aksen');
+ PT.forEach(p=>{
+  if(turb){p.y+=(Math.random()-.5)*.3;if(Math.abs(p.y)>.9)p.y*=.9;p.x+=v/25*.75+(Math.random()-.5)*4;}
+  else p.x+=v/25*(1-p.y*p.y);
+  if(p.x>640)p.x-=640;if(p.x<0)p.x+=640;
+  fc.beginPath();fc.arc(p.x,70+p.y*48,4,0,7);fc.fill();});
+}
+function segarF(){
+ const v=+$('rV').value,D=+$('rD').value,mu=+$('rMu').value;
+ $('rVO').textContent=v;$('rDO').textContent=fmt(D,1);$('rMuO').textContent=fmt(mu,3);
+ fRe=RHO*v*D/mu;
+ $('rInfo').innerHTML='<dt>Bilangan Reynolds</dt><dd>'+fmt(fRe,0)+' ('+(fRe>2100?'di atas 2100: turbulen':'di bawah 2100: laminar')+')</dd><dt>Penjelasan</dt><dd>'+(fRe>2100?'Kecepatan berubah acak antar partikel sehingga fase tersebar dalam voksel.':'Partikel di tengah lebih cepat daripada dekat dinding (profil parabolik); perbedaan ini sudah cukup menimbulkan dephasing intravoksel.')+'</dd>';
+ if(RM)gambarF();
+}
+(function lp(){gambarF();if(!RM)requestAnimationFrame(lp);})();
+['rV','rD','rMu'].forEach(i=>$(i).addEventListener('input',segarF));
+$('reset16').onclick=()=>{$('rV').value=20;$('rD').value=2.5;$('rMu').value=.035;segarF();};
+segarF();
+})();
+
+
+/* --- A4-dephasing.1.js --- */
+(function(){
+/* A4 Dephasing intravoksel (tiga langkah) (asal: M08 #17 + #18 + #19 digabung) */
+const RND=[.7,-.4,.2,-.9,.5,.1,-.6,.8,-.2,.3,-.8,.6];
+let dK=false,dTb=false;
+function segarD(){
+ const dv=+$('dV').value,te=+$('dTE').value,vx=+$('dVx').value;
+ $('dVO').textContent=dv;$('dTEO').textContent=te;$('dVxO').textContent=fmt(vx,1);
+ const eff=dv*vx/3;let sx=0,sy=0,h='<circle cx="170" cy="100" r="70" style="fill:none;stroke:var(--garis)"/>';
+ for(let i=0;i<12;i++){
+  let ph=dK?0:2*Math.PI*.0004*te*((i/11-.5)*eff);
+  if(dTb)ph+=RND[i]*Math.PI*Math.min(1,eff/15);
+  const x=Math.cos(ph),y=Math.sin(ph);sx+=x;sy+=y;
+  h+='<line x1="170" y1="100" x2="'+(170+70*x)+'" y2="'+(100-70*y)+'" style="stroke:var(--t2);opacity:.6;stroke-width:2"/>';}
+ const m=Math.hypot(sx,sy)/12;
+ h+='<line x1="170" y1="100" x2="'+(170+70*sx/12)+'" y2="'+(100-70*sy/12)+'" style="stroke:var(--t1);stroke-width:5"/>'+
+ '<text x="340" y="80" class="sv-b">Sinyal voksel: '+fmt(m*100,0)+' %</text><rect x="340" y="95" width="260" height="14" rx="7" style="fill:var(--garis)"/><rect x="340" y="95" width="'+(260*m)+'" height="14" rx="7" style="fill:var(--b0)"/>';
+ sv('svgD',h);
+ $('dInfo').innerHTML='<dt>Sebaran kecepatan efektif dalam voksel</dt><dd>'+fmt(eff,1)+' cm/s</dd><dt>Penjelasan</dt><dd>'+(dTb?'Aliran turbulen: dephasing acak tidak dapat dibalik walau kompensasi dinyalakan. ':dK?'Kompensasi gerak membatalkan fase pada aliran konstan (first-order motion). ':'Makin lebar sebaran kecepatan, makin besar TE, dan makin besar voksel, makin tersebar fasenya. ')+'Coba kecilkan TE atau voksel.</dd>';
+ $('dKomp').setAttribute('aria-pressed',dK);$('dTurb').setAttribute('aria-pressed',dTb);
+}
+['dV','dTE','dVx'].forEach(i=>$(i).addEventListener('input',segarD));
+$('dKomp').onclick=()=>{dK=!dK;segarD();};$('dTurb').onclick=()=>{dTb=!dTb;segarD();};
+$('reset17').onclick=()=>{dK=false;dTb=false;$('dV').value=20;$('dTE').value=40;$('dVx').value=3;segarD();};
+segarD();
+})();
+
+
+/* --- A4-dephasing.2.js --- */
+(function(){
+/* A4 Dephasing intravoksel (tiga langkah) (asal: M08 #17 + #18 + #19 digabung) */
+let a1G=false,a1P=0,a1Play=false,a1L=0;
+const a1V=$('a1V'),a1T=$('a1T'),cv1=$('cv1');
+function dial(c,x,y,r,deg,col,lab){
+ c.strokeStyle=css('--garis');c.lineWidth=2;c.beginPath();c.arc(x,y,r,0,7);c.stroke();
+ const a=(deg-90)*Math.PI/180;c.strokeStyle=col;c.lineWidth=4;c.beginPath();c.moveTo(x,y);c.lineTo(x+r*.9*Math.cos(a),y+r*.9*Math.sin(a));c.stroke();
+ c.fillStyle=css('--lembut');c.font='12px sans-serif';c.textAlign='center';c.fillText(lab,x,y+r+16);c.fillText(Math.round(deg)+' derajat',x,y-r-6);
+}
+function gambar1(){
+ const lobes=a1G?LOBE.gmn:LOBE.tanpa,n=lobes.length,tt=a1P*n,v=+a1V.value/100;
+ $('a1VO').textContent=a1V.value;$('a1TO').textContent=Math.round(a1P*100);
+ const c=cv1.getContext('2d');c.clearRect(0,0,640,260);
+ const m=momen(lobes,tt),fl=M8.Phi*v*m[1],pos=M8.PhiPos*m[0],fin=M8.Phi*v*momen(lobes,n)[1];
+ const x0=20,w=400,y0=80,sc=26,px=i=>x0+i/n*w;
+ c.strokeStyle=css('--garis');c.lineWidth=1;c.beginPath();c.moveTo(x0,y0);c.lineTo(x0+w,y0);c.stroke();
+ c.fillStyle=css('--aksen');c.globalAlpha=.25;
+ lobes.forEach((a,k)=>{const e=Math.min(tt,k+1);if(e>k)c.fillRect(px(k),a>0?y0-a*sc:y0,(e-k)/n*w,Math.abs(a)*sc);});c.globalAlpha=1;
+ c.strokeStyle=css('--aksen');c.lineWidth=3;c.beginPath();c.moveTo(x0,y0);
+ lobes.forEach((a,k)=>{c.lineTo(px(k),y0-a*sc);c.lineTo(px(k+1),y0-a*sc);});c.lineTo(x0+w,y0);c.stroke();
+ c.strokeStyle=css('--t1');c.lineWidth=2;c.beginPath();c.moveTo(px(tt),y0-62);c.lineTo(px(tt),y0+62);c.stroke();
+ c.fillStyle=css('--lembut');c.font='12px sans-serif';c.textAlign='left';c.fillText('gradien (amplitudo relatif, garis oranye = waktu)',x0,16);
+ c.strokeStyle=css('--garis');c.lineWidth=2;c.strokeRect(x0,160,w,60);
+ const xs=x0+40,xf=x0+30+v*a1P*(w-90);
+ c.fillStyle=css('--t2');c.beginPath();c.arc(xs,176,9,0,7);c.fill();c.fillStyle=css('--t1');c.beginPath();c.arc(xf,204,9,0,7);c.fill();
+ c.fillStyle=css('--lembut');c.fillText('spin diam',xs+14,180);c.fillText('spin mengalir',Math.min(xf+14,x0+w-90),208);
+ dial(c,490,70,30,pos,css('--t2'),'fase posisi (diam)');dial(c,590,70,30,fl,css('--t1'),'fase aliran');
+ c.fillStyle=css('--lembut');c.textAlign='left';c.fillText('Fase akhir akibat aliran: '+Math.round(fin)+' derajat',450,180);
+ a1T.value=Math.round(a1P*100);
+ $('a1Info').innerHTML='<dt>Mode</dt><dd>'+(a1G?'Dengan GMN (lobe +1, -2, +1)':'Tanpa GMN (lobe +1, -1)')+'</dd><dt>Fase aliran sekarang</dt><dd>'+Math.round(fl)+' derajat</dd><dt>Di akhir pulsa</dt><dd>'+Math.round(fin)+' derajat '+(Math.abs(fin)<1?'(terkompensasi: fase spin mengalir sama dengan spin diam)':'(sisa fase: sinyal darah mengalir akan menyebar atau salah petak)')+'</dd>';
+ $('a1Gm').textContent='GMN: '+(a1G?'hidup':'mati');$('a1Gm').setAttribute('aria-pressed',a1G);
+ cv1.setAttribute('aria-label','Gradien '+(a1G?'dengan':'tanpa')+' GMN. Fase aliran '+Math.round(fl)+' derajat, akhir '+Math.round(fin)+' derajat');
+}
+function loop1(ts){if(!a1Play)return;a1P=Math.min(1,a1P+(ts-a1L)/6000);a1L=ts;gambar1();if(a1P>=1){a1Play=false;$('a1Pl').textContent='Putar ulang';return;}requestAnimationFrame(loop1);}
+$('a1Pl').onclick=()=>{if(a1Play){a1Play=false;$('a1Pl').textContent='Lanjut putar';return;}if(a1P>=1)a1P=0;a1Play=true;$('a1Pl').textContent='Jeda';a1L=performance.now();requestAnimationFrame(loop1);};
+$('a1Gm').onclick=()=>{a1G=!a1G;gambar1();};
+a1V.oninput=()=>gambar1();a1T.oninput=()=>{a1Play=false;$('a1Pl').textContent='Putar';a1P=+a1T.value/100;gambar1();};
+$('reset18').onclick=()=>{a1G=false;a1P=0;a1Play=false;a1V.value=50;$('a1Pl').textContent='Putar';gambar1();};
+gambar1();
+
+if(window.matchMedia)matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{gambar1();});
+})();
+
+
+/* --- A4-dephasing.3.js --- */
+(function(){
+/* A4 Dephasing intravoksel (tiga langkah) (asal: M08 #17 + #18 + #19 digabung) */
+let a2G=false;
+function segar2(){
+ const v=+$('a2V').value/100,f=+$('a2F').value/100,ac=+$('a2A').value/100,N=40;
+ $('a2VO').textContent=$('a2V').value;$('a2FO').textContent=$('a2F').value;$('a2AO').textContent=$('a2A').value;
+ const mm=momen(a2G?LOBE.gmn:LOBE.tanpa,(a2G?LOBE.gmn:LOBE.tanpa).length),m1=mm[1],m2=mm[2];
+ let sx=0,sy=0,h='<circle cx="110" cy="100" r="80" style="fill:none;stroke:var(--garis)"/>';
+ for(let i=0;i<N;i++){const r=-f+2*f*i/(N-1),vi=v*(1-r*r),ph=(M8.Phi*vi*(m1+ac*m2*.5))*Math.PI/180;
+  sx+=Math.cos(ph);sy+=Math.sin(ph);h+='<line x1="110" y1="100" x2="'+(110+80*Math.sin(ph)).toFixed(1)+'" y2="'+(100-80*Math.cos(ph)).toFixed(1)+'" style="stroke:var(--aksen);stroke-opacity:.35;stroke-width:2"/>';}
+ sx/=N;sy/=N;const mag=Math.hypot(sx,sy);
+ h+='<line x1="110" y1="100" x2="'+(110+80*sy).toFixed(1)+'" y2="'+(100-80*sx).toFixed(1)+'" style="stroke:var(--t1);stroke-width:5"/><text x="10" y="196" class="sv-t">fase tiap spin (biru), jumlah (oranye)</text>';
+ h+='<rect x="380" y="20" width="200" height="160" rx="10" style="fill:none;stroke:var(--garis);stroke-width:2"/><rect x="380" y="'+(100-f*80)+'" width="200" height="'+(f*160)+'" style="fill:var(--aksen);fill-opacity:.12"/>';
+ for(let k=0;k<9;k++){const r=-1+k/4,y=20+(k+.5)*160/9,L=v*(1-r*r)*190;if(L>1)h+='<line x1="382" y1="'+y.toFixed(1)+'" x2="'+(382+L).toFixed(1)+'" y2="'+y.toFixed(1)+'" style="stroke:var(--t2);stroke-width:3"/>';}
+ h+='<text x="480" y="196" text-anchor="middle" class="sv-t">kecepatan (panah), voksel (area biru muda)</text>';
+ $('svg2').innerHTML=h;$('a2M').style.width=(mag*100)+'%';
+ $('a2Gm').textContent='GMN: '+(a2G?'hidup':'mati');$('a2Gm').setAttribute('aria-pressed',a2G);
+ $('a2Info').innerHTML='<dt>Sinyal voksel relatif</dt><dd>'+fmt(mag*100,0)+' %</dd><dt>Penjelasan</dt><dd>'+(v===0?'Tanpa aliran, tidak ada sebaran fase.':(a2G?(ac>0?'GMN menolkan fase akibat kecepatan, tetapi aliran berdenyut (percepatan) masih menyisakan sebaran fase.':'GMN menolkan fase akibat kecepatan konstan, jadi panah fase searah dan sinyal tinggi.'):'Tanpa GMN, spin yang cepat dan lambat punya fase berbeda sehingga sinyal jumlahnya melemah. Makin banyak kecepatan berbeda dalam voksel, makin kuat dephasing.'))+'</dd>';
+}
+$('a2Gm').onclick=()=>{a2G=!a2G;segar2();};
+['a2V','a2F','a2A'].forEach(i=>$(i).addEventListener('input',segar2));
+$('reset19').onclick=()=>{a2G=false;$('a2V').value=60;$('a2F').value=100;$('a2A').value=0;segar2();};
+segar2();
+})();
+
+
+/* --- A5-presaturasi.js --- */
+(function(){
+/* A5 Presaturasi: animasi spin yang melewati pita (asal: M08 #20) */
+const A3P=[['none','Tanpa pita'],['hulu','Pita di sisi hulu'],['hilir','Pita di sisi hilir'],['dua','Pita di kedua sisi']],A3A=[[1,'Aliran dari atas (arteri)'],[-1,'Aliran dari bawah (vena)']];
+let a3P='none',a3A=1,a3Play=!reduce,a3Sig=1,a3L=0;
+const sp=[];for(let i=0;i<14;i++)sp.push({y:15+i*20,z:1});
+A3P.forEach(([k,t])=>{const b=document.createElement('button');b.type='button';b.dataset.k=k;b.textContent=t;b.onclick=()=>{a3P=k;gambar3();};$('a3Pt').appendChild(b);});
+A3A.forEach(([k,t])=>{const b=document.createElement('button');b.type='button';b.dataset.k=k;b.textContent=t;b.onclick=()=>{a3A=k;gambar3();};$('a3Ar').appendChild(b);});
+function bandAktif(){const atas=a3P==='dua'||(a3P==='hulu'&&a3A===1)||(a3P==='hilir'&&a3A===-1),bawah=a3P==='dua'||(a3P==='hulu'&&a3A===-1)||(a3P==='hilir'&&a3A===1);return[atas,bawah];}
+function langkah3(dt){
+ const [at,bw]=bandAktif(),v=+$('a3V').value*60;let s=0,n=0;
+ sp.forEach(q=>{q.y+=a3A*v*dt;if(q.y>292){q.y=8;q.z=1;}if(q.y<8){q.y=292;q.z=1;}
+  if((at&&q.y<85)||(bw&&q.y>215))q.z=0;else q.z+=(1-q.z)*(1-Math.exp(-dt/1.5));
+  if(q.y>130&&q.y<170){s+=q.z;n++;}});
+ if(n)a3Sig+=((s/n)-a3Sig)*.15;
+}
+function gambar3(){
+ const c=$('cv3').getContext('2d'),[at,bw]=bandAktif();c.clearRect(0,0,640,300);
+ c.setLineDash([6,4]);c.lineWidth=2;
+ [[10,85,at],[215,290,bw]].forEach(b=>{c.fillStyle=css('--t1');c.globalAlpha=b[2]?.2:.04;c.fillRect(150,b[0],340,b[1]-b[0]);c.globalAlpha=1;c.strokeStyle=b[2]?css('--t1'):css('--garis');c.strokeRect(150,b[0],340,b[1]-b[0]);});
+ c.strokeStyle=css('--lembut');c.strokeRect(150,90,340,120);c.setLineDash([]);
+ c.fillStyle=css('--aksen');c.globalAlpha=.2;c.fillRect(150,130,340,40);c.globalAlpha=1;
+ c.fillStyle=css('--lembut');c.font='12px sans-serif';c.textAlign='left';c.fillText('FOV',156,104);c.fillText('irisan',156,148);c.fillText(at?'pita presaturasi':'(pita tidak aktif)',156,24);c.fillText(bw?'pita presaturasi':'(pita tidak aktif)',156,284);
+ c.strokeStyle=css('--garis');c.lineWidth=2;c.strokeRect(290,8,60,284);
+ sp.forEach(q=>{const t=q.z,r=Math.round(120+(47-120)*t),g=Math.round(128+(107-128)*t),b=Math.round(138+(255-138)*t);c.fillStyle='rgb('+r+','+g+','+b+')';c.beginPath();c.arc(320,q.y,9,0,7);c.fill();});
+ c.fillStyle=css('--teks');c.textAlign='center';c.fillText(a3A===1?'aliran ↓':'aliran ↑',560,150);
+ $('a3M').style.width=(a3Sig*100)+'%';
+ [...$('a3Pt').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===a3P));[...$('a3Ar').children].forEach(b=>b.setAttribute('aria-pressed',+b.dataset.k===a3A));
+ $('a3VO').textContent=$('a3V').value;$('a3Pl').textContent=a3Play?'Jeda':'Putar';
+ const hulu=(a3P==='hulu'||a3P==='dua');
+ $('a3Info').innerHTML='<dt>Sinyal pembuluh di irisan</dt><dd>'+fmt(a3Sig*100,0)+' %</dd><dt>Penjelasan</dt><dd>'+(a3P==='none'?'Tanpa presaturasi, spin segar masuk irisan sehingga sinyal pembuluh tinggi (efek entry-slice dan TOF).':(hulu?'Pita di sisi hulu menjenuhkan spin sebelum masuk irisan, sehingga sinyal pembuluh turun dan artefak aliran berkurang.':'Pita hanya di sisi hilir: spin yang masuk irisan tetap segar, jadi tidak mengurangi artefak.'))+(a3P==='none'?'':' Tiap pita menambah RF, sehingga SAR naik dan irisan yang tersedia dapat berkurang.')+'</dd>';
+}
+let t3=0;function loop3(ts){if(!a3Play)return;const dt=Math.min(.05,(ts-t3)/1000);t3=ts;langkah3(dt);gambar3();requestAnimationFrame(loop3);}
+function mulai3(){a3Play=true;t3=performance.now();requestAnimationFrame(loop3);}
+$('a3Pl').onclick=()=>{if(a3Play){a3Play=false;gambar3();}else mulai3();};
+$('a3V').addEventListener('input',()=>gambar3());
+$('reset20').onclick=()=>{a3P='none';a3A=1;$('a3V').value=3;sp.forEach((q,i)=>{q.y=15+i*20;q.z=1;});a3Sig=1;gambar3();};
+gambar3();if(a3Play)mulai3();
+
+if(window.matchMedia)matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{gambar3();});
+})();
+
+
+/* --- A6-latihan-aliran.js --- */
+(function(){
+/* A6 Latihan: sebab dan teknik perbaikan artefak aliran (asal: M08 #22) */
+const TEBAK=[
+ {p:'Darah masuk irisan pertama pada TR pendek tampak terang. Apa sebabnya?',o:['Spin darah masih segar (tak jenuh) saat pertama terkena RF','Darah punya T1 paling pendek','Gradien memperkuat sinyal darah'],j:0,e:'Inti yang baru masuk belum menerima pulsa berulang, sehingga dapat dibalik ke bidang transversal.'},
+ {p:'Pembuluh tampak gelap pada spin-echo dengan TE panjang dan aliran cepat. Efek apa?',o:['Entry-slice phenomenon','Time-of-flight (signal void)','Magic angle'],j:1,e:'Spin keluar irisan antara 90° dan 180°, sehingga tidak direfase.'},
+ {p:'Aliran manakah yang paling lama mempertahankan sinyal segar sepanjang tumpukan irisan?',o:['Searah urutan eksitasi','Berlawanan urutan eksitasi','Tidak ada bedanya'],j:1,e:'Pada counter-current, spin masuk irisan tanpa riwayat pulsa RF sebelumnya.'},
+ {p:'Sinyal tinggi dari pembuluh memang dibutuhkan (angiografi inflow), tetapi fase spin yang mengalir berubah. Teknik apa yang dipilih?',o:['Gradient moment rephasing','Pita presaturasi di sisi hulu','Interleaving'],j:0,e:'Bila sinyal tinggi dari pembuluh dibutuhkan, GMN mengoreksi fase spin yang mengalir.'},
+ {p:'Artefak aliran arteri yang datang dari atas pada citra aksial ingin dikurangi. Di mana pita presaturasi ditempatkan?',o:['Di bawah FOV saja','Di atas FOV, antara asal aliran dan volume citra','Di dalam irisan, pada tengah pembuluh'],j:1,e:'Pita ditempatkan di antara asal aliran dan volume citra. Aliran arteri datang dari atas.'},
+ {p:'GMN dinyalakan. Apa konsekuensi yang paling mungkin?',o:['SAR turun','Resolusi spasial naik','TE minimum naik'],j:2,e:'Gradien ekstra memakan waktu sehingga TE minimum naik.'},
+ {p:'Aliran apa yang paling terbantu oleh GMN orde pertama?',o:['Aliran turbulen cepat tegak lurus irisan','Aliran lambat laminar di dalam irisan','Aliran berdenyut cepat pada arteri'],j:1,e:'GMN mengandaikan kecepatan konstan, jadi paling efektif pada aliran lambat laminar.'},
+ {p:'Konsekuensi pemakaian pita presaturasi bagi pasien adalah...',o:['Deposisi RF naik sehingga SAR naik','Waktu relaksasi T1 berubah','Bising gradien turun'],j:0,e:'Pulsa RF tambahan menambah deposisi RF.'},
+ {p:'Gating atau triggering dipakai untuk artefak aliran. Penaltinya yang tepat adalah...',o:['TE minimum naik','TR dan kontras citra bervariasi, waktu bertambah','Kehilangan sinyal lemak'],j:1,e:'Gating membuat TR bervariasi, kontras bervariasi, dan waktu pemindaian bertambah.'}
+];
+let cI=0,cBenar=0,cJawab=0,cSudah=false;
+function segarC(){
+ const t=TEBAK[cI%TEBAK.length];cSudah=false;
+ $('cPert').textContent=t.p;$('cUmpan').textContent='';$('cOpsi').innerHTML='';
+ t.o.forEach((teks,k)=>{const b=document.createElement('button');b.type='button';b.className='opsi';b.textContent=teks;
+  b.onclick=()=>{if(cSudah)return;cSudah=true;cJawab++;const ok=k===t.j;if(ok)cBenar++;
+   b.classList.add(ok?'benar':'salah');$('cUmpan').className='hasil '+(ok?'ok':'no');
+   $('cUmpan').textContent=(ok?'Benar. ':'Belum tepat. ')+t.e;
+   $('cSkor').textContent='Skor: '+cBenar+' / '+cJawab;};
+  $('cOpsi').appendChild(b);});
+ $('cSkor').textContent='Skor: '+cBenar+' / '+cJawab;
+}
+$('cLanjut').onclick=()=>{cI++;segarC();};
+$('reset22').onclick=()=>{cI=0;cBenar=0;cJawab=0;segarC();};
+segarC();
+})();
+
+
+/* === kuis M08B === */
+/* SOAL KUIS M08B. Satu soal per baris: {pertanyaan, pilihan:[...], jawaban:indeks mulai 0, penjelasan, tingkat:1|2|3|4}. Tingkat 4 = capstone lintas artefak. */
+const SOAL=[
+ {pertanyaan:'<i>(Tingkat 1)</i> Efek yang membuat lumen pembuluh tampak hiperintens karena spin yang baru masuk irisan adalah...',pilihan:['Entry-slice phenomenon','Time-of-flight signal loss','Cross-excitation','Truncation'],jawaban:0,penjelasan:'ESP menghasilkan peningkatan sinyal terkait aliran.',tingkat:1},
+ {pertanyaan:'<i>(Tingkat 1)</i> Mengapa inti jaringan diam mengalami saturasi pada TR pendek?',pilihan:['Menerima pulsa RF berulang sebelum magnetisasi longitudinal pulih','Tidak pernah terkena RF','Selalu berada di spin-up','Bergerak searah gradien'],jawaban:0,penjelasan:'TR yang pendek tidak memberi waktu pemulihan longitudinal penuh.',tingkat:1},
+ {pertanyaan:'<i>(Tingkat 1)</i> Mengapa spin darah yang mengalir sepanjang gradien dapat menimbulkan artefak?',pilihan:['Karena mengalami medan yang berbeda sehingga fasenya berubah','Karena darah tidak mengandung proton','Karena aliran menaikkan B0','Karena aliran menghilangkan frekuensi Larmor'],jawaban:0,penjelasan:'Spin yang mengalir melewati kekuatan medan berbeda sehingga fasenya berubah. Akibatnya terjadi dephasing intravoksel atau pemetaan fase salah.',tingkat:1},
+ {pertanyaan:'<i>(Tingkat 1)</i> Apa tujuan utama pulsa presaturasi spasial?',pilihan:['Menaikkan resolusi','Menaikkan SNR di seluruh FOV','Menjenuhkan spin yang akan mengalir masuk agar tidak bersinyal','Memendekkan TR'],jawaban:2,penjelasan:'Spin yang sudah jenuh tidak punya magnetisasi transversal saat masuk irisan, jadi tidak menghasilkan sinyal.',tingkat:1},
+ {pertanyaan:'<i>(Tingkat 1)</i> Manakah nama lain gradient moment rephasing?',pilihan:['Interleaving','Gradient moment nulling atau flow compensation','Squaring-off','Antialiasing'],jawaban:1,penjelasan:'GMN juga disebut gradient moment nulling atau flow compensation.',tingkat:1},
+ {pertanyaan:'<i>(Tingkat 2)</i> Pada spin-echo, TE dinaikkan. Apa yang terjadi pada sinyal darah yang mengalir?',pilihan:['Naik, karena lebih banyak spin direfase','Turun, karena lebih banyak spin keluar irisan sebelum 180°','Tetap','Berubah menjadi ESP'],jawaban:1,penjelasan:'Dengan TE panjang, lebih banyak inti hanya menerima satu pulsa.',tingkat:2},
+ {pertanyaan:'<i>(Tingkat 2)</i> Pada irisan ke-4 (paling superior), manakah yang lebih terang dan mengapa?',pilihan:['IVC, karena searah eksitasi','Aorta, karena berlawanan arah eksitasi sehingga spinnya masih segar','Keduanya sama','Tidak bisa ditentukan'],jawaban:1,penjelasan:'Aorta mengalir berlawanan dengan urutan eksitasi sehingga tidak jenuh saat memasuki irisan 4.',tingkat:2},
+ {pertanyaan:'<i>(Tingkat 2)</i> Di mana pita presaturasi sebaiknya diletakkan?',pilihan:['Di tengah irisan','Di luar bore','Antara asal aliran dan volume citra','Hanya di sisi hilir'],jawaban:2,penjelasan:'Pita ditempatkan di antara asal aliran dan volume citra agar spin yang masuk sudah jenuh.',tingkat:2},
+ {pertanyaan:'<i>(Tingkat 2)</i> Apa konsekuensi utama gradient moment rephasing?',pilihan:['TE minimum naik','SAR turun','SNR naik pasti','Resolusi turun'],jawaban:0,penjelasan:'Gradien ekstra memerlukan waktu, sehingga TE minimum naik dan irisan yang tersedia untuk TR tertentu dapat berkurang.',tingkat:2},
+ {pertanyaan:'<i>(Tingkat 2)</i> GMN paling efektif pada aliran yang...',pilihan:['Turbulen dan cepat','Berdenyut kuat','Lambat dan laminar','Tegak lurus irisan'],jawaban:2,penjelasan:'GMN mengandaikan kecepatan dan arah konstan, jadi paling efektif pada aliran lambat laminar.',tingkat:2},
+ {pertanyaan:'<i>(Tingkat 2)</i> Mengapa GMN cenderung lebih efektif pada aliran vena daripada arteri?',pilihan:['Vena lebih besar','Aliran arteri berdenyut sehingga kecepatannya tidak konstan','Vena tidak mengandung proton','Arteri selalu turbulen'],jawaban:1,penjelasan:'Aliran berdenyut tidak benar-benar konstan, sedangkan GMN mengandaikan kecepatan konstan.',tingkat:2},
+ {pertanyaan:'<i>(Lanjut)</i> Irisan 5 mm dan TR 500 ms. Kecepatan agar seluruh spin jenuh terganti dalam satu TR adalah...',pilihan:['0,1 cm/s','1 cm/s','10 cm/s','100 cm/s'],jawaban:1,penjelasan:'v = 5 mm / 500 ms = 0,01 mm/ms = 1 cm/s (1 mm/ms = 100 cm/s).',tingkat:3},
+ {pertanyaan:'<i>(Lanjut)</i> Cara mengurangi dephasing intravoksel pada aliran laminar berkecepatan konstan adalah...',pilihan:['Memperbesar voksel','Memperpanjang TE','Gradient moment rephasing dan TE pendek','Menaikkan Re di atas 2100'],jawaban:2,penjelasan:'Kompensasi first-order serta TE pendek dan voksel kecil mengurangi dephasing.',tingkat:3},
+ {pertanyaan:'<i>(Lanjut)</i> Pada lobe +1, -2, +1 dengan durasi sama, berapa momen pertama (M1)?',pilihan:['Positif','Negatif','Tidak dapat dihitung','Nol'],jawaban:3,penjelasan:'Hitungan M1 = 0,5 - 3 + 2,5 = 0, sehingga fase akibat kecepatan konstan terkompensasi.',tingkat:3},
+ {pertanyaan:'<i>(Lanjut)</i> Mengapa GMN orde pertama tidak sepenuhnya menghapus fase akibat percepatan?',pilihan:['Momen kedua (M2) tidak nol','Percepatan tidak menghasilkan fase','GMN hanya bekerja pada spin diam','Gradien terlalu lemah'],jawaban:0,penjelasan:'Fase akibat percepatan sebanding dengan M2, yang pada lobe +1, -2, +1 tidak nol.',tingkat:3}
+];
+
+function jalankanKuisToggle(el,soal){
+ let i=0;const st=soal.map(()=>({salah:new Set(),benar:-1}));
+ const skor=()=>st.filter(x=>x.benar>=0&&x.salah.size===0).length;
+ function tampil(){
+  el.innerHTML='';
+  const kartu=document.createElement('div');kartu.className='kartu';el.appendChild(kartu);
+  if(i>=soal.length){
+   if(soal.length===0){kartu.innerHTML='<b>Belum ada soal kuis yang ditambahkan.</b>';return;}
+   kartu.innerHTML='<b>Skor: '+skor()+' / '+soal.length+'</b><p class="lembut">Dihitung dari soal yang benar pada percobaan pertama.</p>';
+   const n=document.createElement('div');n.className='navkuis';
+   const b1=document.createElement('button');b1.type='button';b1.innerHTML='&larr; Kembali ke soal';b1.onclick=()=>{i=soal.length-1;tampil();};
+   const b2=document.createElement('button');b2.type='button';b2.textContent='Ulangi kuis';b2.onclick=()=>{st.forEach(x=>{x.salah.clear();x.benar=-1;});i=0;tampil();};
+   n.append(b1,b2);kartu.appendChild(n);return;
+  }
+  const s=soal[i],t=st[i];
+  const p=document.createElement('p');p.innerHTML='<b>'+(i+1)+'/'+soal.length+'.</b> '+s.pertanyaan;kartu.appendChild(p);
+  const info=document.createElement('p');info.setAttribute('role','status');info.setAttribute('aria-live','polite');
+  if(t.benar>=0){info.className='ok';info.textContent='Benar. '+s.penjelasan;}
+  else if(t.salah.size){info.className='no';info.textContent='Belum tepat. Coba pilihan lain.';}
+  s.pilihan.forEach((teks,k)=>{
+   const b=document.createElement('button');b.className='opsi';b.type='button';
+   if(t.benar===k){b.classList.add('benar');b.textContent='✓ '+teks;}else b.textContent=teks;
+   b.onclick=()=>{
+    if(t.benar>=0)return;
+    if(k===s.jawaban){t.benar=k;tampil();return;}
+    t.salah.add(k);info.className='no';info.textContent='Belum tepat. Coba pilihan lain.';
+    b.classList.add('salah');b.textContent='✗ '+teks;
+    clearTimeout(b._w);b._w=setTimeout(()=>{b.classList.remove('salah');b.textContent=teks;},700);
+   };
+   kartu.appendChild(b);
+  });
+  kartu.appendChild(info);
+  const n=document.createElement('div');n.className='navkuis';
+  const bk=document.createElement('button');bk.type='button';bk.innerHTML='&larr; Kembali';bk.disabled=i===0;bk.onclick=()=>{i--;tampil();};
+  const bl=document.createElement('button');bl.type='button';bl.innerHTML=i===soal.length-1?'Selesai':'Lanjut &rarr;';bl.onclick=()=>{i++;tampil();};
+  n.append(bk,bl);kartu.appendChild(n);
+ }
+ tampil();
+}
+
+const KUIS_PIL=$('kuis-pilih');
+const NAMA_TKT={1:'Tingkat 1',2:'Tingkat 2',3:'Tingkat 3 (lanjut)',4:'Capstone lintas artefak'};
+const TKT=[[0,'Semua soal']].concat([1,2,3,4].filter(t=>SOAL.some(q=>q.tingkat===t)).map(t=>[t,NAMA_TKT[t]]));
+function mulaiKuis(t){
+ const daftar=t===0?SOAL:SOAL.filter(q=>q.tingkat===t);
+ KUIS_PIL.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',Number(b.dataset.tingkat)===t));
+ $('kuis-info').textContent=daftar.length+' soal ditampilkan. Skor dihitung ulang tiap kali tingkat diganti.';
+ jalankanKuisToggle($('kuis'),daftar);
+}
+TKT.forEach(([t,teks])=>{
+ const n=t===0?SOAL.length:SOAL.filter(q=>q.tingkat===t).length;
+ const b=document.createElement('button');b.type='button';b.dataset.tingkat=t;
+ b.textContent=teks+' ('+n+')';b.setAttribute('aria-pressed',t===0);
+ b.onclick=()=>mulaiKuis(t);KUIS_PIL.appendChild(b);
+});
+mulaiKuis(0);
+
+/* LOGIKA KEMAJUAN AKTIVITAS: kartu aktivitas dikenali dari id 'akt-...' dan judul "A1.", "A2.", ... */
+const AKT=[...document.querySelectorAll('.kartu[id^=akt-]')].filter(k=>{const t=k.querySelector('h3');return t&&/^A\d+\./.test(t.textContent);});
+const dicoba=new Set();
+function kemajuan(){
+ const n=dicoba.size,t=AKT.length||1,l=$('mtrL');
+ $('mtr').style.width=(n/t*100)+'%';
+ $('mtrBar').setAttribute('aria-valuemax',t);$('mtrBar').setAttribute('aria-valuenow',n);
+ $('mtrT').textContent=AKT.length?'Aktivitas dicoba: '+n+' dari '+AKT.length+'. Geser slider atau tekan tombol di tiap aktivitas untuk menandainya.':'Belum ada aktivitas.';
+ l.textContent=n===AKT.length&&AKT.length>0?'Semua dicoba':'Berlangsung';l.classList.toggle('ok',n===AKT.length&&AKT.length>0);
+}
+AKT.forEach((k,i)=>['input','click'].forEach(e=>k.addEventListener(e,ev=>{
+ if(ev.target.closest&&ev.target.closest('button[id^=reset],button[id^=m6-r]'))return;
+ if(!dicoba.has(i)){dicoba.add(i);kemajuan();}})));
+if($('resetMtr')){$('resetMtr').onclick=()=>{dicoba.clear();kemajuan();};}
+kemajuan();
+</script>
+</body>
+</html>

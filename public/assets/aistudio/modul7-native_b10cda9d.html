@@ -1,0 +1,1505 @@
+<!doctype html>
+<html lang='id'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>MODUL 7: Keselamatan MR (M07A &middot; M07B &middot; M07C)</title>
+<style>
+/* Bagian TETAP dari template aplikasi: jangan diubah */
+/* TETAP: awal */
+:root{--latar:#fff;--permukaan:#f4f6f8;--teks:#1b1f24;--lembut:#5a6572;--aksen:#1f6feb;--t1:#d9480f;--t2:#0b7285;--b0:#2f6bff;--benar:#2b8a3e;--salah:#c92a2a;--garis:#d5dbe3;--radius:10px;--font:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+@media(prefers-color-scheme:dark){:root{--latar:#14171a;--permukaan:#1e2328;--teks:#e8ecef;--lembut:#9aa5b1;--aksen:#5aa2ff;--t1:#ff922b;--t2:#3bc9db;--b0:#6f9bff;--garis:#2e353d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--latar);color:var(--teks);font:16px/1.6 var(--font)}
+main{max-width:860px;margin:0 auto;padding:16px}
+a{color:var(--aksen)}
+.atas{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
+h1{font-size:1.6rem;margin:.6em 0 .2em}
+h2{font-size:1.25rem;margin-top:1.6em}
+.lembut{color:var(--lembut)}
+.kartu{background:var(--permukaan);border:1px solid var(--garis);border-radius:var(--radius);padding:14px;margin:12px 0}
+.lanjut{border-left:4px solid var(--aksen)}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--garis);background:var(--permukaan);color:var(--teks);cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--aksen);outline-offset:2px}
+canvas{max-width:100%;background:var(--permukaan);border-radius:var(--radius)}
+input[type=range]{width:100%}
+.ok{color:var(--benar)}
+.no{color:var(--salah)}
+/* TETAP: akhir */
+
+/* ISI MODUL: CSS tambahan di sini */
+canvas{height:auto;display:block}
+.baris{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+label{display:block;margin-top:8px;font-weight:600}
+input[type=number]{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--garis);background:var(--latar);color:var(--teks);width:9em}
+.lencana{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid currentColor;font-weight:600}
+.meter{height:10px;border-radius:99px;background:var(--garis);overflow:hidden;margin:6px 0}
+.meter i{display:block;height:100%;width:0;background:var(--b0);transition:width .6s ease}
+button[hidden]{display:none}
+button:active{transform:scale(.96)}
+.denyut{border-color:var(--b0);animation:denyut 1.6s infinite}
+.muncul{animation:muncul .45s ease}
+.lencana.ok{animation:hijau 1.8s infinite}
+canvas.klik{cursor:pointer}
+@keyframes denyut{0%,100%{box-shadow:0 0 0 0 rgba(47,107,255,.55)}50%{box-shadow:0 0 0 9px rgba(47,107,255,0)}}
+@keyframes hijau{0%,100%{box-shadow:0 0 0 0 rgba(43,138,62,.5)}50%{box-shadow:0 0 0 7px rgba(43,138,62,0)}}
+@keyframes muncul{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.denyut,.muncul,.lencana.ok{animation:none}.meter i{transition:none}}
+.pilih{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.pilih button[aria-pressed=true]{background:var(--aksen);color:var(--latar);border-color:var(--aksen);font-weight:600}
+.bm[data-mode=singkat] .l,.bm[data-mode=lengkap] .s{display:none}
+.bm .l,.bm .s{animation:masuk .4s ease}
+.opsi{display:block;width:100%;text-align:left;margin:6px 0}
+.opsi.benar{background:var(--benar);border-color:var(--benar);color:#fff;font-weight:600}
+.opsi.salah{background:var(--salah);border-color:var(--salah);color:#fff}
+.navkuis{display:flex;gap:8px;justify-content:space-between;margin-top:10px}
+button:disabled{opacity:.55;cursor:not-allowed}
+.sumber{font-size:.85rem}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--garis);background:var(--latar);color:var(--teks)}
+@keyframes masuk{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.bm .l,.bm .s{animation:none}}
+.tag{font-size:.8rem;font-weight:700;color:var(--aksen);text-transform:uppercase;letter-spacing:.04em}
+.bm .a{display:none;border-left:3px solid var(--t2);padding-left:10px}
+.bm[data-mode=analogi] .a{display:block;animation:masuk .4s ease}
+.bm[data-mode=analogi] .l,.bm[data-mode=analogi] .s{display:none}
+.tabel{border-collapse:collapse;width:100%;font-size:.92rem}
+.tabel th,.tabel td{border:1px solid var(--garis);padding:4px 8px;text-align:left}
+.gulir{overflow-x:auto}
+svg{max-width:100%;height:auto;display:block}
+.hasil{font-weight:600}
+.grup{border:1px solid var(--garis);border-radius:var(--radius);padding:8px 12px;margin:10px 0}
+.grup legend{font-weight:600;padding:0 6px}
+.org{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.8rem;max-width:112px;padding:6px 8px}
+.sk-b.benar{background:var(--benar);border-color:var(--benar);color:#fff;font-weight:600}
+.sk-b.salah{background:var(--salah);border-color:var(--salah);color:#fff;font-weight:600}
+
+/* --- Tambahan struktur pecahan M07A/B/C --- */
+[hidden]{display:none!important}
+h3{font-size:1.1rem;margin:1.4em 0 .2em}
+.sumber a{font-weight:600}
+.kartu.baru{border-left:4px solid var(--t2)}
+.peta{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;font-size:.9rem}
+.peta a{padding:2px 10px;border:1px solid var(--garis);border-radius:999px;text-decoration:none}
+.peta a[aria-current=page]{background:var(--aksen);color:var(--latar);border-color:var(--aksen);font-weight:600}
+
+.daftar{columns:2 260px;margin:.4em 0;padding-left:1.1em;font-size:.92rem}
+details{margin:6px 0}
+
+.nav-pecahan{position:sticky;top:0;z-index:20;background:var(--latar);padding:10px 0;border-bottom:1px solid var(--garis);margin-bottom:16px}
+.pecahan-m07{margin-bottom:38px;padding-bottom:24px;border-bottom:2px dashed var(--garis)}
+</style>
+</head>
+<body>
+<main>
+<nav class='atas'><a href='../index.html' target='_top'>&larr; Dasbor</a><span><a href='m07a-native.html'>M07A</a> &middot; <a href='m07b-native.html'>M07B</a> &middot; <a href='m07c-native.html'>M07C</a></span></nav>
+<h1>MODUL 7: Keselamatan MR (Gabungan Lengkap M07A, M07B, M07C)</h1>
+<p class='lembut'>Media belajar, bukan untuk keputusan klinis. SOP dan kebijakan fasilitas setempat yang berlaku selalu didahulukan. Mencakup 29 simpul materi, 18 aktivitas interaktif, dan 35 soal kuis.</p>
+
+<div class='nav-pecahan'>
+  <div class='pilih' id='filter-pecahan' role='group' aria-label='Pilih pecahan Modul 7'>
+    <button type='button' data-target='ALL' aria-pressed='true'>Semua Pecahan (M07A + M07B + M07C)</button>
+    <button type='button' data-target='M07A' aria-pressed='false'>M07A &middot; Zona, Skrining &amp; Perangkat</button>
+    <button type='button' data-target='M07B' aria-pressed='false'>M07B &middot; Medan Statis (B0), Proyektil &amp; Kriogen</button>
+    <button type='button' data-target='M07C' aria-pressed='false'>M07C &middot; RF (SAR), Gradien &amp; Bising</button>
+  </div>
+</div>
+
+<!-- ==================== PECAHAN M07A ==================== -->
+<section class='pecahan-m07' id='bagian-M07A' data-pecahan='M07A'>
+  <h2><span class='tag'>M07A &middot; Pecahan 1 dari 3</span><br>Zona, Skrining, dan Keselamatan Perangkat</h2>
+  <div class='kartu'>
+    <b>Tujuan belajar M07A</b>
+    <ul>
+      <li>Menjelaskan empat zona keselamatan dan tiga tingkat personel</li>
+      <li>Menjalankan alur skrining pasien dengan atau tanpa implan</li>
+      <li>Membaca label keselamatan perangkat (standar ASTM)</li>
+      <li>Mengenali skrining keselamatan sebelum agen kontras</li>
+    </ul>
+  </div>
+  <h2>Materi M07A</h2>
+  <h3>Tingkat 1 (Dasar)</h3>
+<div class='kartu bm' id='m07a-T1.1' data-mode='singkat'>
+  <span class='tag'>T1.1 &middot; Empat zona</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Fasilitas MRI dibagi menjadi empat zona. Makin besar nomornya, makin ketat aksesnya. Medan magnet utama (B0) selalu menyala.</p>
+  <div class='l'><p>Zona I untuk umum. Zona II adalah area antara, tempat pasien diterima dan ditanyai. Zona III terkontrol: hanya orang yang sudah diskrining. Zona IV adalah ruang magnet. Setiap orang diskrining sebelum masuk.</p>
+<ul><li>Benda ferromagnetik bisa tertarik dan menjadi proyektil.</li><li>Magnet tetap menyala walau tidak ada pemindaian.</li></ul></div>
+  <p class='a'><b>Analogi:</b> Zona seperti lapisan keamanan di bandara. Makin dalam, makin ketat pemeriksaannya. Magnetnya seperti arus sungai yang tidak pernah berhenti: periksa dulu apa yang Anda bawa sebelum mendekat.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07a-A1'>A1</a>. </p>
+</div>
+<div class='kartu bm' id='m07a-T1.2' data-mode='singkat'>
+  <span class='tag'>T1.2 &middot; Prinsip keselamatan</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Setiap kasus berbeda dan dinilai sendiri-sendiri. Pasien tidak dikeluarkan tanpa alasan dari pemeriksaan yang ia butuhkan, tetapi risikonya tetap ditimbang.</p>
+  <div class='l'><p>Untuk pasien dengan implan, perlu analisis risiko dan manfaat. Tanggung jawab utama ada pada dokter perujuk dan radiology lead. Praktisi MRI juga boleh memutuskan lanjut atau menunda sampai bukti keselamatan cukup, sebab hal baru seperti tindik bisa muncul saat pasien datang. Saran fisikawan medis dan ahli lain boleh diminta. Karena perangkat baru terus bermunculan, pengetahuan perlu diperbarui.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti menimbang obat: manfaatnya nyata, tetapi efek sampingnya tetap dihitung kasus per kasus.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07a-A2'>A2</a>. </p>
+</div>
+<div class='kartu bm' id='m07a-T1.3' data-mode='singkat'>
+  <span class='tag'>T1.3 &middot; Lima sumber bahaya</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Bahaya MRI berasal dari lima hal: faktor psikologis, medan statis yang berubah menurut jarak, medan RF, gradien yang berubah menurut waktu, dan kriogen.</p>
+  <div class='l'><p>Sebagian efeknya sementara dan tidak berdampak jangka panjang, tetapi sebagian dapat menyebabkan cedera berat atau kematian. Bagian ini hanya pengantar umum, bukan panduan keselamatan lengkap. Pemindai, kekuatan medan, koil, lebar bore, tubuh pasien, dan implan sangat beragam. Implan bahkan bisa aman hanya di bawah kekuatan medan, gradien ruang, atau SAR tertentu. Keamanan zat kontras berbasis gadolinium bukan bahaya fisik MR dan dibahas terpisah di T2.6. Rincian: medan statis dan kriogen di M07B, RF dan gradien di M07C.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti peta bahaya sebuah pabrik: ada lima titik rawan, dan tiap titik punya cara pencegahannya sendiri.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07a-A4'>A4</a>. </p>
+</div>
+<h3>Tingkat 2 (Menengah)</h3>
+<div class='kartu bm' id='m07a-T2.1' data-mode='singkat'>
+  <span class='tag'>T2.1 &middot; Zona menurut ACR</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>ACR menyarankan fasilitas MRI dizonakan menurut risiko, agar orang yang tidak berwenang tidak masuk ke area bermedan magnet kuat.</p>
+  <div class='l'><p>Zona I adalah area umum. Zona II adalah batas antara area umum dan zona terkontrol: pasien disambut dan tidak bebas bergerak, dan jawaban skrining serta riwayat diambil di sini. Zona III adalah tempat orang tanpa skrining atau benda ferromagnetik dapat menyebabkan cedera berat, jadi aksesnya dibatasi fisik, misalnya dengan kunci atau sistem passkey yang bisa membedakan personel MRI dari non-MRI. Zona IV adalah ruang magnet. Ia ditandai lampu merah dan tanda The Magnet is On yang menyala terus (kecuali sistem resistif), dengan cadangan energi sedikitnya <span data-d='jam'>24</span> jam bila listrik padam.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti zona di rumah sakit isolasi: tiap pintu punya aturan dan penjaganya sendiri.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07a-A1'>A1</a>. &rarr; Tautan: M01 T1.1 (Kontraindikasi sebagai pendahuluan).</p>
+</div>
+<div class='kartu bm' id='m07a-T2.2' data-mode='singkat'>
+  <span class='tag'>T2.2 &middot; Tiga tingkat personel</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Ada personel non-MRI, personel Level 1, dan personel Level 2.</p>
+  <div class='l'><p>Non-MRI: pasien, pengunjung, atau staf fasilitas yang belum menjalani pelatihan keselamatan formal dalam <span data-d='bln'>12</span> bulan terakhir. Level 1: staf kantor dan pembantu pasien yang lulus pendidikan keselamatan minimal agar aman bekerja di Zona III. Level 2: teknolog MRI, radiolog, dan perawat yang dilatih mendalam, termasuk soal pemanasan, luka bakar, dan rangsangan saraf-otot akibat gradien.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti tingkat izin keamanan: tamu, staf umum, dan ahli yang bertanggung jawab.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07a-A1'>A1</a>. </p>
+</div>
+<div class='kartu bm' id='m07a-T2.3' data-mode='singkat'>
+  <span class='tag'>T2.3 &middot; Keselamatan perangkat: standar ASTM dan label implan</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Perangkat dibagi menjadi MR Safe, MR Conditional, dan MR Unsafe. Ikonnya: kotak hijau, segitiga kuning, dan lingkaran merah yang dicoret.</p>
+  <div class='l'><p>MR Safe: tidak ada bahaya yang diketahui di semua lingkungan MR, misalnya cawan petri plastik. MR Conditional: terbukti aman pada lingkungan MR dan syarat tertentu, seperti kekuatan medan statis, gradien ruang, laju perubahan medan (dB/dt), medan RF, SAR, dan pengaturan kabel. Pengujiannya mencakup gaya tarik, torsi, dan pemanasan RF, dan hasilnya tercantum pada label. Setiap parameter yang memengaruhi keselamatan harus dicantumkan, begitu pula kondisi yang diketahui menghasilkan keadaan tidak aman. Isu lain yang diperhatikan: cedera termal, arus atau tegangan induksi, kompatibilitas elektromagnetik, perangsangan saraf, bising, interaksi antarperangkat, fungsi aman perangkat, dan pengoperasian aman sistem MR. Status MR Safe dapat ditetapkan lewat alasan ilmiah, tidak harus dengan data uji. MR Unsafe: diketahui berbahaya di semua lingkungan MR, misalnya gunting ferromagnetik. Perangkat yang aman bersyarat pada <span data-d='ut'>1</span> T belum tentu aman pada medan yang lebih tinggi.</p><div class='gulir'><p><b>Ringkasan label:</b></p><table class='tabel'><tr><th>Label</th><th>Arti</th></tr>
+<tr><td>MR Safe</td><td>Tidak menimbulkan bahaya di lingkungan MR.</td></tr>
+<tr><td>MR Conditional</td><td>Aman hanya bila syarat pada label dipenuhi.</td></tr>
+<tr><td>MR Unsafe</td><td>Berbahaya di lingkungan MR.</td></tr></table>
+<p>Syarat dibaca dari label atau dokumen implan, bukan ditebak.</p></div></div>
+  <p class='a'><b>Analogi:</b> Seperti lampu lalu lintas: hijau jalan, kuning hati-hati dengan syarat, merah berhenti.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07a-A2'>A2</a>, <a href='#m07a-A3'>A3</a>. </p>
+</div>
+<div class='kartu bm' id='m07a-T2.4' data-mode='singkat'>
+  <span class='tag'>T2.4 &middot; Efek psikologis</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Desain bore tertutup dapat memicu cemas dan klaustrofobia. Kecemasan biasanya paling tinggi di awal, saat pasien dimasukkan ke bore, lalu menurun.</p>
+  <div class='l'><p>Pada studi tahun 1998, <span data-d='sed'>14,3</span> persen pasien membutuhkan sedasi atau anestesi, sebagian besar untuk pemeriksaan otak. Pemindai tertutup awal memakai bore yang sangat panjang agar volume citra homogen, sehingga pasien nyaris seluruhnya berada di dalam bore. Pada pemeriksaan otak, kepala berada di isosenter dengan atap bore dekat wajah. Faktor lainnya: koil kepala, rasa terisolasi, lama pemindaian, bising, dan takut hasil yang buruk. Pasien juga dapat takut sesak, takut pingsan, atau mengalami serangan panik. Ketidakpatuhan berdampak nyata: sulit diam atau menahan napas merusak citra (artefak pergeseran fase), dan serangan panik dapat menghentikan pemeriksaan sebelum ada citra. Pasien lalu dirujuk ke CT. Pada pencitraan jantung, <span data-d='ct'>42</span> persen pasien lebih memilih CT dan hanya <span data-d='mri'>12</span> persen memilih MRI. Waktu mesin terbuang, biaya naik, dan jadwal tertunda. Cara menenangkan: bore lebih pendek dan lebar (kejadian klaustrofobia turun sekitar <span data-d='tiga'>3</span> kali), kipas, lampu dan panel pemandangan, video, hitung mundur, dan pada pemindai terbuka kerabat dapat duduk dekat pasien. Manfaat aromaterapi belum pasti. Anak kecil atau pasien yang sangat klaustrofobia mungkin butuh sedasi dan pemantauan tambahan. Kabel pemantau tidak boleh menempel pada kulit pasien yang dibius.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti masuk air dingin: bagian paling berat adalah saat pertama kali masuk.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07a-A5'>A5</a>. </p>
+</div>
+<div class='kartu bm' id='m07a-T2.5' data-mode='singkat'>
+  <span class='tag'>T2.5 &middot; Tips keselamatan</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Jangan berasumsi. Periksa staf seketat pasien, dan jangan pernah merasa wajib memindai bila ragu.</p>
+  <div class='l'><ul>
+<li>Jangan anggap staf tahu bahaya ruang magnet, dan hindari kunci kode digital untuk Zona III.</li>
+<li>Jangan anggap pasien yang dipindai di tempat lain kemarin aman hari ini: medan dan gradien bisa berbeda, dan kondisi pasien bisa berubah.</li>
+<li>Tanyakan kontraindikasi sebelum jadwal, beri informasi yang cukup, dan tanyakan juga secara lisan selain formulir.</li>
+<li>Untuk pasien yang sulit memberi riwayat, tanyakan keluarga dan ganti pakaian dengan baju pasien. Citra rontgen terbaru dapat membantu menyingkirkan pacu jantung atau klip aneurisma.</li>
+<li>Beri stiker peringatan pada benda ferromagnetik besar dan pilih alternatif non-ferrous, misalnya tangga pijakan dan alat pemadam.</li>
+<li>Bila ragu, tunda pemeriksaan.</li></ul>
+<p>Korban jiwa terkait MRI yang dilaporkan sangat sedikit, kurang dari satu per tahun, berkat kewaspadaan staf dan dokter perujuk.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti daftar periksa pilot: bukan karena tidak percaya, tetapi karena taruhannya besar.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07a-A6'>A6</a>. </p>
+</div>
+<div class='kartu bm baru' id='m07a-T2.6' data-mode='singkat'>
+  <span class='tag'>T2.6 &middot; Keselamatan agen kontras: retensi gadolinium, NSF, skrining ginjal dan kehamilan</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Kontras berbasis gadolinium umumnya aman, tetapi pasien perlu diskrining sebelum disuntik: fungsi ginjal, kehamilan, dan riwayat alergi. Ini keselamatan obat, bukan bahaya fisik MR.</p>
+  <div class='l'><p>Pada pasien dengan gangguan ginjal berat atau cedera ginjal akut, gadolinium dapat berkaitan dengan <i>nephrogenic systemic fibrosis</i> (NSF), pengerasan kulit dan jaringan yang dapat berat. Karena itu fungsi ginjal (eGFR) diperiksa pada pasien berisiko, misalnya usia lanjut, penyakit ginjal, diabetes, atau hipertensi. Risiko berbeda antar jenis agen, dan fasilitas biasanya memilih agen dengan risiko terendah bila ginjal terganggu.</p><p>Gadolinium juga dapat tertahan (retensi) di jaringan tubuh, termasuk otak, bahkan pada orang dengan ginjal normal. Makna klinisnya belum pasti. Prinsipnya: kontras diberikan bila manfaat diagnostiknya jelas, dengan dosis seperlunya.</p><p>Kehamilan: gadolinium melewati plasenta, jadi kontras dihindari kecuali manfaatnya jelas lebih besar daripada risikonya, dan keputusannya ada pada radiolog dan dokter perujuk. Untuk ibu menyusui, ikuti SOP fasilitas.</p><p>Reaksi alergi terhadap kontras jarang dan umumnya ringan, tetapi riwayat reaksi sebelumnya menaikkan peluangnya. Tim perlu siap menangani reaksi.</p><!-- TODO-VERIFIKASI: simpul usulan, tidak ada di Bab 10 sumber asli. Cek ACR Manual on Contrast Media dan SOP lokal (ambang eGFR, kehamilan, menyusui) --></div>
+  <p class='a'><b>Analogi:</b> Seperti memeriksa saluran pembuangan sebelum menuang air: bila ginjal (saluran) bermasalah, zat tidak terbuang dengan baik dan bisa menumpuk.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07a-A7'>A7</a>. </p>
+</div>
+  <h2>Aktivitas M07A</h2>
+  <div class='kartu' id='m07a-A1'>
+  <b>A1. Denah zona dan akses personel</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07a-T1.1'>T1.1</a>, <a href='#m07a-T2.1'>T2.1</a>, <a href='#m07a-T2.2'>T2.2</a>.</p>
+  <div class='pilih mode-switch' role='group' aria-label='Pilih tampilan aktivitas'><button type='button' data-target-panel='zona' aria-pressed='true'>Denah zona</button><button type='button' data-target-panel='akses' aria-pressed='false'>Akses personel</button></div>
+  <div data-panel='zona'>
+<p class='lembut'>Pilih zona untuk membaca aturannya. Ubah garis 5 gauss untuk melihat batas pengaman.</p>
+<div class='pilih' id='zbtn' role='group' aria-label='Pilih zona'></div>
+<div class='pilih' id='gbtn' role='group' aria-label='Pilih garis 5 gauss'></div>
+<svg id='zsvg' viewBox='0 0 600 340' role='img' aria-label='Denah empat zona keselamatan MR'></svg>
+<p class='hasil' id='zket' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='zr'>Reset</button></div>
+</div>
+<div data-panel='akses' hidden>
+<p class='lembut'>Pilih siapa yang ingin masuk. Hijau: bebas. Kuning: dengan pengawasan. Merah: tidak boleh. Abu-abu: ikuti SOP. Ubah juga kondisi lampu Zona IV.</p>
+<fieldset class='grup'><legend>1. Siapa yang ingin masuk?</legend>
+<div class='pilih' id='pbtn' role='group' aria-label='Pilih orang yang ingin masuk'></div></fieldset>
+<fieldset class='grup'><legend>2. Kondisi fasilitas: lampu peringatan Zona IV</legend>
+<div class='pilih' role='group' aria-label='Kondisi fasilitas'><button type='button' id='plis' aria-pressed='false'></button><button type='button' id='pres' aria-pressed='false'></button></div>
+<p class='lembut'>Ini bukan orang, melainkan kondisi yang mengubah lampu The Magnet is On.</p></fieldset>
+<svg id='psvg' viewBox='0 0 600 340' role='img' aria-label='Denah lantai fasilitas MRI dilihat dari atas, dengan dinding, pintu, dan magnet'></svg>
+<p class='hasil' id='pket' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='pr'>Reset</button></div>
+</div>
+
+</div>
+<div class='kartu' id='m07a-A2'>
+  <b>A2. Simulasi skrining</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07a-T1.2'>T1.2</a>, <a href='#m07a-T2.3'>T2.3</a>.</p>
+  
+  <p class='lembut'>Baca skenario, lalu putuskan: lanjut, tahan, atau tolak. Ini latihan konsep, bukan pengganti SOP.</p>
+<p id='sk-q'></p>
+<div class='baris'><button type='button' class='sk-b' data-v='lanjut'>Lanjut</button><button type='button' class='sk-b' data-v='tahan'>Tahan</button><button type='button' class='sk-b' data-v='tolak'>Tolak</button></div>
+<p id='sk-f' role='status' aria-live='polite'></p>
+<p class='lembut' id='sk-s'></p>
+<div class='baris'><button type='button' id='sk-n' hidden>Berikutnya</button><button type='button' id='sk-r'>Reset</button></div>
+</div>
+<div class='kartu' id='m07a-A3'>
+  <b>A3. Label perangkat dan alur keputusan pasien dengan perangkat</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07a-T2.3'>T2.3</a>.</p>
+  <div class='pilih mode-switch' role='group' aria-label='Pilih tampilan aktivitas'><button type='button' data-target-panel='label' aria-pressed='true'>Label perangkat</button><button type='button' data-target-panel='alur' aria-pressed='false'>Alur keputusan</button></div>
+  <div data-panel='label'>
+<p class='lembut'>Pilih perangkat untuk melihat ikon labelnya. Untuk MR Conditional, atur kondisi pemakaian. Contoh ini fiktif.</p>
+<div class='pilih' id='lbtn' role='group' aria-label='Pilih perangkat'></div>
+<div id='lcond'><div class='pilih' id='lb0' role='group' aria-label='Pilih B0'></div><label><input type='checkbox' id='lk'> Kabel dirutekan sesuai petunjuk</label></div>
+<svg id='lsvg' viewBox='0 0 600 150' role='img' aria-label='Ikon label perangkat'></svg>
+<p class='hasil' id='lket' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='lr'>Reset</button></div>
+</div>
+<div data-panel='alur' hidden>
+<p class='lembut'>Atur tiga kondisi dan lihat ke mana alurnya bergerak. Latihan konsep, bukan SOP.</p>
+<label><input type='checkbox' id='al1' checked> Jenis perangkat diketahui dan ada bukti dokumen</label>
+<label><input type='checkbox' id='al2' checked> Syarat MR Conditional terpenuhi (atau perangkat MR Safe)</label>
+<label><input type='checkbox' id='al3'> Ada temuan baru saat kedatangan (misalnya tindik)</label>
+<svg id='asvg' viewBox='0 0 600 240' role='img' aria-label='Alur keputusan risiko dan manfaat'></svg>
+<p class='hasil' id='aket' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='ar'>Reset</button></div>
+</div>
+
+</div>
+<div class='kartu' id='m07a-A4'>
+  <b>A4. Lima sumber bahaya pada pemindai</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07a-T1.3'>T1.3</a>.</p>
+  
+  <p class='lembut'>Pilih satu sumber bahaya. Bagian pemindai yang berkaitan menyala pada potongan samping.</p>
+<div class='pilih' id='hbtn' role='group' aria-label='Pilih sumber bahaya'></div>
+<svg id='hsvg' viewBox='0 0 600 270' role='img' aria-label='Potongan samping pemindai MRI dengan lapisan magnet, gradient coil, dan RF coil'></svg>
+<p class='hasil' id='hket' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='hr'>Reset</button></div>
+</div>
+<div class='kartu' id='m07a-A5'>
+  <b>A5. Perjalanan kecemasan pasien</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07a-T2.4'>T2.4</a>.</p>
+  
+  <p class='lembut'>Garis menunjukkan tingkat kecemasan selama pemeriksaan (ilustrasi kualitatif). Nyalakan langkah penenang dan lihat perubahannya.</p>
+<div class='pilih' id='cbtn' role='group' aria-label='Langkah penenang'></div>
+<svg id='csvg' viewBox='0 0 600 230' role='img' aria-label='Grafik kecemasan pasien selama pemeriksaan'></svg>
+<p class='hasil' id='cket' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='cr'>Reset</button></div>
+</div>
+<div class='kartu' id='m07a-A6'>
+  <b>A6. Benar atau keliru? Tips keselamatan</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07a-T2.5'>T2.5</a>.</p>
+  
+  <p class='lembut'>Tekan Benar atau Keliru. Hijau berarti tepat, merah berarti belum tepat. Tekan lagi untuk membatalkan.</p>
+<div id='tpbox'></div>
+<div class='baris'><button type='button' id='tpr'>Reset</button></div>
+</div>
+<div class='kartu' id='m07a-A7'>
+  <b>A7. Alur skrining sebelum agen kontras</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07a-T2.6'>T2.6</a>.</p>
+  
+  <p class='lembut'>Centang kondisi pasien. Lihat langkah yang perlu dipertimbangkan sebelum kontras gadolinium. Keputusan akhir ada pada radiolog dan dokter perujuk, dan SOP fasilitas selalu didahulukan.</p>
+<label><input type='checkbox' id='kt1'> Ada faktor risiko ginjal (usia lanjut, penyakit ginjal, diabetes, hipertensi, dialisis)</label>
+<label><input type='checkbox' id='kt2'> eGFR terbaru sudah diperiksa</label>
+<label><input type='checkbox' id='kt3'> eGFR sangat rendah (contoh: di bawah 30) atau cedera ginjal akut</label>
+<label><input type='checkbox' id='kt4'> Hamil atau mungkin hamil</label>
+<label><input type='checkbox' id='kt5'> Pernah mengalami reaksi alergi pada kontras</label>
+<svg id='ktsvg' viewBox='0 0 600 100' role='img' aria-label='Empat kotak status skrining kontras'></svg>
+<p class='hasil' id='ktk' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='ktr'>Reset</button></div>
+</div>
+  <h2>Cek pemahaman M07A</h2>
+  <div id='kuis-m07a'></div>
+</section>
+
+<!-- ==================== PECAHAN M07B ==================== -->
+<section class='pecahan-m07' id='bagian-M07B' data-pecahan='M07B'>
+  <h2><span class='tag'>M07B &middot; Pecahan 2 dari 3</span><br>Medan Statis (B0), Proyektil, dan Kriogen</h2>
+  <div class='kartu'>
+    <b>Tujuan belajar M07B</b>
+    <ul>
+      <li>Menjelaskan bahaya proyektil, torsi, dan efek sementara medan statis</li>
+      <li>Menjelaskan empat kekhawatiran kriogen dan mengapa quench bukan prosedur biasa</li>
+      <li>Mengenali bahaya benda asing dan efek Lenz</li>
+    </ul>
+  </div>
+  <h2>Materi M07B</h2>
+  <h3>Tingkat 2 (Menengah)</h3>
+<div class='kartu bm' id='m07b-T2.1' data-mode='singkat'>
+  <span class='tag'>T2.1 &middot; Medan statis dan proyektil</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Gaya tarik makin kuat di dekat magnet. Garis 5 gauss (<span data-d='g1'>0,5</span> mT) menandai batas pengaman. Sebagian fasilitas memakai <span data-d='g2'>0,9</span> mT sesuai kebijakan.</p>
+  <div class='l'><p>Benda ferromagnetik dapat melesat ke arah bore. Implan logam dapat mengalami gaya dan putaran (torsi). Orang dengan perangkat tertentu perlu tetap di luar garis ini.</p></div>
+  <p class='a'><b>Analogi:</b> Garis 5 gauss seperti garis kuning di tepi peron: tidak ada pagar, tetapi melewatinya punya konsekuensi.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07b-A1'>A1</a>. </p>
+</div>
+<div class='kartu bm' id='m07b-T2.2' data-mode='singkat'>
+  <span class='tag'>T2.2 &middot; Siapa yang sering terlibat insiden proyektil</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Insiden sering melibatkan staf non-MRI yang masuk ke ruang magnet tanpa pengawasan, misalnya petugas kebersihan, porter, atau teknisi anestesi.</p>
+  <div class='l'><p>Contohnya tabung oksigen dan mesin pemoles lantai. Pelajarannya: zonasi, pintu fisik yang terkunci, dan pelatihan semua staf rumah sakit. Kantong imobilisasi berisi butiran baja juga bisa menjadi proyektil, dan benda kecil seperti koin atau jepit rambut yang tertinggal di bore dapat mengganggu kualitas citra.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti ruang server: bukan hanya tamu, orang dalam yang belum terlatih pun perlu dibatasi aksesnya.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07b-A1'>A1</a>. </p>
+</div>
+<div class='kartu bm' id='m07b-T2.3' data-mode='singkat'>
+  <span class='tag'>T2.3 &middot; Medan tepi berperisai aktif</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Magnet modern berperisai aktif menjaga medan tepi tetap kecil. Akibatnya medan turun sangat curam: tarikan hampir tidak terasa sampai benda sudah dekat.</p>
+  <div class='l'><p>Gaya pada benda ferromagnetik sebanding dengan kuat medan dikali kemiringan (gradien) medan statis. Pada sistem berperisai, garis 0,5 mT hanya beberapa meter dari magnet. Kursi roda ferromagnetik pernah baru tertarik ketika pasien berdiri dan mendekati ujung bore. Pada sistem tanpa perisai, tarikan sudah terasa dari jauh sehingga masih ada waktu bertindak. Pencegahannya: kewaspadaan, penghalang fisik, tanda peringatan, dan pelatihan staf. Peralatan pemantau harus yang bersertifikat MR, sebab bodi plastik bisa menutupi rangka ferromagnetik.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti tebing di ujung dataran: jalannya rata dan tenang, lalu tiba-tiba curam.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07b-A1'>A1</a>. </p>
+</div>
+<div class='kartu bm' id='m07b-T2.4' data-mode='singkat'>
+  <span class='tag'>T2.4 &middot; Efek sementara dari B0</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>B0 yang kuat dapat menimbulkan efek sementara: rasa logam di mulut, pusing berputar (vertigo), dan kilatan cahaya (fosfen). Efek ini umumnya hilang setelah keluar dari magnet.</p>
+  <div class='l'><p>Efek muncul saat tubuh bergerak melewati medan tepi. Vertigo dikaitkan dengan gaya Lorentz pada ion di cairan telinga dalam, dan terutama muncul pada medan sangat tinggi (<span data-d='t7'>7</span> T ke atas). Kilatan cahaya berkaitan dengan induksi Faraday pada saraf optik. Makin cepat meja bergerak, makin berat vertigo, jadi meja digerakkan perlahan. Komite ICNIRP menyatakan tidak ada bukti efek kesehatan serius pada paparan seluruh tubuh sampai <span data-d='t8'>8</span> T.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti naik perahu: telinga dalam perlu waktu menyesuaikan, dan gerakan cepat membuatnya makin terasa.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07b-A3'>A3</a>. </p>
+</div>
+<div class='kartu bm' id='m07b-T2.5' data-mode='singkat'>
+  <span class='tag'>T2.5 &middot; Torsi pada implan</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Implan ferromagnetik dapat berputar sampai sejajar garis medan. Gaya putar ini disebut torsi.</p>
+  <div class='l'><p>Klip aneurisma yang panjang bekerja seperti tuas dan dapat merusak jaringan di sekitarnya. Implan yang tertambat pada tulang atau semen, misalnya paku ortopedi dan sendi pinggul, kecil kemungkinan bergerak. Fibrosis (jaringan parut) dapat menahan implan, tetapi tidak terjadi di semua jaringan, misalnya otak. Bila jenis implan tidak bisa dipastikan dengan bukti dokumen, pemeriksaan ditunda atau dibatalkan. Keterangan lisan saja tidak cukup. Alat jantung modern tertentu bersifat MR Conditional dan perlu diprogram ke mode aman-MR di bawah tim kardiologi.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti jarum kompas: ia berputar sampai sejajar dengan medan.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07b-A2'>A2</a>. &rarr; Tautan: M07C T2.5 (Arus induksi pada implan (RF/gradien)).</p>
+</div>
+<div class='kartu bm' id='m07b-T2.6' data-mode='singkat'>
+  <span class='tag'>T2.6 &middot; Benda asing dan efek Lenz</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Benda asing ferromagnetik dapat bergerak oleh gaya tarik dan gaya putar, seperti implan. Risiko terbesar bila gerakannya menyebabkan perdarahan atau merusak struktur halus, misalnya di orbita mata.</p>
+  <div class='l'><p>Pecahan logam berkecepatan tinggi pernah menembus bola mata dan, pada sedikitnya dua kasus, berinteraksi dengan medan statis hingga menyebabkan kebutaan satu mata atau katarak. Pada satu kasus pasien tidak tahu ada serpihan logam. Pada kasus lain pasien tahu, tetapi foto rontgen dilaporkan normal dan pemindaian dilanjutkan. Cara skrining masih diperdebatkan karena rontgen memberi dosis pada lensa dan pemeriksaan yang negatif menambah biaya. Namun pasien tetap diskrining untuk benda asing intraokular, dan riwayat lisannya dihargai sama seperti isian kotak centang. Pasien dengan riwayat cedera mata tembus perlu dipertimbangkan untuk rontgen polos bila tidak ada citra terbaru. Logam non-ferrous pun dapat mengalami torsi lewat efek Lenz: arus induksi selalu melawan perubahan medan yang menimbulkannya. Pada uji in vitro, fungsi katup jantung logam jenis lama dapat terhambat saat bergerak sepanjang gradien medan statis.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti serpihan di dalam sepatu: kecil, tetapi bila di tempat yang salah akibatnya besar.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07b-A5'>A5</a>. </p>
+</div>
+<div class='kartu bm' id='m07b-T2.7' data-mode='singkat'>
+  <span class='tag'>T2.7 &middot; Kriogen: empat kekhawatiran dan quench</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Magnet superkonduktor didinginkan dengan helium cair. Ada empat kekhawatiran: suhu sangat rendah, asfiksia, quench, dan ledakan. Quench adalah hilangnya superkonduktivitas secara tiba-tiba.</p>
+  <div class='l'><p>Helium cair mendidih pada <span data-p='KR.k'>4</span> K di atas nol mutlak, jadi percikannya merusak jaringan, terutama mata dan kulit. Helium hanya ditangani teknisi terlatih dengan APD dan pelindung wajah, dalam dewar khusus yang disimpan tegak. Bila terkena, segera cari bantuan medis. Helium tidak berbau dan tidak beracun, tetapi menggantikan oksigen. Udara biasa berisi sekitar <span data-p='KR.o'>21</span> persen oksigen. OSHA menetapkan rentang optimal <span data-p='KR.lo'>19,5</span> sampai <span data-p='KR.hi'>23,5</span> persen, dan ruang magnet punya sensor oksigen dengan alarm. Di bawah <span data-p='KR.s'>8</span> persen orang cenderung pingsan. Di bawah <span data-p='KR.f'>6</span> persen pingsan dalam sekitar <span data-p='KR.dt'>10</span> detik, dan gagal jantung hingga kematian terjadi dalam <span data-p='KR.m1'>2</span> sampai <span data-p='KR.m2'>4</span> menit. Nitrogen berbahaya dengan cara yang sama. Aturan emas pertolongan pertama: pastikan keselamatan diri sendiri dahulu.</p><p><b>Quench</b> adalah hilangnya superkonduktivitas secara tiba-tiba. Saat itu helium cair mendidih menjadi gas dalam jumlah besar dan dibuang lewat saluran khusus. Bila gas bocor ke ruangan, ia menggantikan oksigen (lihat A4).</p></div>
+  <p class='a'><b>Analogi:</b> Seperti air yang naik tanpa terlihat: tidak berbau dan tidak terasa, tetapi menggusur udara yang kita butuhkan. Quench seperti tutup panci tekanan yang terbuka mendadak: uap keluar sekaligus.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07b-A4'>A4</a>. &rarr; Tautan: M05 T2.1-T2.6 (Hardware magnet superkonduktif).</p>
+</div>
+<h3>Tingkat 3 (Lanjut)</h3>
+<div class='kartu bm lanjut' id='m07b-T3.1' data-mode='singkat'>
+  <span class='tag'>T3.1 &middot; Pipa quench, tekanan pintu, dan ledakan</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Pipa quench membuang gas helium ke luar gedung. Bila gagal, tekanan ruang magnet dapat naik, atau kriostat dapat meledak.</p>
+  <div class='l'><p>Kriostat yang penuh dapat berisi lebih dari <span data-p='KR.L'>1600</span> L helium cair, dan tiap liter mengembang menjadi <span data-p='KR.e'>754</span> L gas. Pipa dapat pecah, misalnya karena sumbatan es dari air hujan. Helium lebih ringan dari udara, jadi gas naik ke ruang tertinggi gedung dan gedung perlu dievakuasi. Kenaikan tekanan mendadak menekan pintu yang membuka ke dalam. Menyamakan tekanan, misalnya dengan memecahkan kaca ruang kontrol, mempercepat akses. Titik buang luar sedikitnya <span data-p='KR.j'>8</span> m dari area akses umum. Ledakan kriostat pernah terjadi ketika katup piringan pecah (burst disk) gagal bekerja, jadi inspeksi servis dan prosedur dekomisioning penting. Penolong pun bisa pingsan, jadi waspadalah, terutama bila bekerja sendirian.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti kaleng soda yang dikocok: bila tutupnya tidak melepas tekanan, kaleng bisa meledak.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07b-A4'>A4</a>. </p>
+</div>
+<div class='kartu bm lanjut' id='m07b-T3.2' data-mode='singkat'>
+  <span class='tag'>T3.2 &middot; Quench bukan prosedur darurat biasa</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Pasien yang sakit mendadak dikeluarkan dan ditangani di luar Zona IV. Quench tidak dipakai untuk itu.</p>
+  <div class='l'><p>Quench hanya untuk ancaman nyawa akibat medan, misalnya orang terjepit benda ferromagnetik. Semua staf baru perlu tahu letak tombol quench, dan rangkaiannya diperiksa berkala oleh teknisi servis.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti rem darurat kereta: dipakai hanya bila ada bahaya langsung.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07b-A6'>A6</a>. &rarr; Tautan: M05 A7 (Urutan kejadian quench).</p>
+</div>
+  <h2>Aktivitas M07B</h2>
+  <div class='kartu' id='m07b-A1'>
+  <b>A1. Medan tepi dan gaya tarik</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07b-T2.1'>T2.1</a>, <a href='#m07b-T2.2'>T2.2</a>, <a href='#m07b-T2.3'>T2.3</a>.</p>
+  
+  <p class='lembut'>Geser jarak dari isosenter. Lihat medan, gaya tarik relatif, dan perangkat yang berisiko (kotak merah). Nilai dibaca kasar dari Gambar 10.3 dan berbeda antar model.</p>
+<label for='mj'>Jarak dari isosenter: <span id='mjv'></span> m</label>
+<input type='range' id='mj' min='1' max='6' step='0.1' value='4'>
+<svg id='msvg' viewBox='0 0 600 230' role='img' aria-label='Grafik medan terhadap jarak dari isosenter'></svg>
+<p class='hasil' id='mket' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='mr'>Reset</button></div>
+</div>
+<div class='kartu' id='m07b-A2'>
+  <b>A2. Torsi pada implan</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07b-T2.5'>T2.5</a>.</p>
+  
+  <p class='lembut'>Garis tegak adalah garis medan. Putar klip, atau tekan Biarkan menyelaras.</p>
+<label for='tsa'>Sudut klip terhadap medan: <span id='tsav'></span> derajat</label>
+<input type='range' id='tsa' min='0' max='90' step='1' value='45'>
+<div class='baris'><button type='button' id='tsb' aria-pressed='false'>Implan tertambat pada tulang atau semen</button><button type='button' id='tsl'>Biarkan menyelaras</button></div>
+<svg id='tsvg' viewBox='0 0 600 240' role='img' aria-label='Klip implan di dalam garis medan'></svg>
+<div class='meter' aria-hidden='true'><i id='tsm'></i></div>
+<p class='hasil' id='tsk' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='tsr'>Reset</button></div>
+</div>
+<div class='kartu' id='m07b-A3'>
+  <b>A3. Skala medan dan efek sementara</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07b-T2.4'>T2.4</a>.</p>
+  
+  <p class='lembut'>Pilih kekuatan medan. Lihat efek sementara yang dilaporkan.</p>
+<div class='pilih' id='ebtn' role='group' aria-label='Pilih kekuatan medan'></div>
+<div class='pilih'><button type='button' id='elam' aria-pressed='false'></button></div>
+<svg id='esvg' viewBox='0 0 600 130' role='img' aria-label='Skala kekuatan medan'></svg>
+<p class='hasil' id='eket' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='er'>Reset</button></div>
+</div>
+<div class='kartu' id='m07b-A4'>
+  <b>A4. Oksigen dan ekspansi helium</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07b-T2.7'>T2.7</a>, <a href='#m07b-T3.1'>T3.1</a>.</p>
+  
+  <p class='lembut'>Bagian pertama: turunkan kadar oksigen ruang. Bagian kedua: lihat berapa gas yang dihasilkan helium cair saat quench.</p>
+<label for='kgo'>Kadar oksigen ruang: <span id='kgov'></span> persen</label>
+<input type='range' id='kgo'>
+<svg id='kgsvg' viewBox='0 0 600 95' role='img' aria-label='Skala kadar oksigen'></svg>
+<p class='hasil' id='kgk' role='status' aria-live='polite'></p>
+<label for='kgh'>Helium cair: <span id='kghv'></span> L</label>
+<input type='range' id='kgh'>
+<div class='meter' aria-hidden='true'><i id='kgmeter'></i></div>
+<p class='hasil' id='kgk2' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='kgr'>Reset</button></div>
+</div>
+<div class='kartu' id='m07b-A5'>
+  <b>A5. Efek Lenz: konduktor jatuh melalui medan</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07b-T2.6'>T2.6</a>.</p>
+  
+  <p class='lembut'>Dua blok dilepas bersamaan: pembanding jatuh bebas (kiri) dan blok pilihan Anda (kanan). Di medan statis, arus induksi melawan gerakan, jadi blok konduktor melambat walau bukan ferromagnetik. Gambaran kualitatif, diperlambat agar terlihat.</p>
+<div class='pilih' id='lzb' role='group' aria-label='Pilih kekuatan medan'></div>
+<div class='pilih' id='lzm' role='group' aria-label='Pilih bahan blok'></div>
+<svg id='lzsvg' viewBox='0 0 600 240' role='img' aria-label='Dua blok jatuh melalui medan magnet'></svg>
+<p class='hasil' id='lzk' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='lzj'>Jatuhkan</button><button type='button' id='lzr'>Reset</button></div>
+</div>
+<div class='kartu lanjut' id='m07b-A6'>
+  <b>A6. Skenario darurat: pilih tindakan</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07b-T3.2'>T3.2</a>.</p>
+  
+  <p class='lembut'>Baca skenario, lalu pilih tindakan: quench, keluarkan dan tangani di luar Zona IV, atau evakuasi. Ini latihan konsep, bukan pengganti SOP dan pelatihan darurat fasilitas.</p>
+<p id='ds-q'></p>
+<div class='baris'><button type='button' class='sk-b' data-v='quench'>Quench magnet</button><button type='button' class='sk-b' data-v='keluarkan'>Keluarkan dan tangani di luar Zona IV</button><button type='button' class='sk-b' data-v='evakuasi'>Evakuasi dan panggil bantuan</button></div>
+<p id='ds-f' role='status' aria-live='polite'></p>
+<p class='lembut' id='ds-s'></p>
+<div class='baris'><button type='button' id='ds-n' hidden>Berikutnya</button><button type='button' id='ds-r'>Reset</button></div>
+</div>
+  <h2>Cek pemahaman M07B</h2>
+  <div id='kuis-m07b'></div>
+</section>
+
+<!-- ==================== PECAHAN M07C ==================== -->
+<section class='pecahan-m07' id='bagian-M07C' data-pecahan='M07C'>
+  <h2><span class='tag'>M07C &middot; Pecahan 3 dari 3</span><br>RF (SAR), Gradien, dan Bising</h2>
+  <div class='kartu'>
+    <b>Tujuan belajar M07C</b>
+    <ul>
+      <li>Menjelaskan SAR, bagian tubuh yang rentan panas, dan cara menurunkannya</li>
+      <li>Menjelaskan mekanisme luka bakar (antena, loop konduktif) dan arus induksi</li>
+      <li>Menjelaskan stimulasi saraf oleh gradien dan batas paparan bising</li>
+    </ul>
+  </div>
+  <h2>Materi M07C</h2>
+  <h3>Tingkat 2 (Menengah)</h3>
+<div class='kartu bm' id='m07c-T2.1' data-mode='singkat'>
+  <span class='tag'>T2.1 &middot; MRI memakai radiasi non-pengion</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Pernyataan "MRI tidak memakai radiasi" kurang tepat. MRI memakai radiasi non-pengion: energinya terlalu rendah untuk memutus ikatan kimia atau menyebabkan mutasi DNA.</p>
+  <div class='l'><p>Pada radiografi konvensional, bahaya berpusat pada radiasi pengion dan efek stokastik (acak, menaikkan peluang kanker di masa depan) serta efek deterministik (sebab-akibat jelas seperti eritema atau rambut rontok). Energi foton sebanding dengan frekuensinya dan berbanding terbalik dengan panjang gelombangnya. Sinar-X berpanjang gelombang kurang dari <span data-p='RF.nm'>10</span> nm. MRI memakai RF pada frekuensi Larmor. Pada 1 T frekuensinya <span data-p='FISIKA.gamma'>42,6</span> MHz (panjang gelombang sekitar <span data-p='RF.l1'>7</span> m), dan pada 1,5 T <span data-p='RF.f15'>63,9</span> MHz (<span data-p='RF.l15'>4,7</span> m). Walau non-pengion, RF tidak sepenuhnya aman. Ada tiga bahaya utama: pemanasan atau luka bakar, efek antena, dan gangguan fungsi implan akibat arus induksi.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti cahaya lampu dan sinar-X: sama-sama gelombang elektromagnetik, tetapi energinya jauh berbeda.</p>
+  <p class='sumber lembut'>&rarr; Tautan: M01 T1.7 (rumah konsep radiasi non-pengion).</p>
+</div>
+<div class='kartu bm' id='m07c-T2.2' data-mode='singkat'>
+  <span class='tag'>T2.2 &middot; RF dan pemanasan (SAR): bagian tubuh yang rentan panas</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Energi RF yang diserap jaringan menjadi panas. SAR (W/kg) mengukur laju penyerapannya per kilogram jaringan, sehingga berat pasien dimasukkan ke komputer sebelum pemindaian. Seluruh tubuh: mode normal <span data-d='sn'>2</span> W/kg, mode tingkat satu <span data-d='s1'>4</span> W/kg. Kepala mode normal: <span data-d='sk'>3,2</span> W/kg.</p>
+  <div class='l'><p>Kalibrasi pra-pindai memakai semburan RF pendek untuk membuat sudut flip 90 dan 180 derajat. Energi semua pulsa dalam satu sekuens dijumlahkan, dibagi TR, lalu dibagi massa pasien untuk mendapat SAR seluruh tubuh. Lensa mata sangat peka karena tidak punya aliran darah untuk membuang panas. Sel kelamin pria juga dapat terganggu: pada hewan, ketidaksuburan sementara muncul pada SAR sekitar <span data-p='SX.fert'>6</span> W/kg, tingkat yang menaikkan suhu testis sekitar <span data-p='SX.testis'>3,5</span> °C. Karena itu batas SAR berbeda untuk badan, kepala, dan ekstremitas. Standar tiap negara bisa berbeda, misalnya pedoman FDA sedikit berbeda dari standar Eropa.</p><p>Luka bakar paling sering akibat loop konduktif, misalnya kabel melingkar atau kulit yang saling bersentuhan sehingga membentuk lingkaran (lihat T2.4).</p></div>
+  <p class='a'><b>Analogi:</b> Seperti kompor kecil: panasnya bergantung pada daya dan pada massa yang dipanaskan, sebab itu berat badan dimasukkan.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07c-A1'>A1</a>. </p>
+</div>
+<div class='kartu bm' id='m07c-T2.3' data-mode='singkat'>
+  <span class='tag'>T2.3 &middot; Cara menurunkan SAR</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Bila SAR melebihi batas, protokol dapat diubah agar RF yang diberikan berkurang. Tiap langkah punya konsekuensi.</p>
+  <div class='l'><ul>
+<li>Medan lebih rendah: energi turun, tetapi SNR turun dan NSA lebih besar membuat waktu minimal dua kali lipat. Biasanya tidak praktis.</li>
+<li>Hapus atau kurangi pulsa presaturasi: dapat menambah artefak pergeseran fase.</li>
+<li>Perpanjang TR: pulsa per satuan waktu berkurang, tetapi pembobotan berubah, terutama pada T1.</li>
+<li>Kurangi jumlah irisan: cakupan berkurang atau perlu akuisisi tambahan sehingga waktu naik.</li>
+<li>Pakai koil penerima yang berbeda: koil kuadratur lebih efisien daripada koil linear, tanpa konsekuensi bila dipilih sejak awal.</li>
+<li>Hindari TSE atau FSE, atau perpendek rangkaian gema: energi naik dengan kuadrat sudut flip, jadi pulsa 180 derajat memberi empat kali energi pulsa 90 derajat.</li>
+<li>Kecilkan sudut flip pulsa refokus: SAR turun, kualitas citra sedikit menurun tetapi jarang membuatnya tidak diagnostik.</li></ul></div>
+  <p class='a'><b>Analogi:</b> Seperti mengatur kompor: kecilkan api, perpanjang jeda, atau kurangi jumlah panci.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07c-A1'>A1</a>. &rarr; Tautan: M09 T2.3 (Kompromi parameter saat SAR dibatasi).</p>
+</div>
+<div class='kartu bm' id='m07c-T2.4' data-mode='singkat'>
+  <span class='tag'>T2.4 &middot; Luka bakar dan efek antena</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Luka bakar dapat muncul pada loop alami di tubuh dan pada kabel logam yang beresonansi seperti antena. Pasien yang dibius tidak dapat melaporkan rasa panas.</p>
+  <div class='l'><p>Tangan yang menempel pada sisi tungkai atau tumit yang bersentuhan membentuk sirkuit biologis. Arus induksi terkonsentrasi di area kulit yang bersentuhan, yang hanya beberapa sentimeter persegi, sehingga panasnya tajam. Hal serupa dapat terjadi antara lutut atau betis, jadi produsen menganjurkan penempatan pasien dan bantalan isolasi untuk memutus loop. Pada efek antena, konduktor dengan panjang kritis bertindak sebagai antena. Dipol paling efektif berpanjang setengah panjang gelombang, dan gelombang berdiri membuat ujung kawat (antinode) menerima energi terbesar. Uji in vitro pada kawat pacu jantung menunjukkan suhu ujungnya naik hingga <span data-p='RF.kawat'>80</span> °C. Kawat penghantar harus dijauhkan dari kulit, terutama pada pasien yang dibius. Satu kasus tragis: gelang oksimeter nadi yang tidak aman-MR memanas pada bayi berusia lima minggu di bawah anestesi, menyebabkan luka bakar derajat empat dan amputasi tangan hingga lengan bawah.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti tali gitar yang bergetar paling keras di ujungnya ketika panjangnya pas dengan nadanya.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07c-A2'>A2</a>. </p>
+</div>
+<div class='kartu bm' id='m07c-T2.5' data-mode='singkat'>
+  <span class='tag'>T2.5 &middot; Arus induksi pada implan</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Selain memanaskan kabel, RF dan gradien dapat mengubah fungsi pacu jantung, sementara atau permanen. Komplikasinya jarang, tetapi dapat mengancam nyawa.</p>
+  <div class='l'><p>Sedikitnya <span data-p='IMP.k'>13</span> kematian akibat malfungsi pacu jantung telah dilaporkan, penyebab kematian terkait MRI yang paling umum. Mekanisme fisiologisnya biasanya asistol atau fibrilasi ventrikel, karena RF atau gradien mengganggu rangkaian pengindera sehingga memicu rangsangan jantung yang tidak tepat. Pacu jantung yang terlalu cepat menurunkan tekanan darah arteri secara bermakna. Gangguan lain: catu daya internal terganggu dan saklar buluh (reed switch) aktif sehingga pacu tidak sinkron. Produsen kini memodifikasi kabel agar ujungnya tidak memanas, memperbaiki rangkaian pengindera, mengurangi komponen ferromagnetik, memasang filter pada catu daya, dan mengganti saklar buluh dengan transduser analog. Karena itu ada perangkat yang aman bersyarat dipindai.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti radio yang kena gangguan sinyal: bunyinya bisa kacau atau mati.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07c-A2'>A2</a>. </p>
+</div>
+<div class='kartu bm' id='m07c-T2.6' data-mode='singkat'>
+  <span class='tag'>T2.6 &middot; Stimulasi saraf oleh gradien</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Gradien yang berganti cepat menginduksi arus di jaringan tubuh. Bila arus melewati ambang, saraf atau otot terangsang. Pasien merasa ketukan, kesemutan, atau denyutan di tungkai.</p>
+  <div class='l'><p>Arus minimum yang mendepolarisasi sel saraf atau otot disebut reobase. Kepekaan jaringan dinyatakan dengan nilai kronaksi, yaitu lama denyut minimum saat arus bernilai dua kali reobase. Risiko serius bila otot jantung atau diafragma terpengaruh, tetapi pada pemindai diagnostik ambang jantung jauh lebih tinggi daripada ambang saraf tepi. Pedoman: pada mode normal gradien tidak melebihi <span data-p='STIM.n'>80</span> persen ambang rata-rata saraf tepi dan tidak pernah melebihi <span data-p='STIM.m'>100</span> persen. Mode riset boleh sampai <span data-p='STIM.r'>120</span> persen. Pada studi anjing, rangsangan napas butuh <span data-p='STIM.a'>300</span> persen dan rangsangan jantung <span data-p='STIM.j'>900</span> persen. Produsen juga membatasi slew rate, biasanya sampai <span data-p='STIM.sl'>200</span> T/m/s. Gradien dapat pula mengganggu elektronik implan, menginduksi arus pada logam, dan menimbulkan getaran berfrekuensi tinggi yang tidak nyaman.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti sengatan listrik statis yang kecil: di bawah ambang tidak terasa, di atas ambang mulai terasa.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07c-A3'>A3</a>. </p>
+</div>
+<div class='kartu bm' id='m07c-T2.7' data-mode='singkat'>
+  <span class='tag'>T2.7 &middot; Bising akustik</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Gradient coil menimbulkan bising keras karena gaya Lorentz, dan pelindung telinga dianjurkan untuk pasien. Makin cepat arus gradien berganti (dB/dt), makin keras bunyinya.</p>
+  <div class='l'><p>Arus di gradient coil berinteraksi dengan medan statis, lalu getaran merambat lewat struktur pemindai ke udara dan ditangkap gendang telinga. Skala desibel bersifat logaritmik: kenaikan <span data-p='BIS.tkr'>3</span> dB berarti intensitas dua kali lipat. OSHA menyarankan paparan di bawah <span data-p='BIS.ref'>85</span> dB setara 8 jam. Pada <span data-p='BIS.m15'>100</span> dB, batasnya tinggal 15 menit per hari. Bore 1,5 T dapat mencapai <span data-p='BIS.m15'>100</span> dB, dan bore 3 T dengan sekuens echo-planar <span data-p='BIS.m3'>115</span> dB. Bunyinya terputus-putus dan pasien tidak sering dipindai, jadi kerusakan permanen akibat satu pemeriksaan kecil kemungkinannya. Tetap saja bunyi di atas <span data-p='BIS.gg'>75</span> dB mulai mengganggu, dan ICNIRP menyarankan pelindung telinga di atas <span data-p='BIS.ic'>80</span> dB. Bila koil kepala tidak muat untuk pelindung, pakai sumbat telinga yang mengisi seluruh liang telinga dan ajarkan cara memasangnya. Sekuens senyap memakai lintasan ruang-k radial spiral dengan langkah gradien kecil, cocok untuk anak, lansia, atau pasien gelisah.</p><p>Rangsangan saraf oleh gradien (ketukan, kesemutan) punya mekanisme dan ambang berbeda; lihat T2.6.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti knop volume: tiap naik <span data-p='BIS.tkr'>3</span> dB, daya bunyinya digandakan.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07c-A4'>A4</a>. &rarr; Tautan: M06A T2.4 (Fisika bising gradien (gaya Lorentz)).</p>
+</div>
+<h3>Tingkat 3 (Lanjut)</h3>
+<div class='kartu bm lanjut' id='m07c-T3.1' data-mode='singkat'>
+  <span class='tag'>T3.1 &middot; Batas SAR dan suhu tubuh (Tabel 10.1)</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Batas SAR dirata-ratakan selama <span data-p='SX.mnt'>6</span> menit, dan dalam 10 detik mana pun tidak boleh melebihi <span data-p='SX.fak'>2</span> kali nilainya. Ada pula batas kenaikan suhu inti tubuh untuk tiap mode.</p>
+  <div class='l'><p>Mode normal: seluruh tubuh <span data-p='SN.tubuh'>2</span>, kepala <span data-p='SN.kep'>3,2</span> W/kg, koil lokal kepala dan badan <span data-p='SN.lk'>10</span>, ekstremitas <span data-p='SN.le'>20</span> W/kg. Mode tingkat satu: seluruh tubuh <span data-p='ST.tubuh'>4</span>, kepala <span data-p='ST.kep'>3,2</span>, koil lokal kepala dan badan <span data-p='ST.lk'>20</span>, ekstremitas <span data-p='ST.le'>40</span> W/kg. Mode tingkat dua: di atas nilai itu. Suhu inti: mode normal naik paling banyak <span data-p='SN.naik'>0,5</span> °C hingga paling tinggi <span data-p='SN.maks'>39</span> °C. Mode tingkat satu naik paling banyak <span data-p='ST.naik'>1</span> °C hingga paling tinggi <span data-p='ST.maks'>40</span> °C. Mode tingkat dua boleh lebih dari itu. Dengan koil transmit lokal, suhu orbita dibatasi <span data-p='SX.orb'>1</span> °C. Bila sistem menolak memulai akuisisi karena SAR terlampaui, operator dapat meminta nasihat medis untuk beralih ke mode tingkat satu. Mode tingkat dua hanya untuk riset, tidak untuk pemeriksaan klinis, dan dikunci perangkat lunak. Hal yang dipertimbangkan sebelum beralih: usia (lansia, neonatus), bentuk tubuh (obesitas), demam, dan obat yang mengubah pengaturan suhu. Pasien yang dibius atau tak dapat berkomunikasi mungkin dikecualikan karena pemantauan efektif diperlukan.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti batas kecepatan: ada batas biasa, batas dengan pengawasan, dan lintasan uji tertutup.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07c-A1'>A1</a>. </p>
+</div>
+<div class='kartu bm lanjut' id='m07c-T3.2' data-mode='singkat'>
+  <span class='tag'>T3.2 &middot; Panjang gelombang di jaringan</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Panjang gelombang RF di tubuh lebih pendek daripada di vakum, jadi panjang kritis kawat pun lebih pendek.</p>
+  <div class='l'><p>Panjang gelombang beberapa meter yang disebut tadi berlaku di vakum. Jaringan mengandung muatan dan dipol molekul yang melawan medan luar. Besarnya pengurangan dinyatakan dengan permitivitas relatif, yaitu tepat 1 untuk vakum dan lebih dari 1 untuk jaringan. Pada sekitar <span data-p='RF.f15'>63,9</span> MHz air bernilai <span data-p='RF.eps.a'>81</span> dan darah <span data-p='RF.eps.d'>67</span>. Karena kawat pacu jantung berada di dalam darah, nilai <span data-p='RF.eps.d'>67</span> memendekkan panjang gelombang menjadi sekitar <span data-p='RF.lbd'>58</span> cm, sehingga panjang dipol kritisnya sekitar <span data-p='RF.dip'>29</span> cm.</p></div>
+  <p class='a'><b>Analogi:</b> Seperti suara di dalam air: gelombangnya lebih pendek daripada di udara.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07c-A5'>A5</a>. &rarr; Tautan: M06B A7 (komponen B1 yang sama).</p>
+</div>
+<div class='kartu bm lanjut' id='m07c-T3.3' data-mode='singkat'>
+  <span class='tag'>T3.3 &middot; Mode operasi IEC 60601-2-33</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>Ada tiga mode: normal, tingkat satu, dan tingkat dua. Mode yang lebih tinggi mengizinkan batas lebih besar.</p>
+  <div class='l'><p>Menaikkan mode hanya boleh dilakukan oleh pihak yang berwenang menurut kebijakan fasilitas. <!-- TODO-VERIFIKASI: siapa yang berwenang menaikkan mode, cek IEC dan SOP --></p></div>
+  <p class='a'><b>Analogi:</b> Seperti gigi kendaraan: gigi lebih tinggi butuh pengemudi yang berwenang.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07c-A1'>A1</a>. </p>
+</div>
+<div class='kartu bm lanjut' id='m07c-T3.4' data-mode='singkat'>
+  <span class='tag'>T3.4 &middot; Cara SAR naik dan turun</span>
+  <div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+  <p class='s'>SAR naik kira-kira dengan kuadrat B0 dan kuadrat sudut flip.</p>
+  <div class='l'><p>Untuk menurunkan SAR, sudut flip dapat dikecilkan atau jumlah pulsa RF per waktu dikurangi. Cobalah di kalkulator. <!-- TODO-VERIFIKASI: daftar cara menurunkan SAR --></p></div>
+  <p class='a'><b>Analogi:</b> Menggandakan sudut flip seperti menggandakan tenaga dorongan: panasnya naik empat kali lipat.</p>
+  <p class='sumber lembut'>&#9654; Simulasi: <a href='#m07c-A1'>A1</a>. </p>
+</div>
+  <h2>Aktivitas M07C</h2>
+  <div class='kartu' id='m07c-A1'>
+  <b>A1. Kalkulator SAR</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07c-T2.2'>T2.2</a>, <a href='#m07c-T2.3'>T2.3</a>, <a href='#m07c-T3.1'>T3.1</a>, <a href='#m07c-T3.3'>T3.3</a>, <a href='#m07c-T3.4'>T3.4</a>.</p>
+  <div class='pilih mode-switch' role='group' aria-label='Pilih tampilan aktivitas'><button type='button' data-target-panel='mode' aria-pressed='true'>Kalkulator mode SAR</button><button type='button' data-target-panel='batas' aria-pressed='false'>Pemeriksa batas (Tabel 10.1)</button><button type='button' data-target-panel='turun' aria-pressed='false'>Menurunkan SAR</button></div>
+  <div data-panel='mode'>
+<p class='lembut'>Masukkan SAR awal, lalu ubah B0 atau sudut flip. SAR baru = SAR awal x (B0 baru / B0 awal) kuadrat x (skala sudut flip) kuadrat. Alat ini hanya latihan.</p>
+<label for='kbag'>Bagian</label><select id='kbag'><option value='tubuh'>Seluruh tubuh</option><option value='kepala'>Kepala</option></select>
+<label for='kmode'>Mode operasi</label><select id='kmode'><option value='normal'>Normal</option><option value='tingkat1'>Tingkat satu</option></select>
+<label for='kb0a'>B0 awal</label><select id='kb0a'></select>
+<label for='kb0b'>B0 baru</label><select id='kb0b'></select>
+<label for='ksar'>SAR awal (W/kg)</label><input type='number' id='ksar' min='0' step='0.1'>
+<label for='kfl'>Skala sudut flip: <span id='kfv'></span></label><input type='range' id='kfl' min='0.5' max='1.5' step='0.1' value='1'>
+<p class='hasil' id='khasil' role='status' aria-live='polite'></p>
+<div class='meter' aria-hidden='true'><i id='kmeter'></i></div>
+<p>Status: <span id='kbadge' class='lencana'></span></p>
+<div class='baris'><button type='button' id='kr'>Reset</button></div>
+</div>
+<div data-panel='batas' hidden>
+<p class='lembut'>Pilih mode dan wilayah, lalu isi SAR rata-rata dan SAR puncak. Ini latihan konsep.</p>
+<label for='sxm'>Mode operasi</label><select id='sxm'><option value='n'>Normal</option><option value='t'>Tingkat satu</option></select>
+<label for='sxw'>Wilayah dan jenis koil</label><select id='sxw'></select>
+<label for='sxa'>SAR rata-rata 6 menit (W/kg)</label><input type='number' id='sxa' min='0' step='0.1'>
+<label for='sxp'>SAR puncak 10 detik (W/kg)</label><input type='number' id='sxp' min='0' step='0.1'>
+<p class='hasil' id='sxk' role='status' aria-live='polite'></p>
+<div class='meter' aria-hidden='true'><i id='sxmt'></i></div>
+<p>Status: <span id='sxb' class='lencana'></span></p>
+<p class='lembut' id='sxs'></p>
+<div class='baris'><button type='button' id='sxr'>Reset</button></div>
+</div>
+<div data-panel='turun' hidden>
+<p class='lembut'>Ubah parameter. SAR relatif dihitung dari hubungan di materi (kuadrat B0 dan sudut flip, kebalikan TR, sebanding dengan jumlah irisan). Gambaran sederhana: energi dianggap berasal dari pulsa refokus.</p>
+<div class='pilih' id='srb0' role='group' aria-label='Pilih B0'></div>
+<label for='srt'>Skala TR: <span id='srtv'></span></label><input type='range' id='srt' min='1' max='2' step='0.1' value='1'>
+<label for='sri'>Skala jumlah irisan: <span id='sriv'></span></label><input type='range' id='sri' min='0.5' max='1' step='0.1' value='1'>
+<label for='srf'>Skala sudut flip refokus: <span id='srfv'></span></label><input type='range' id='srf' min='0.5' max='1' step='0.1' value='1'>
+<div class='meter' aria-hidden='true'><i id='srm'></i></div>
+<p class='hasil' id='srk' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='srr'>Reset</button></div>
+</div>
+
+</div>
+<div class='kartu' id='m07c-A2'>
+  <b>A2. Luka bakar: efek antena pada kawat dan loop konduktif</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07c-T2.4'>T2.4</a>, <a href='#m07c-T2.5'>T2.5</a>.</p>
+  <div class='pilih mode-switch' role='group' aria-label='Pilih tampilan aktivitas'><button type='button' data-target-panel='antena' aria-pressed='true'>Efek antena pada kawat</button><button type='button' data-target-panel='loop' aria-pressed='false'>Loop konduktif pada tubuh</button></div>
+  <div data-panel='antena'>
+<p class='lembut'>Pilih B0 dan medium, lalu geser panjang kawat. Pemanasan di ujung terbesar saat panjang kawat sekitar setengah panjang gelombang (gambaran kualitatif).</p>
+<div class='pilih' id='anb0' role='group' aria-label='Pilih B0'></div>
+<div class='pilih' id='anmd' role='group' aria-label='Pilih medium'></div>
+<label for='anl'>Panjang kawat: <span id='anlv'></span> cm</label>
+<input type='range' id='anl'>
+<svg id='ansvg' viewBox='0 0 600 170' role='img' aria-label='Kawat dengan gelombang berdiri dan pemanasan di ujung'></svg>
+<p class='hasil' id='ank' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='anr'>Reset</button></div>
+</div>
+<div data-panel='loop' hidden>
+<p class='lembut'>Nyalakan postur. Titik kontak kulit yang kecil memusatkan arus dan memanas (merah). Bantalan isolasi memutus loop.</p>
+<div class='pilih' id='lpbtn' role='group' aria-label='Postur dan bantalan'></div>
+<svg id='lpsvg' viewBox='0 0 300 300' role='img' aria-label='Siluet tubuh dengan titik kontak kulit'></svg>
+<p class='hasil' id='lpk' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='lpr'>Reset</button></div>
+</div>
+
+</div>
+<div class='kartu' id='m07c-A3'>
+  <b>A3. Ambang stimulasi saraf oleh gradien</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07c-T2.6'>T2.6</a>.</p>
+  
+  <p class='lembut'>Atur tingkat gradien sebagai persen dari ambang saraf tepi. Lihat ambang mana yang terlampaui.</p>
+<div class='pilih' id='stbtn' role='group' aria-label='Pilih mode gradien'></div>
+<label for='stl'>Tingkat gradien: <span id='stlv'></span> persen dari ambang saraf tepi</label>
+<input type='range' id='stl'>
+<svg id='stsvg' viewBox='0 0 600 190' role='img' aria-label='Tiga batang ambang stimulasi'></svg>
+<p class='hasil' id='stk' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='str'>Reset</button></div>
+</div>
+<div class='kartu' id='m07c-A4'>
+  <b>A4. Kalkulator bising dan lama paparan</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07c-T2.7'>T2.7</a>.</p>
+  
+  <p class='lembut'>Pilih contoh bunyi atau geser tingkat bunyinya. Lihat intensitas relatif dan batas paparan harian.</p>
+<label for='nssel'>Contoh bunyi</label><select id='nssel'></select>
+<label for='nsd'>Tingkat bunyi: <span id='nsdv'></span> dB</label>
+<input type='range' id='nsd'>
+<svg id='nssvg' viewBox='0 0 600 95' role='img' aria-label='Skala tingkat bunyi dalam desibel'></svg>
+<p class='hasil' id='nsk' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='nsr'>Reset</button></div>
+</div>
+<div class='kartu lanjut' id='m07c-A5'>
+  <b>A5. Panjang gelombang RF di jaringan: 1,5 T vs 3 T, pola B1 tidak rata</b>
+  <p class='sumber lembut'>Menjelaskan: <a href='#m07c-T3.2'>T3.2</a>.</p>
+  
+  <p class='lembut'>Pilih B0 dan geser lebar tubuh. Panjang gelombang RF di jaringan lebih pendek pada medan tinggi. Bila sebanding dengan lebar tubuh, gelombang saling menjumlah dan menghapus, sehingga pola B1 tidak rata. Gambaran kualitatif.</p>
+<div class='pilih' id='bwb0' role='group' aria-label='Pilih B0'></div>
+<label for='bwl'>Lebar tubuh: <span id='bwlv'></span> cm</label>
+<input type='range' id='bwl'>
+<svg id='bwsvg' viewBox='0 0 600 240' role='img' aria-label='Penampang tubuh dengan pola intensitas B1 dan grafik profilnya'></svg>
+<p class='hasil' id='bwk' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='bwr'>Reset</button></div>
+</div>
+  <h2>Cek pemahaman M07C</h2>
+  <div id='kuis-m07c'></div>
+</section>
+</main>
+<script>
+/* Data bersama M07A/B/C. Blok TETAP dari template; tambahan baru ada di data-tambahan.js */
+/* TETAP: awal */
+// Konfigurasi dasar modul
+const DATA={
+ SN:{tubuh:2,bag:[2,10],kep:3.2,lk:10,lb:10,le:20,naik:0.5,maks:39}, // mode normal (Tabel 10.1)
+ ST:{tubuh:4,bag:[4,10],kep:3.2,lk:20,lb:20,le:40,naik:1,maks:40}, // mode tingkat satu
+ SX:{mnt:6,fak:2,orb:1,fert:6,testis:3.5},
+ RF:{c:299.79,nm:10,l1:7,f15:63.87,l15:4.69,kawat:80,lbd:58,dip:29,eps:{u:1,a:81,d:67}},
+ IMP:{k:13},
+ STIM:{n:80,m:100,r:120,a:300,j:900,sl:200}, // persen ambang saraf tepi; slew maksimum tipikal (T/m/s)
+ BIS:{ref:85,mnt:480,tkr:3,m15:100,m3:115,ic:80,gg:75,ny:140,tabel:[['Tembakan atau ledakan',170],['Mesin pesawat jet (lepas landas)',140],['Konser rock (barisan depan)',125],['Bore MRI 3 T (echo-planar)',115],['Klub malam (lantai dansa)',110],['Bore MRI 1,5 T, kabin pesawat, orkestra',100],['Pemutar MP3 volume tinggi',95],['Mesin motor',90],['Mobil',70],['Percakapan normal',60],['Bisikan',20],['Napas',10]]},
+ KR:{k:4,o:21,lo:19.5,hi:23.5,s:8,f:6,dt:10,m1:2,m2:4,e:754,L:1600,j:8},
+ PSIKO:{sedasi_persen:14.3,ct_persen:42,mri_persen:12,penurunan_kali:3},
+ ZONA:{cadangan_jam:24,pelatihan_bulan:12,uji_T:1},
+ EFEK:{bumi_mT:0.05,rasa_logam_T:[3,7],vertigo_T:7,icnirp_T:8,pulih_menit:15},
+ KONTUR:[[1.5,3],[2.3,1],[3,0.5],[3.6,0.3],[5,0.1]], // TODO-VERIFIKASI: dibaca kasar dari Gambar 10.3 (jarak dari isosenter dalam m, medan dalam mT), bergantung model
+ FISIKA:{gamma:42.58,larmor_MHz:{1.5:63.87,3:127.74}},
+ KESELAMATAN:{sar_tubuh_W_per_kg:{normal:2,tingkat1:4},sar_kepala_normal_W_per_kg:3.2,garis_gauss_mT:{standar:0.5,alternatif:0.9}}
+};
+/* TETAP: akhir */
+
+/* Data untuk simpul/aktivitas [BARU]. Aman diedit. */
+Object.assign(DATA,{
+ KONTRAS:{egfr:30},   // TODO-VERIFIKASI: ambang eGFR (mL/menit/1,73 m2) untuk kehati-hatian NSF; cek ACR Manual on Contrast Media dan SOP lokal
+ LENZ:{c:3,tinggi:0.8,medan_T:[0,1.5,3,7],bahan:[['Plastik (non-konduktor)',0],['Aluminium',1],['Tembaga',1.6]]}, // ilustratif: c dan konduktivitas relatif bukan data terukur
+ B1:{lebar_cm:[20,50,35]} // rentang dan nilai awal lebar tubuh (cm), ilustratif
+});
+
+/* Pembantu bersama. Urutan muat: data.js, data-tambahan.js, util.js */
+const $=(id)=>document.getElementById(id);
+const fmt=(x,d)=>x.toFixed(d).replace('.',',');
+const nf=(x,d)=>x.toLocaleString('id-ID',{maximumFractionDigits:d});
+const g1=x=>fmt(x,Number.isInteger(x)?0:1);
+const T=(x,y,t,c,a)=>`<text x='${x}' y='${y}' text-anchor='${a||'start'}' fill='${c||'var(--teks)'}' font-size='13'>${t}</text>`;
+const Tf=(x,y,t,c,a,f)=>`<text x='${x}' y='${y}' text-anchor='${a||'start'}' fill='${c||'var(--teks)'}' font-size='${f||13}'>${t}</text>`;
+const K=DATA.KESELAMATAN,BIS=DATA.BIS,KRI=DATA.KR;
+const B0S=Object.keys(DATA.FISIKA.larmor_MHz).sort((a,b)=>a-b);
+/* nilai untuk <span data-d='...'> di materi */
+const NIL={g1:K.garis_gauss_mT.standar,g2:K.garis_gauss_mT.alternatif,sn:K.sar_tubuh_W_per_kg.normal,s1:K.sar_tubuh_W_per_kg.tingkat1,sk:K.sar_kepala_normal_W_per_kg,t7:DATA.EFEK.vertigo_T,t8:DATA.EFEK.icnirp_T,jam:DATA.ZONA.cadangan_jam,bln:DATA.ZONA.pelatihan_bulan,ut:DATA.ZONA.uji_T,sed:DATA.PSIKO.sedasi_persen,ct:DATA.PSIKO.ct_persen,mri:DATA.PSIKO.mri_persen,tiga:DATA.PSIKO.penurunan_kali};
+
+/* TETAP: awal */
+// Mesin pemroses kuis bawaan template
+function jalankanKuis(el,soal){
+ let i=0;const st=soal.map(()=>({salah:new Set(),benar:-1}));
+ function skor(){return st.filter(x=>x.benar>=0&&x.salah.size===0).length;}
+ function tampil(){
+  el.innerHTML='';
+  const kartu=document.createElement('div');kartu.className='kartu';el.appendChild(kartu);
+  if(i>=soal.length){
+   kartu.innerHTML='<b>Skor: '+skor()+' / '+soal.length+'</b><p class=\'lembut\'>Dihitung dari soal yang benar pada percobaan pertama.</p>';
+   const n=document.createElement('div');n.className='navkuis';
+   const b1=document.createElement('button');b1.textContent='\u2190 Kembali ke soal';b1.onclick=()=>{i=soal.length-1;tampil();};
+   const b2=document.createElement('button');b2.textContent='Ulangi kuis';b2.onclick=()=>{st.forEach(x=>{x.salah.clear();x.benar=-1;});i=0;tampil();};
+   n.append(b1,b2);kartu.appendChild(n);return;
+  }
+  const s=soal[i],t=st[i];
+  const p=document.createElement('p');p.innerHTML='<b>'+(i+1)+'/'+soal.length+'.</b> '+s.pertanyaan;kartu.appendChild(p);
+  s.pilihan.forEach((teks,k)=>{
+   const b=document.createElement('button');b.className='opsi';b.type='button';
+   if(t.benar===k){b.classList.add('benar');b.textContent='\u2713 '+teks;}
+   else if(t.salah.has(k)){b.classList.add('salah');b.textContent='\u2717 '+teks;}
+   else b.textContent=teks;
+   b.disabled=(t.benar>=0&&t.benar!==k)||t.salah.has(k);
+   b.onclick=()=>{if(t.benar>=0)return;if(k===s.jawaban)t.benar=k;else t.salah.add(k);tampil();};
+   kartu.appendChild(b);
+  });
+  const info=document.createElement('p');info.setAttribute('role','status');info.setAttribute('aria-live','polite');
+  if(t.benar>=0){info.className='ok';info.textContent='Benar. '+s.penjelasan;}
+  else if(t.salah.size){info.className='no';info.textContent='Belum tepat. Coba pilihan lain.';}
+  kartu.appendChild(info);
+  const n=document.createElement('div');n.className='navkuis';
+  const bk=document.createElement('button');bk.textContent='\u2190 Kembali';bk.disabled=i===0;bk.onclick=()=>{i--;tampil();};
+  const bl=document.createElement('button');bl.textContent=i===soal.length-1?'Selesai':'Lanjut \u2192';bl.onclick=()=>{i++;tampil();};
+  n.append(bk,bl);kartu.appendChild(n);
+ }
+ tampil();
+}
+/* TETAP: akhir */
+
+/* --- Tambahan: kuis dinamis per tingkat (di luar blok TETAP) --- */
+function kuisBertingkat(el,soal,tingkat){
+ const bar=document.createElement('div');bar.className='pilih';bar.setAttribute('role','group');bar.setAttribute('aria-label','Pilih tingkat kuis');
+ const kotak=document.createElement('div');el.append(bar,kotak);
+ const opsi=[['Semua tingkat',()=>true]].concat(tingkat.map(t=>['Tingkat '+t+(t===3?' (lanjut)':''),s=>s.tingkat===t]));
+ opsi.forEach((o,i)=>{const b=document.createElement('button');b.type='button';b.textContent=o[0];
+  b.onclick=()=>{[...bar.children].forEach(x=>x.setAttribute('aria-pressed',x===b));jalankanKuis(kotak,soal.filter(o[1]));};
+  bar.appendChild(b);});
+ bar.children[0].click();
+}
+
+/* Interaksi kartu materi (.bm) & tab mode aktivitas (.mode-switch) */
+document.querySelectorAll('.bm').forEach(k=>{
+ if(!k.dataset.mode) k.dataset.mode='singkat';
+ const g=k.querySelector('.pilih');
+ if(g){
+  const btns=g.querySelectorAll('button');
+  btns.forEach(b=>{
+   b.onclick=()=>{
+    k.dataset.mode=b.dataset.mode;
+    btns.forEach(x=>x.setAttribute('aria-pressed',x===b));
+   };
+  });
+ }
+});
+document.querySelectorAll('.mode-switch').forEach(g=>{
+ const card=g.closest('.kartu');
+ const btns=g.querySelectorAll('button');
+ btns.forEach(b=>{
+  b.onclick=()=>{
+   btns.forEach(x=>x.setAttribute('aria-pressed',x===b));
+   card.querySelectorAll('[data-panel]').forEach(p=>p.hidden=(p.dataset.panel!==b.dataset.targetPanel));
+  };
+ });
+});
+function isiNilai(){
+ document.querySelectorAll('[data-d]').forEach(e=>{const v=NIL[e.dataset.d];if(v!==undefined)e.textContent=fmt(v,Number.isInteger(v)?0:1);});
+ document.querySelectorAll('[data-p]').forEach(e=>{const v=e.dataset.p.split('.').reduce((o,k)=>o[k],DATA);if(v!==undefined)e.textContent=fmt(v,Number.isInteger(v)?0:1);});
+}
+isiNilai();
+
+/* Filter pecahan M07A / M07B / M07C */
+document.querySelectorAll('#filter-pecahan button').forEach(btn=>{
+ btn.onclick=()=>{
+  const tgt=btn.dataset.target;
+  document.querySelectorAll('#filter-pecahan button').forEach(x=>x.setAttribute('aria-pressed',x===btn));
+  document.querySelectorAll('.pecahan-m07').forEach(sec=>{
+   sec.hidden=(tgt!=='ALL'&&sec.dataset.pecahan!==tgt);
+  });
+ };
+});
+
+/* === Aktivitas m07a-A1: Denah zona dan akses personel === */
+(function(){
+ const root=$('m07a-A1');
+
+/* --- dari aktivitas asli #1 --- */
+const ZONA=[
+ ['Zona I: umum','Area yang bebas dimasuki siapa saja, misalnya pintu masuk dan ruang tunggu.'],
+ ['Zona II: antara','Pasien diterima, ditanyai, dan diberi penjelasan. Pengawasan dimulai di sini.'],
+ ['Zona III: terkontrol','Hanya orang yang sudah diskrining. Akses dikendalikan karena dekat ruang magnet.'],
+ ['Zona IV: ruang magnet','Ruang pemindai. B0 selalu menyala. Hanya orang yang lolos skrining dan benda aman-MR yang boleh masuk.']];
+let zA=0,gA=0;
+const GV=[NIL.g1,NIL.g2],GN=['standar','alternatif'];
+ZONA.forEach((z,i)=>{const b=document.createElement('button');b.type='button';b.textContent='Zona '+['I','II','III','IV'][i];b.onclick=()=>{zA=i;gambarZona();};$('zbtn').appendChild(b);});
+GV.forEach((g,i)=>{const b=document.createElement('button');b.type='button';b.textContent='Garis '+fmt(g,1)+' mT ('+GN[i]+')';b.onclick=()=>{gA=i;gambarZona();};$('gbtn').appendChild(b);});
+function gambarZona(){
+ const r=70*Math.pow(GV[0]/GV[gA],1/3);
+ const R=[[10,10,580,320],[40,38,520,264],[70,66,460,208],[100,92,400,156]];
+ let h='';
+ R.forEach((a,i)=>{h+=`<rect x='${a[0]}' y='${a[1]}' width='${a[2]}' height='${a[3]}' rx='10' fill='var(--aksen)' fill-opacity='${.06+.09*i}' stroke='${i===zA?'var(--teks)':'var(--garis)'}' stroke-width='${i===zA?4:1}' style='cursor:pointer'/>`+T(a[0]+10,a[1]+20,'Zona '+['I','II','III','IV'][i]);});
+ h+=`<circle cx='300' cy='170' r='${r}' fill='none' stroke='var(--t1)' stroke-width='2' stroke-dasharray='6 4'/><circle cx='300' cy='170' r='30' fill='var(--b0)' fill-opacity='.7'/>`+T(300,175,'magnet',null,'middle')+T(388,150,'Garis 5 gauss',null)+T(388,168,'('+fmt(GV[gA],1)+' mT)',null);
+ $('zsvg').innerHTML=h;
+ $('zsvg').querySelectorAll('rect').forEach((e,i)=>e.onclick=()=>{zA=i;gambarZona();});
+ [...$('zbtn').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===zA));
+ [...$('gbtn').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===gA));
+ $('zket').textContent=ZONA[zA][0]+'. '+ZONA[zA][1]+' Garis 5 gauss: '+fmt(GV[gA],1)+' mT. Medan menurun dengan jarak, jadi garis yang lebih besar nilainya letaknya lebih dekat ke magnet.';
+}
+$('zr').onclick=()=>{zA=0;gA=0;gambarZona();};
+gambarZona();
+/* --- dari aktivitas asli #7 --- */
+const Z=DATA.ZONA;
+const AK=[
+ ['Pengunjung atau staf non-MRI',['ok','ok','no','no'],'Belum menjalani pelatihan keselamatan formal dalam '+Z.pelatihan_bulan+' bulan terakhir.'],
+ ['Pasien belum diskrining',['ok','awas','no','no'],'Disambut di Zona II dan tidak bebas bergerak. Jawaban skrining dan riwayat diambil di sini.'],
+ ['Pasien sudah diskrining',['ok','awas','awas','awas'],'Berada di bawah pengawasan langsung personel MRI saat memasuki Zona III dan IV.'],
+ ['Personel Level 1',['ok','ok','ok','sop'],'Staf kantor dan pembantu pasien dengan pendidikan keselamatan minimal untuk bekerja di Zona III. Akses ke Zona IV tidak diuraikan pada teks sumber.'], // TODO-VERIFIKASI: akses Level 1 ke Zona IV
+ ['Personel Level 2',['ok','ok','ok','ok'],'Teknolog MRI, radiolog, dan perawat yang dilatih mendalam tentang pemanasan, luka bakar, dan rangsangan saraf-otot akibat gradien.']];
+let pI=0,pL=false,pR=false;
+const WS={ok:'var(--benar)',awas:'var(--t1)',no:'var(--salah)',sop:'var(--lembut)'},WT={ok:'bebas',awas:'dengan pengawasan',no:'tidak boleh',sop:'ikuti SOP'};
+function orang(i){
+ const kulit='#f1c27d',rambut=['#3b2f2f','#8d5524','#2b2b2b','#c0841f','#5c3b1e'][i],kaki=['#495057',kulit,kulit,'#495057','#12b886'][i];
+ let h=`<rect x='20' y='62' width='8' height='22' rx='3' fill='${kaki}'/><rect x='32' y='62' width='8' height='22' rx='3' fill='${kaki}'/>`;
+ const lencana=(c,t)=>`<circle cx='50' cy='10' r='8' fill='${c}'/><text x='50' y='14' text-anchor='middle' font-size='11' font-weight='700' fill='#fff'>${t}</text>`;
+ if(i===0)h+=`<rect x='9' y='30' width='8' height='26' rx='4' fill='#868e96'/><rect x='43' y='30' width='8' height='26' rx='4' fill='#868e96'/><rect x='17' y='28' width='26' height='36' rx='8' fill='#868e96'/><path d='M22 28 L50 50' stroke='#a9743f' stroke-width='2'/><rect x='44' y='46' width='13' height='15' rx='3' fill='#a9743f'/>`;
+ if(i===1||i===2)h+=`<rect x='9' y='30' width='8' height='24' rx='4' fill='#a5d8ff'/><rect x='43' y='30' width='8' height='24' rx='4' fill='#a5d8ff'/><path d='M16 28 H44 L48 66 H12 Z' fill='#a5d8ff' stroke='#4c6ef5'/>`+(i===1?lencana('#f08c00','?'):`<rect x='9' y='50' width='8' height='4' fill='#2b8a3e'/>`+lencana('#2b8a3e','✓'));
+ if(i===3)h+=`<rect x='9' y='30' width='8' height='26' rx='4' fill='#e9ecef' stroke='#adb5bd'/><rect x='43' y='30' width='8' height='26' rx='4' fill='#e9ecef' stroke='#adb5bd'/><rect x='17' y='28' width='26' height='36' rx='6' fill='#e9ecef' stroke='#adb5bd'/><path d='M30 28 l-3 8 3 14 3 -14 z' fill='#1c7ed6'/><rect x='34' y='42' width='9' height='11' fill='#fff' stroke='#1c7ed6'/>`+lencana('#1c7ed6','1');
+ if(i===4)h+=`<rect x='17' y='28' width='26' height='36' rx='6' fill='#12b886'/><path d='M15 28 H27 L24 70 H12 Z M45 28 H33 L36 70 H48 Z' fill='#fff' stroke='#868e96'/><rect x='6' y='30' width='9' height='28' rx='4' fill='#fff' stroke='#868e96'/><rect x='45' y='30' width='9' height='28' rx='4' fill='#fff' stroke='#868e96'/><path d='M24 28 Q30 46 36 28' fill='none' stroke='#343a40' stroke-width='2'/>`+lencana('#7048e8','2');
+ return h+`<circle cx='30' cy='16' r='10' fill='${kulit}' stroke='#7a5a2a'/><path d='M20 15 A10 10 0 0 1 40 15 Q30 9 20 15 Z' fill='${rambut}'/>`;
+}
+AK.forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.className='org';b.setAttribute('aria-label',a[0]);b.innerHTML=`<svg viewBox='0 0 60 90' width='50' height='75' aria-hidden='true'>${orang(i)}</svg><span>${a[0]}</span>`;b.onclick=()=>{pI=i;gambarAkses();};$('pbtn').appendChild(b);});
+function gambarAkses(){
+ const st=AK[pI][1],WP={ok:'✓ bebas',awas:'! diawasi',no:'✕ dilarang',sop:'? ikuti SOP'};
+ const Ts=(x,y,t,c,a,f)=>`<text x='${x}' y='${y}' text-anchor='${a||'start'}' fill='${c||'var(--teks)'}' font-size='${f||13}'>${t}</text>`;
+ const F=(x,y,w,hh,t)=>`<rect x='${x}' y='${y}' width='${w}' height='${hh}' rx='4' fill='var(--permukaan)' stroke='var(--lembut)'/>`+(t?Ts(x+w/2,y+hh/2+4,t,'var(--lembut)','middle',11):'');
+ const Zr=[[10,180,225,150],[10,10,225,170],[235,10,115,320],[350,10,240,320]],zl=[[20,202],[20,30],[245,30],[360,30]],zn=['Zona I','Zona II','Zona III','Zona IV'];
+ let h=`<defs><clipPath id='m7akses'><rect x='350' y='10' width='240' height='320'/></clipPath></defs>`;
+ Zr.forEach((r,i)=>{h+=`<rect x='${r[0]}' y='${r[1]}' width='${r[2]}' height='${r[3]}' fill='${WS[st[i]]}' fill-opacity='.3'/>`+Ts(zl[i][0],zl[i][1],zn[i],'var(--teks)','start',14)+Ts(zl[i][0],zl[i][1]+16,WP[st[i]],WS[st[i]],'start',12);});
+ /* perabot */
+ h+=F(20,66,64,26,'skrining')+F(98,66,126,26,'loker logam');
+ for(let i=0;i<5;i++)h+=F(20+i*42,130,30,26);
+ h+=Ts(120,172,'ruang tunggu','var(--lembut)','middle',11)+Ts(120,270,'lobi','var(--lembut)','middle',11)+Ts(110,322,'pintu masuk','var(--lembut)','middle',11);
+ h+=F(284,100,56,28,'konsol')+Ts(292,166,'ruang kontrol','var(--lembut)','middle',11);
+ /* ruang magnet dilihat dari atas */
+ h+=`<g clip-path='url(#m7akses)'><ellipse cx='505' cy='155' rx='135' ry='125' fill='var(--salah)' fill-opacity='.12' stroke='var(--salah)' stroke-dasharray='6 4' stroke-width='2'/></g>`;
+ h+=`<rect x='372' y='146' width='170' height='18' rx='6' fill='var(--permukaan)' stroke='var(--lembut)'/><rect x='392' y='149' width='70' height='12' rx='6' fill='var(--t2)' fill-opacity='.8'/><circle cx='472' cy='155' r='9' fill='var(--t2)' fill-opacity='.8'/>`;
+ h+=`<rect x='450' y='70' width='110' height='170' rx='16' fill='var(--b0)' fill-opacity='.78' stroke='var(--teks)' stroke-width='2'/><rect x='450' y='138' width='110' height='34' fill='none' stroke='var(--latar)' stroke-dasharray='4 3'/>`;
+ h+=Ts(505,100,'magnet','var(--latar)','middle',13)+Ts(505,132,'bore','var(--latar)','middle',11)+Ts(420,184,'meja pasien','var(--lembut)','middle',11);
+ h+=Ts(505,312,'garis 5 gauss ('+fmt(GV[0],1)+' mT)','var(--salah)','middle',11);
+ h+=`<circle cx='366' cy='296' r='7' fill='var(--salah)'/>`+Ts(378,300,'tombol quench','var(--lembut)','start',11);
+ h+=`<g transform='translate(36,222) scale(.95)'>${orang(pI)}</g>`+Ts(102,236,'ingin masuk','var(--lembut)','start',11);
+ /* lampu dan tanda Zona IV */
+ h+=`<rect x='241' y='186' width='104' height='22' rx='5' fill='${pR?'var(--garis)':'var(--salah)'}'/>`+Ts(293,201,'The Magnet is On',pR?'var(--lembut)':'#fff','middle',11);
+ if(pL&&!pR)h+=Ts(293,224,'cadangan: '+Z.cadangan_jam+' jam','var(--lembut)','middle',11);
+ /* dinding dan pintu */
+ const W=[[10,10,590,10],[590,10,590,330],[10,10,10,330],[10,330,90,330],[130,330,590,330],[10,180,100,180],[140,180,235,180],[235,10,235,80],[235,120,235,330],[350,10,350,60],[350,140,350,210],[350,250,350,330]];
+ W.forEach(w=>{h+=`<line x1='${w[0]}' y1='${w[1]}' x2='${w[2]}' y2='${w[3]}' stroke='var(--teks)' stroke-width='7' stroke-linecap='square'/>`;});
+ h+=`<line x1='350' y1='60' x2='350' y2='140' stroke='var(--t2)' stroke-width='7'/>`+Ts(342,56,'kaca','var(--t2)','end',10);
+ [['M 130 330 A 40 40 0 0 0 90 290',90,330,90,290],['M 140 180 A 40 40 0 0 0 100 140',100,180,100,140],['M 235 120 A 40 40 0 0 0 275 80',235,80,275,80],['M 350 250 A 40 40 0 0 0 390 210',350,210,390,210]].forEach(d=>{h+=`<path d='${d[0]}' fill='none' stroke='var(--lembut)' stroke-dasharray='3 3'/><line x1='${d[1]}' y1='${d[2]}' x2='${d[3]}' y2='${d[4]}' stroke='var(--lembut)' stroke-width='3'/>`;});
+ h+=`<rect x='230' y='96' width='10' height='12' rx='2' fill='var(--t1)'/>`+Ts(241,138,'kunci','var(--t1)','start',11);
+ $('psvg').innerHTML=h;
+ [...$('pbtn').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===pI));
+ $('plis').setAttribute('aria-pressed',pL);$('plis').textContent='Listrik padam: '+(pL?'hidup':'mati');
+ $('pres').setAttribute('aria-pressed',pR);$('pres').textContent='Sistem resistif: '+(pR?'hidup':'mati');
+ $('pket').textContent=AK[pI][0]+'. '+AK[pI][2]+' '+(pR?'Sistem resistif dikecualikan dari aturan lampu yang menyala terus.':'Lampu merah dan tanda di Zona IV menyala terus'+(pL?', juga saat listrik padam, lewat sumber cadangan sedikitnya '+Z.cadangan_jam+' jam.':'.'));
+}
+$('plis').onclick=()=>{pL=!pL;gambarAkses();};$('pres').onclick=()=>{pR=!pR;gambarAkses();};
+$('pr').onclick=()=>{pI=0;pL=false;pR=false;gambarAkses();};
+gambarAkses();
+})();
+
+/* === Aktivitas m07a-A2: Simulasi skrining === */
+(function(){
+ const root=$('m07a-A2');
+
+/* --- dari aktivitas asli #2 --- */
+const SK=[
+ ['Pasien membawa kunci, ponsel, dan ikat pinggang logam. Tidak ada implan.','tahan','Barang logam dilepas dan disimpan di luar Zona IV dahulu. Setelah itu skrining dilanjutkan.'],
+ ['Pasien membawa implan berlabel MR Conditional. Syaratnya belum diperiksa.','tahan','MR Conditional berarti aman hanya bila syarat pada label dipenuhi. Syarat diperiksa petugas yang berwenang dahulu.'],
+ ['Staf kebersihan ingin masuk Zona IV mendorong troli baja.','tolak','Troli ferromagnetik dapat menjadi proyektil. Gunakan peralatan aman-MR dan petugas yang terlatih.'],
+ ['Pasien membawa implan berlabel MR Unsafe.','tolak','MR Unsafe berarti berbahaya di lingkungan MR, jadi tidak masuk ruang magnet.'],
+ ['Pasien tidak ingat jenis implan dan tidak ada dokumennya.','tahan','Implan yang tidak diketahui tidak boleh dianggap aman. Cari dokumen dan tanyakan penanggung jawab keselamatan MR.'],
+ ['Semua logam sudah dilepas, formulir lengkap, dan tidak ada implan.','lanjut','Skrining terpenuhi. Pemeriksaan boleh dilanjutkan sesuai SOP fasilitas.']];
+let si=0,ss=0,pr=null,pil='';
+function tampilSk(){
+ $('sk-q').textContent='Skenario '+(si+1)+' dari '+SK.length+': '+SK[si][0];
+ $('sk-f').textContent='';$('sk-f').className='';pr=null;pil='';$('sk-n').hidden=true;
+ $('m07a-A2').querySelectorAll('.sk-b').forEach(b=>{b.className='sk-b';b.setAttribute('aria-pressed','false');});
+ $('sk-s').textContent='Benar: '+ss;
+}
+$('m07a-A2').querySelectorAll('.sk-b').forEach(b=>b.onclick=()=>{
+ const s=SK[si],v=b.dataset.v,ok=v===s[1];if(pil===v){pil='';b.className='sk-b';b.setAttribute('aria-pressed','false');$('sk-f').textContent='';$('sk-f').className='';return;}if(pr===null){pr=ok;if(ok)ss++;}pil=v;$('m07a-A2').querySelectorAll('.sk-b').forEach(x=>{x.className='sk-b';x.setAttribute('aria-pressed','false');});b.className='sk-b '+(ok?'benar':'salah');b.setAttribute('aria-pressed','true');
+ $('sk-f').className=ok?'ok':'no';$('sk-f').textContent=(ok?'Tepat. ':'Belum tepat. Yang sesuai: '+s[1]+'. ')+s[2];
+ $('sk-s').textContent='Benar: '+ss;
+ $('sk-n').hidden=false;$('sk-n').textContent=si===SK.length-1?'Selesai':'Berikutnya';});
+$('sk-n').onclick=()=>{if(si<SK.length-1){si++;tampilSk();}else{$('sk-q').textContent='Selesai. Skor '+ss+' dari '+SK.length+'. Tekan Reset untuk mengulang.';$('sk-n').hidden=true;$('sk-f').textContent='';}};
+$('sk-r').onclick=()=>{si=0;ss=0;tampilSk();};
+tampilSk();
+})();
+
+/* === Aktivitas m07a-A3: Label perangkat dan alur keputusan pasien dengan perangkat === */
+(function(){
+ const root=$('m07a-A3');
+
+/* --- dari aktivitas asli #8 --- */
+const LB=[
+ ['Cawan petri plastik','safe','Tidak menghantar listrik, tidak berlogam, dan tidak magnetik. Tidak ada bahaya yang diketahui di semua lingkungan MR.'],
+ ['Gunting ferromagnetik','unsafe','Benda magnetik yang diketahui berbahaya di semua lingkungan MR.'],
+ ['Neurostimulator (contoh fiktif)','cond','Contoh syarat: B0 tidak lebih dari '+fmt(+B0S[0],1)+' T dan kabel dirutekan sesuai petunjuk.'],
+ ['Implan tanpa label dan tanpa dokumen','none','Tanpa label dan dokumen: jangan dianggap aman.']];
+let lI=0,lB=B0S[0];
+LB.forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.textContent=a[0];b.onclick=()=>{lI=i;gambarLabel();};$('lbtn').appendChild(b);});
+B0S.forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent='B0 '+fmt(+k,k==='3'?0:1)+' T';b.dataset.k=k;b.onclick=()=>{lB=k;gambarLabel();};$('lb0').appendChild(b);});
+function gambarLabel(){
+ const it=LB[lI],ty=it[1];let h='',ln='';
+ if(ty==='safe')h=`<rect x='40' y='20' width='110' height='110' fill='none' stroke='var(--benar)' stroke-width='10'/><text x='95' y='93' fill='var(--benar)' font-size='44' font-weight='700' text-anchor='middle'>MR</text>`,ln='MR Safe';
+ else if(ty==='cond')h=`<polygon points='95,12 162,134 28,134' fill='#f2c94c' stroke='var(--teks)' stroke-width='4'/><text x='95' y='112' fill='#1b1f24' font-size='30' font-weight='700' text-anchor='middle'>MR</text>`,ln='MR Conditional';
+ else if(ty==='unsafe')h=`<circle cx='95' cy='75' r='58' fill='none' stroke='var(--salah)' stroke-width='10'/><text x='95' y='88' fill='var(--teks)' font-size='36' font-weight='700' text-anchor='middle'>MR</text><line x1='54' y1='34' x2='136' y2='116' stroke='var(--salah)' stroke-width='10'/>`,ln='MR Unsafe';
+ else h=`<circle cx='95' cy='75' r='58' fill='none' stroke='var(--lembut)' stroke-width='6' stroke-dasharray='8 6'/><text x='95' y='96' fill='var(--lembut)' font-size='60' text-anchor='middle'>?</text>`,ln='Tanpa label';
+ h+=T(200,60,it[0],'var(--teks)')+T(200,86,'Label: '+ln,'var(--lembut)');
+ $('lsvg').innerHTML=h;
+ $('lcond').style.display=ty==='cond'?'':'none';
+ [...$('lbtn').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===lI));
+ [...$('lb0').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===lB));
+ let t=it[2];
+ if(ty==='cond'){const ok=+lB<=+B0S[0]&&$('lk').checked;t+=ok?' Syarat contoh terpenuhi: boleh dilanjutkan sesuai syarat label dan SOP.':' Syarat belum terpenuhi. Aman bersyarat pada satu kondisi belum tentu aman pada kondisi lain, misalnya medan yang lebih tinggi.';}
+ $('lket').textContent=ln+': '+t;
+}
+$('lk').onchange=gambarLabel;
+$('lr').onclick=()=>{lI=0;lB=B0S[0];$('lk').checked=false;gambarLabel();};
+$('lr').onclick();
+/* --- dari aktivitas asli #9 --- */
+const AL=[['Tunda:','cari bukti dulu','','Tanpa bukti dokumen, pemeriksaan ditunda sampai bukti cukup. Keterangan lisan saja tidak cukup.'],
+ ['Syarat belum','terpenuhi:','tunda atau batalkan','Syarat label belum terpenuhi. Aman bersyarat pada satu kondisi belum tentu aman pada kondisi lain.'],
+ ['Tinjau ulang','risiko-manfaat,','minta saran','Temuan baru dapat muncul saat pasien datang. Tinjau ulang risiko dan manfaat, dan minta saran fisikawan medis atau ahli lain.'],
+ ['Dapat lanjut','sesuai SOP','fasilitas','Bukti cukup dan syarat terpenuhi. Tanggung jawab utama ada pada dokter perujuk dan radiology lead, dan praktisi MRI tetap boleh menunda bila bukti kurang.']];
+function gambarAlur(){
+ const a1=$('al1').checked,a2=$('al2').checked,a3=$('al3').checked,o=!a1?0:(!a2?1:(a3?2:3));
+ let h=`<rect x='150' y='8' width='300' height='36' rx='8' fill='var(--permukaan)' stroke='var(--garis)'/>`+T(300,31,'Dokter perujuk meminta pemeriksaan','var(--teks)','middle');
+ h+=`<rect x='150' y='70' width='300' height='36' rx='8' fill='var(--permukaan)' stroke='var(--garis)'/>`+T(300,93,'Praktisi MRI menimbang bukti','var(--teks)','middle');
+ h+=`<line x1='300' y1='44' x2='300' y2='70' stroke='var(--lembut)' stroke-width='2'/>`;
+ AL.forEach((a,i)=>{const x=10+i*145,c=i===o?(i===3?'var(--benar)':'var(--t1)'):'var(--garis)';
+  h+=`<line x1='300' y1='106' x2='${x+65}' y2='140' stroke='${i===o?c:'var(--garis)'}' stroke-width='${i===o?4:2}'/><rect x='${x}' y='140' width='130' height='74' rx='8' fill='${c}' fill-opacity='${i===o?.35:.1}' stroke='${c}' stroke-width='${i===o?4:1}'/>`+T(x+65,162,a[0],'var(--teks)','middle')+T(x+65,180,a[1],'var(--teks)','middle')+T(x+65,198,a[2],'var(--teks)','middle');});
+ $('asvg').innerHTML=h;$('aket').textContent=AL[o][3];
+}
+['al1','al2','al3'].forEach(id=>$(id).onchange=gambarAlur);
+$('ar').onclick=()=>{$('al1').checked=true;$('al2').checked=true;$('al3').checked=false;gambarAlur();};
+gambarAlur();
+})();
+
+/* === Aktivitas m07a-A4: Lima sumber bahaya pada pemindai === */
+(function(){
+ const root=$('m07a-A4');
+
+/* --- dari aktivitas asli #10 --- */
+const HZ=[
+ ['Psikologis','Bore sempit, bising, lama pemindaian, rasa terisolasi, dan takut hasil buruk dapat memicu cemas, klaustrofobia, sampai serangan panik.'],
+ ['Medan statis','B0 selalu menyala dan berubah menurut jarak: efek sementara (vertigo, rasa logam), proyektil, dan torsi pada implan.'],
+ ['Medan RF','Pulsa RF menghangatkan jaringan (SAR) dan dapat menyebabkan luka bakar, terutama lewat loop konduktif.'],
+ ['Gradien','Medan yang berubah cepat menurut waktu dapat merangsang saraf dan otot, dan menimbulkan bising keras.'],
+ ['Kriogen','Helium cair mendinginkan magnet. Saat quench, helium menjadi gas dalam jumlah besar dan dibuang lewat saluran khusus.']];
+let hI=0;
+HZ.forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.textContent=a[0];b.onclick=()=>{hI=i;gambarBahaya();};$('hbtn').appendChild(b);});
+function gambarBahaya(){
+ const on=i=>hI===i,X=80,W=400;
+ const st=(i,c)=>`fill='${c}' fill-opacity='${on(i)?.85:.25}' stroke='${on(i)?'var(--teks)':'var(--garis)'}' stroke-width='${on(i)?3:1}'`;
+ let h=on(1)?`<ellipse cx='280' cy='134' rx='265' ry='128' fill='none' stroke='var(--salah)' stroke-dasharray='6 4' stroke-width='2'/>`+T(280,266,'medan tepi (garis putus-putus)','var(--salah)','middle'):'';
+ h+=`<rect x='${X+340}' y='2' width='14' height='22' ${st(4,'var(--t2)')}/>`;
+ [[24,'1'],[204,'1']].forEach(a=>{h+=`<rect x='${X}' y='${a[0]}' width='${W}' height='40' ${st(1,'var(--b0)')}/><rect x='${X+10}' y='${a[0]+8}' width='${W-20}' height='24' ${st(4,'var(--t2)')}/>`;});
+ [64,179].forEach(y=>{h+=`<rect x='${X}' y='${y}' width='${W}' height='25' ${st(3,'var(--t1)')}/>`;});
+ [89,164].forEach(y=>{h+=`<rect x='${X}' y='${y}' width='${W}' height='15' ${st(2,'var(--aksen)')}/>`;});
+ h+=`<rect x='${X}' y='104' width='${W}' height='60' fill='var(--permukaan)' stroke='${on(0)?'var(--salah)':'var(--garis)'}' stroke-width='${on(0)?4:1}' stroke-dasharray='${on(0)?'6 4':'0'}'/>`;
+ h+=`<rect x='40' y='150' width='${W+20}' height='8' rx='3' fill='var(--lembut)' fill-opacity='.5'/><rect x='170' y='124' width='150' height='26' rx='13' fill='#a5d8ff' stroke='#4c6ef5'/><circle cx='330' cy='137' r='13' fill='#f1c27d' stroke='#7a5a2a'/>`;
+ if(on(0))h+=`<circle cx='330' cy='137' r='22' fill='none' stroke='var(--salah)' stroke-width='3'/>`;
+ h+=T(X+W+8,48,'magnet')+T(X+W+8,80,'gradient coil')+T(X+W+8,100,'RF coil')+T(X+W+8,138,'bore');
+ $('hsvg').innerHTML=h;
+ [...$('hbtn').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===hI));
+ $('hket').textContent=HZ[hI][0]+': '+HZ[hI][1];
+}
+$('hr').onclick=()=>{hI=0;gambarBahaya();};
+gambarBahaya();
+})();
+
+/* === Aktivitas m07a-A5: Perjalanan kecemasan pasien === */
+(function(){
+ const root=$('m07a-A5');
+
+/* --- dari aktivitas asli #11 --- */
+const CT=['Persiapan','Masuk bore','Awal pindai','Pertengahan','Akhir'],CB=[.5,.9,.7,.55,.4];
+const CL=[['Kipas di bore',[.1,.1,.1,.1,.1]],['Lampu dan panel pemandangan',[.05,.12,.1,.08,.05]],['Video dan hitung mundur',[.03,.1,.12,.12,.1]],['Bore lebih pendek dan lebar',[.05,.15,.12,.1,.08]]];
+let cA=[false,false,false,false];
+CL.forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.textContent=a[0];b.onclick=()=>{cA[i]=!cA[i];gambarCemas();};$('cbtn').appendChild(b);});
+function gambarCemas(){
+ const v=CB.map((x,i)=>Math.max(.05,x-CL.reduce((t,c,k)=>t+(cA[k]?c[1][i]:0),0)));
+ const X=i=>60+i*120,Y=a=>190-a*160,pk=v.indexOf(Math.max(...v)),mx=v[pk];
+ const col=mx>=.7?'var(--salah)':(mx>=.45?'var(--t1)':'var(--benar)');
+ let h=`<line x1='40' y1='190' x2='560' y2='190' stroke='var(--garis)' stroke-width='2'/>`+T(20,24,'kecemasan','var(--lembut)')+T(500,24,'tinggi','var(--lembut)','start').replace(`x='500' y='24'`,`x='540' y='24'`);
+ h+=`<polyline points='${v.map((a,i)=>X(i)+','+Y(a)).join(' ')}' fill='none' stroke='var(--aksen)' stroke-width='4'/>`;
+ v.forEach((a,i)=>{h+=`<circle cx='${X(i)}' cy='${Y(a)}' r='${i===pk?11:7}' fill='${i===pk?col:'var(--aksen)'}' stroke='var(--teks)'/>`+T(X(i),214,CT[i],'var(--lembut)','middle');});
+ $('csvg').innerHTML=h;
+ [...$('cbtn').children].forEach((b,i)=>b.setAttribute('aria-pressed',cA[i]));
+ $('cket').textContent='Puncak kecemasan: '+CT[pk].toLowerCase()+'. '+(mx>=.7?'Tingkat tinggi. Risiko: sulit diam atau menahan napas (artefak pergeseran fase), serangan panik, pemeriksaan dihentikan lalu dirujuk ke CT, dan waktu mesin terbuang.':(mx>=.45?'Tingkat sedang. Sebagian pasien masih sulit mematuhi instruksi, jadi tetap perlu dipantau dan ditenangkan.':'Tingkat rendah. Pasien cenderung mampu menyelesaikan pemeriksaan.'))+' Kecemasan biasanya tertinggi saat dimasukkan ke bore, jadi strategi difokuskan pada tahap itu.';
+}
+$('cr').onclick=()=>{cA=[false,false,false,false];gambarCemas();};
+gambarCemas();
+})();
+
+/* === Aktivitas m07a-A6: Benar atau keliru? Tips keselamatan === */
+(function(){
+ const root=$('m07a-A6');
+
+/* --- dari aktivitas asli #15 --- */
+const TP=[
+ ['Staf yang pernah masuk ruang magnet tidak perlu diskrining lagi.',false,'Jangan berasumsi staf paham bahayanya. Skrining seketat pada pasien.'],
+ ['Kunci kode digital adalah pilihan yang baik untuk pintu Zona III.',false,'Kode mudah dibagikan ke staf departemen lain yang tidak paham keselamatan MR.'],
+ ['Pasien yang kemarin dipindai di tempat lain pasti aman dipindai hari ini.',false,'Kekuatan medan dan gradien bisa berbeda, dan kondisi pasien, misalnya kehamilan, bisa berubah.'],
+ ['Selain formulir tertulis, kontraindikasi perlu ditanyakan secara lisan.',true,'Pasien kadang menyebut bahaya yang tidak tertulis di formulir.'],
+ ['Citra rontgen terbaru dapat membantu menyingkirkan pacu jantung atau klip aneurisma.',true,'Citra yang sudah ada dapat memperlihatkan benda logam tersebut.'],
+ ['Tangga pijakan dan alat pemadam di departemen MRI sebaiknya non-ferrous bila ada pilihan.',true,'Benda ferromagnetik besar bisa terbawa masuk ke ruang magnet tanpa sengaja.'],
+ ['Bila ragu dan ditekan untuk tetap memindai, lanjutkan agar jadwal tidak tertunda.',false,'Jangan membiarkan diri ditekan. Bila ragu, tunda pemeriksaan.']];
+let tpS=TP.map(()=>-1),tpF=null;
+function gambarTips(){
+ const bx=$('tpbox');bx.innerHTML='';
+ TP.forEach((t,i)=>{
+  const d=document.createElement('div');d.className='baris';d.style.alignItems='center';
+  const p=document.createElement('span');p.textContent=(i+1)+'. '+t[0];p.style.flex='1 1 280px';d.appendChild(p);
+  ['Benar','Keliru'].forEach((nm,c)=>{
+   const b=document.createElement('button');b.type='button';b.textContent=nm;b.dataset.k=i+'-'+c;
+   const sel=tpS[i]===c;b.setAttribute('aria-pressed',sel);
+   b.className='sk-b'+(sel?((c===0)===t[1]?' benar':' salah'):'');
+   b.onclick=()=>{tpS[i]=sel?-1:c;tpF=i+'-'+c;gambarTips();};
+   d.appendChild(b);});
+  bx.appendChild(d);
+  if(tpS[i]>=0){const ok=(tpS[i]===0)===t[1],f=document.createElement('p');f.className=ok?'ok':'no';f.textContent=(ok?'Tepat. ':'Belum tepat. ')+t[2];bx.appendChild(f);}
+ });
+ if(tpF){const b=bx.querySelector(`button[data-k='${tpF}']`);if(b)b.focus();}
+}
+$('tpr').onclick=()=>{tpS=TP.map(()=>-1);tpF=null;gambarTips();};
+gambarTips();
+})();
+
+/* === Aktivitas m07a-A7: Alur skrining sebelum agen kontras === */
+(function(){
+ const root=$('m07a-A7');
+
+  const WS={ok:'var(--benar)',awas:'var(--t1)',no:'var(--salah)'};
+  const c=i=>$('kt'+i).checked;
+  function gambarKontras(){
+   const risiko=c(1),cek=c(2),rendah=c(3),hamil=c(4),alergi=c(5);
+   const gin=rendah?['no','Konsul radiolog','eGFR sangat rendah atau cedera ginjal akut: ada risiko NSF. Radiolog menimbang MRI tanpa kontras atau agen dengan risiko terendah.']
+    :(risiko&&!cek?['awas','Periksa eGFR','Ada faktor risiko ginjal tetapi eGFR belum diperiksa: periksa dahulu sebelum kontras.']
+    :(risiko?['ok','eGFR cukup','Faktor risiko ada, eGFR sudah diperiksa dan tidak sangat rendah: lanjut sesuai SOP.']
+    :['ok','Skrining singkat','Tanpa faktor risiko ginjal: skrining singkat sesuai SOP.']));
+   const keh=hamil?['no','Tinjau manfaat-risiko','Gadolinium melewati plasenta: kontras dihindari kecuali manfaatnya jelas lebih besar. Keputusan ada pada radiolog dan dokter perujuk.']
+    :['ok','Tanyakan status','Tanyakan status kehamilan secara lisan dan tertulis pada pasien usia subur.'];
+   const al=alergi?['awas','Tinjau riwayat','Riwayat reaksi alergi menaikkan peluang reaksi ulang: beri tahu radiolog dan siapkan penanganan reaksi sesuai SOP.']
+    :['ok','Tanyakan riwayat','Tanyakan riwayat alergi atau reaksi pada kontras sebelumnya.'];
+   const bagian=[gin,keh,al];
+   const kes=bagian.some(x=>x[0]==='no')?['no','Tinjau dengan radiolog']:(bagian.some(x=>x[0]==='awas')?['awas','Tahan dahulu']:['ok','Dapat lanjut sesuai SOP']);
+   const nama=['Ginjal','Kehamilan','Alergi','Kesimpulan'],semua=bagian.concat([kes]);
+   let h='';
+   semua.forEach((b,i)=>{const x=6+i*148;h+=`<rect x='${x}' y='6' width='140' height='84' rx='8' fill='${WS[b[0]]}' fill-opacity='.3' stroke='${WS[b[0]]}' stroke-width='${i===3?4:2}'/>`+Tf(x+70,32,nama[i],'var(--teks)','middle',14)+Tf(x+70,60,b[1],'var(--teks)','middle',12);});
+   $('ktsvg').innerHTML=h;
+   $('ktk').textContent=gin[2]+' '+keh[2]+' '+al[2];
+  }
+  [1,2,3,4,5].forEach(i=>$('kt'+i).onchange=gambarKontras);
+  $('ktr').onclick=()=>{[1,2,3,4,5].forEach(i=>$('kt'+i).checked=false);gambarKontras();};
+  gambarKontras();
+})();
+
+/* === Aktivitas m07b-A1: Medan tepi dan gaya tarik === */
+(function(){
+ const root=$('m07b-A1');
+
+const KON=DATA.KONTUR,LG=Math.log10;
+function medanB(d){let i=0;while(i<KON.length-2&&d>KON[i+1][0])i++;const a=KON[i],b=KON[i+1],m=(LG(b[1])-LG(a[1]))/(b[0]-a[0]);return Math.pow(10,LG(a[1])+m*(d-a[0]));}
+const gayaRel=d=>medanB(d)*Math.abs(medanB(d+.05)-medanB(d-.05))/.1;
+const G0=gayaRel(KON[2][0]);
+const PER=[['Pacu jantung',.5],['Kartu kredit',1],['Jam tangan',3]]; // TODO-VERIFIKASI: ambang dibaca kasar dari Gambar 10.3
+const mj=$('mj');
+function gambarMedan(){
+ const d=+mj.value,B=medanB(d),F=gayaRel(d)/G0;$('mjv').textContent=fmt(d,1);
+ const X=v=>60+(v-1)/5*480,Y=v=>20+(LG(6)-LG(v))/(LG(6)-LG(.04))*150;
+ let h='',pts='';
+ for(let v=1;v<=6.001;v+=.1)pts+=X(v).toFixed(1)+','+Y(medanB(v)).toFixed(1)+' ';
+ for(let v=1;v<=6;v++)h+=T(X(v),186,v+' m','var(--lembut)','middle');
+ h+=`<line x1='60' y1='${Y(.5)}' x2='540' y2='${Y(.5)}' stroke='var(--t1)' stroke-dasharray='6 4'/>`+T(545,Y(.5)+4,'0,5 mT','var(--t1)');
+ h+=`<polyline points='${pts}' fill='none' stroke='var(--aksen)' stroke-width='3'/><circle cx='${X(d)}' cy='${Y(B)}' r='8' fill='${B>=.5?'var(--salah)':'var(--benar)'}' stroke='var(--teks)'/>`;
+ PER.forEach((q,i)=>{const x=60+i*180,r=B>=q[1];h+=`<rect x='${x}' y='198' width='170' height='26' rx='6' fill='${r?'var(--salah)':'var(--benar)'}' fill-opacity='.85'/>`+T(x+85,215,q[0],'#fff','middle');});
+ $('msvg').innerHTML=h;
+ $('mket').textContent='Jarak '+fmt(d,1)+' m: medan sekitar '+fmt(B,B<1?2:1)+' mT. Gaya tarik relatif '+fmt(F,1)+' kali nilai di garis 0,5 mT. '+(B>=.5?'Di dalam garis 0,5 mT.':'Di luar garis 0,5 mT.')+' Gaya naik sangat tajam saat mendekat.';
+}
+mj.oninput=gambarMedan;$('mr').onclick=()=>{mj.value=4;gambarMedan();};
+gambarMedan();
+})();
+
+/* === Aktivitas m07b-A2: Torsi pada implan === */
+(function(){
+ const root=$('m07b-A2');
+
+/* --- dari aktivitas asli #5 --- */
+const tsa=$('tsa');let tsT=false,tsI=null;
+function gambarTorsi(){
+ const a=+tsa.value,r=a*Math.PI/180,tq=Math.sin(r);$('tsav').textContent=a;
+ let h='';for(let x=40;x<=560;x+=40)h+=`<line x1='${x}' y1='10' x2='${x}' y2='230' stroke='var(--aksen)' stroke-opacity='.35' stroke-width='2'/>`;
+ h+=`<g transform='rotate(${a} 300 195)'><rect x='293' y='55' width='14' height='140' rx='7' fill='var(--permukaan)' stroke='var(--teks)' stroke-width='2'/><circle cx='300' cy='67' r='11' fill='none' stroke='var(--teks)' stroke-width='3'/></g>`;
+ h+=tsT?`<rect x='280' y='195' width='40' height='16' fill='var(--t1)' fill-opacity='.8'/>`+T(330,208,'tulang atau semen','var(--t1)'):`<circle cx='300' cy='195' r='6' fill='var(--t2)'/>`+T(312,212,'titik tumpu (jaringan lunak)','var(--t2)');
+ if(a>0)h+=`<path d='M 300 45 A 150 150 0 0 1 ${(300+150*Math.sin(r)).toFixed(1)} ${(195-150*Math.cos(r)).toFixed(1)}' fill='none' stroke='var(--t1)' stroke-width='3' stroke-dasharray='5 4'/>`;
+ $('tsvg').innerHTML=h;$('tsm').style.width=(tq*100)+'%';$('tsb').setAttribute('aria-pressed',tsT);
+ $('tsk').textContent=a===0?'Klip sejajar dengan medan: tidak ada torsi.':'Torsi relatif '+fmt(tq*100,0)+' persen dari maksimum (gambaran sederhana). '+(tsT?'Implan tertambat: kecil kemungkinan berputar.':'Implan di jaringan lunak: cenderung berputar sampai sejajar medan dan dapat merusak jaringan sekitarnya.');
+}
+function hentiTs(){if(tsI){clearInterval(tsI);tsI=null;}}
+tsa.oninput=()=>{hentiTs();gambarTorsi();};
+$('tsb').onclick=()=>{hentiTs();tsT=!tsT;gambarTorsi();};
+$('tsl').onclick=()=>{hentiTs();if(tsT){gambarTorsi();return;}
+ if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){tsa.value=0;gambarTorsi();return;}
+ tsI=setInterval(()=>{const v=+tsa.value-1;tsa.value=Math.max(v,0);gambarTorsi();if(v<=0)hentiTs();},25);};
+$('tsr').onclick=()=>{hentiTs();tsT=false;tsa.value=45;gambarTorsi();};
+gambarTorsi();
+})();
+
+/* === Aktivitas m07b-A3: Skala medan dan efek sementara === */
+(function(){
+ const root=$('m07b-A3');
+
+/* --- dari aktivitas asli #6 --- */
+const E=DATA.EFEK;let eI=0,eL=false;
+const EF=[
+ ['Bumi',fmt(E.bumi_mT,2)+' mT. Medan bumi sangat kecil. Puluhan spesies hewan peka padanya, dan burung tertentu serta beberapa bakteri memakainya untuk menentukan arah.',false],
+ [fmt(+B0S[0],1)+' T','Efek sementara terutama dibahas pada sistem medan sangat tinggi, bukan pada kekuatan klinis umum ini.',false],
+ [fmt(+B0S[1],0)+' T','Pada rentang '+fmt(E.rasa_logam_T[0],0)+' sampai '+fmt(E.rasa_logam_T[1],0)+' T sebagian orang melaporkan rasa logam di mulut dan pusing, terutama saat bergerak melewati medan tepi.',false],
+ [fmt(E.vertigo_T,0)+' T','Vertigo (pusing, mual, gerak mata tak sengaja, goyah) terutama muncul pada '+fmt(E.vertigo_T,0)+' T ke atas. Pasien merasa bergerak melengkung walau meja lurus. Biasanya pulih sekitar '+E.pulih_menit+' menit setelah keluar. Sebagian disarankan tidak mengemudi dulu.',true],
+ [fmt(E.icnirp_T,0)+' T','ICNIRP menyatakan tidak ada bukti efek kesehatan serius pada paparan seluruh tubuh sampai '+fmt(E.icnirp_T,0)+' T. Sebagian keluhan bisa bersifat psikologis.',true]];
+EF.forEach((e,i)=>{const b=document.createElement('button');b.type='button';b.textContent=e[0];b.onclick=()=>{eI=i;gambarEfek();};$('ebtn').appendChild(b);});
+function gambarEfek(){
+ let h=`<line x1='70' y1='50' x2='530' y2='50' stroke='var(--garis)' stroke-width='4'/>`;
+ EF.forEach((e,i)=>{const x=70+i*115;h+=`<circle cx='${x}' cy='50' r='${i===eI?16:9}' fill='${i===eI?'var(--aksen)':'var(--garis)'}' stroke='var(--teks)'/>`+T(x,92,e[0],i===eI?'var(--teks)':'var(--lembut)','middle');});
+ h+=T(300,120,'Skala bertingkat: jarak antar titik tidak sebanding dengan kekuatan medan','var(--lembut)','middle');
+ $('esvg').innerHTML=h;
+ [...$('ebtn').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===eI));
+ $('elam').setAttribute('aria-pressed',eL);$('elam').textContent='Meja digerakkan lambat: '+(eL?'hidup':'mati');
+ const e=EF[eI];$('eket').textContent=e[0]+': '+e[1]+(e[2]?' '+(eL?'Meja lambat: keparahan vertigo cenderung lebih rendah.':'Makin cepat meja bergerak, makin berat vertigo.'):'');
+}
+$('elam').onclick=()=>{eL=!eL;gambarEfek();};
+$('er').onclick=()=>{eI=0;eL=false;gambarEfek();};
+gambarEfek();
+})();
+
+/* === Aktivitas m07b-A4: Oksigen dan ekspansi helium === */
+(function(){
+ const root=$('m07b-A4');
+
+/* --- dari aktivitas asli #14 --- */
+const kgo=$('kgo'),kgh=$('kgh');kgo.min=0;kgo.max=24;kgo.step=.5;kgh.min=0;kgh.max=KRI.L;kgh.step=50;
+function gambarO2(){
+ const v=+kgo.value,X=d=>40+d/24*520;$('kgov').textContent=fmt(v,1);
+ let h='';
+ [[0,KRI.f,'var(--salah)'],[KRI.f,KRI.s,'var(--t1)'],[KRI.s,KRI.lo,'#f2c94c'],[KRI.lo,KRI.hi,'var(--benar)'],[KRI.hi,24,'var(--garis)']].forEach(z=>{h+=`<rect x='${X(z[0])}' y='20' width='${X(z[1])-X(z[0])}' height='26' fill='${z[2]}' fill-opacity='.8'/>`;});
+ [KRI.f,KRI.s,KRI.lo,KRI.hi].forEach(b=>{h+=Tf(X(b),64,fmt(b,b%1?1:0),'var(--lembut)','middle',11);});
+ h+=`<polygon points='${X(v)-8},8 ${X(v)+8},8 ${X(v)},20' fill='var(--teks)'/>`+Tf(300,88,'persen oksigen','var(--lembut)','middle',11);
+ $('kgsvg').innerHTML=h;
+ $('kgk').textContent=(v>=KRI.lo&&v<=KRI.hi)?'Rentang optimal untuk aktivitas normal (menurut OSHA).':(v>KRI.hi?'Di atas rentang optimal.':(v>=KRI.s?'Di bawah '+fmt(KRI.lo,1)+' persen: alarm sensor oksigen berbunyi, persepsi dan penilaian terganggu sehingga sulit menyelamatkan diri.':(v>=KRI.f?'Di bawah '+KRI.s+' persen: sangat mungkin pingsan.':'Di bawah '+KRI.f+' persen: pingsan dalam sekitar '+KRI.dt+' detik, gagal jantung dan kematian dalam '+KRI.m1+' sampai '+KRI.m2+' menit.')));
+}
+function gambarHe(){
+ const l=+kgh.value,gas=l*KRI.e;$('kghv').textContent=nf(l,0);$('kgmeter').style.width=(l/KRI.L*100)+'%';
+ $('kgk2').textContent='Helium cair '+nf(l,0)+' L menjadi sekitar '+nf(gas,0)+' L gas ('+nf(gas/1e6,2)+' juta liter), karena tiap liter menguap menjadi '+KRI.e+' L gas. Cerobong kriogen harus membuangnya dalam waktu singkat, dan titik buang luar sedikitnya '+KRI.j+' m dari area akses umum.';
+}
+kgo.oninput=gambarO2;kgh.oninput=gambarHe;
+$('kgr').onclick=()=>{kgo.value=KRI.o;kgh.value=KRI.L;gambarO2();gambarHe();};
+$('kgr').onclick();
+})();
+
+/* === Aktivitas m07b-A5: Efek Lenz: konduktor jatuh melalui medan === */
+(function(){
+ const root=$('m07b-A5');
+
+  const Lz=DATA.LENZ,g=9.8,H=Lz.tinggi,warna=['#868e96','#adb5bd','#c2763c'];
+  let bi=2,mi=2,ti=null;
+  const aa=()=>Lz.c*Lz.bahan[mi][1]*Math.pow(Lz.medan_T[bi],2);
+  const yAt=(a,t)=>a<=0?.5*g*t*t:(g/a)*t-(g/(a*a))*(1-Math.exp(-a*t));
+  const tFall=a=>{let t=0;while(yAt(a,t)<H&&t<200)t+=.002;return t;};
+  Lz.medan_T.forEach((m,i)=>{const b=document.createElement('button');b.type='button';b.textContent=m===0?'Tanpa medan':fmt(m,m%1?1:0)+' T';b.onclick=()=>{hentiLz();bi=i;gambarLz(0);};$('lzb').appendChild(b);});
+  Lz.bahan.forEach((m,i)=>{const b=document.createElement('button');b.type='button';b.textContent=m[0];b.onclick=()=>{hentiLz();mi=i;gambarLz(0);};$('lzm').appendChild(b);});
+  function gambarLz(tt){
+   const a=aa(),B=Lz.medan_T[bi],Y=y=>20+Math.min(y/H,1)*150;
+   let h='';
+   if(B>0)for(let x=60;x<=540;x+=30)h+=`<line x1='${x}' y1='10' x2='${x}' y2='200' stroke='var(--aksen)' stroke-opacity='${Math.min(.15+B/10,.6)}' stroke-width='2'/>`;
+   h+=`<line x1='40' y1='200' x2='560' y2='200' stroke='var(--teks)' stroke-width='3'/>`;
+   h+=`<rect x='140' y='${Y(yAt(0,tt))}' width='70' height='30' fill='${warna[0]}' stroke='var(--teks)'/>`+Tf(175,222,'pembanding (jatuh bebas)','var(--lembut)','middle',11);
+   h+=`<rect x='390' y='${Y(yAt(a,tt))}' width='70' height='30' fill='${warna[mi]}' stroke='var(--teks)'/>`+Tf(425,222,Lz.bahan[mi][0],'var(--lembut)','middle',11);
+   $('lzsvg').innerHTML=h;
+   [...$('lzb').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===bi));[...$('lzm').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===mi));
+   const t0=tFall(0),t1=tFall(a);
+   $('lzk').textContent=a<=0?'Tanpa arus induksi (bahan non-konduktor atau tanpa medan): blok jatuh seperti pembanding, sekitar '+fmt(t0,2)+' detik untuk '+fmt(H,1)+' m.'
+    :'Arus induksi melawan gerakan (hukum Lenz): blok melambat dan kecepatannya mendekati '+fmt(g/a,2)+' m/s. Waktu jatuh '+fmt(H,1)+' m sekitar '+fmt(t1,2)+' detik, dibanding '+fmt(t0,2)+' detik untuk jatuh bebas. Makin kuat medan dan makin konduktif bahan, makin lambat. Hal serupa terjadi bila logam bergerak melalui gradien medan statis, termasuk fungsi katup jantung logam lama pada uji in vitro.';
+  }
+  function hentiLz(){if(ti){clearInterval(ti);ti=null;}}
+  $('lzj').onclick=()=>{
+   hentiLz();const t0=tFall(0);
+   if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){gambarLz(t0);return;}
+   const mulai=Date.now(),tampil=1.5;
+   ti=setInterval(()=>{const r=(Date.now()-mulai)/1000,tt=r*t0/tampil;gambarLz(tt);if(r>=Math.max(tampil,6)||tt>=tFall(aa())&&tt>=t0)hentiLz();},40);
+  };
+  $('lzr').onclick=()=>{hentiLz();bi=2;mi=2;gambarLz(0);};
+  gambarLz(0);
+})();
+
+/* === Aktivitas m07b-A6: Skenario darurat: pilih tindakan === */
+(function(){
+ const root=$('m07b-A6');
+
+  const SC=[
+   ['Seorang pasien mendadak tidak sadar dan tidak bernapas di Zona IV. Tidak ada benda yang menjepitnya.','keluarkan','Pasien yang sakit mendadak dikeluarkan dan ditangani di luar Zona IV sambil memanggil tim resusitasi. Quench tidak dipakai untuk itu.'],
+   ['Seorang porter terjepit antara tabung oksigen ferromagnetik dan magnet, dan tidak bisa dilepaskan.','quench','Orang terjepit benda ferromagnetik adalah ancaman nyawa akibat medan, alasan yang dibenarkan untuk quench. Setelah itu ikuti prosedur gas helium.'],
+   ['Pasien panik karena klaustrofobia dan memohon keluar dari bore.','keluarkan','Hentikan pemindaian dan keluarkan pasien. Tidak ada ancaman akibat medan, jadi quench tidak dipakai.'],
+   ['Alarm oksigen berbunyi setelah pipa quench dilaporkan rusak, dan seseorang tampak lemas di dalam ruang magnet.','evakuasi','Helium menggantikan oksigen dan penolong pun bisa pingsan. Evakuasi, jangan masuk sendirian, dan minta bantuan terlatih. Pastikan keselamatan diri sendiri dahulu.'],
+   ['Seorang staf pusing berputar (vertigo) setelah melewati medan tepi magnet berkekuatan sangat tinggi.','keluarkan','Keluarkan dari medan dan biarkan pulih (sekitar '+DATA.EFEK.pulih_menit+' menit). Ini efek sementara, bukan ancaman nyawa, jadi quench tidak dipakai.']];
+  let si=0,ss=0,pr=null,pil='';
+  const bt=()=>root.querySelectorAll('.sk-b');
+  function tampil(){
+   $('ds-q').textContent='Skenario '+(si+1)+' dari '+SC.length+': '+SC[si][0];
+   $('ds-f').textContent='';$('ds-f').className='';pr=null;pil='';$('ds-n').hidden=true;
+   bt().forEach(b=>{b.className='sk-b';b.setAttribute('aria-pressed','false');});
+   $('ds-s').textContent='Benar: '+ss;
+  }
+  bt().forEach(b=>b.onclick=()=>{
+   const s=SC[si],v=b.dataset.v,ok=v===s[1];
+   if(pil===v){pil='';b.className='sk-b';b.setAttribute('aria-pressed','false');$('ds-f').textContent='';$('ds-f').className='';return;}
+   if(pr===null){pr=ok;if(ok)ss++;}
+   pil=v;bt().forEach(x=>{x.className='sk-b';x.setAttribute('aria-pressed','false');});
+   b.className='sk-b '+(ok?'benar':'salah');b.setAttribute('aria-pressed','true');
+   $('ds-f').className=ok?'ok':'no';$('ds-f').textContent=(ok?'Tepat. ':'Belum tepat. Yang sesuai: '+s[1]+'. ')+s[2];
+   $('ds-s').textContent='Benar: '+ss;
+   $('ds-n').hidden=false;$('ds-n').textContent=si===SC.length-1?'Selesai':'Berikutnya';
+  });
+  $('ds-n').onclick=()=>{if(si<SC.length-1){si++;tampil();}else{$('ds-q').textContent='Selesai. Skor '+ss+' dari '+SC.length+'. Tekan Reset untuk mengulang.';$('ds-n').hidden=true;$('ds-f').textContent='';}};
+  $('ds-r').onclick=()=>{si=0;ss=0;tampil();};
+  tampil();
+})();
+
+/* === Aktivitas m07c-A1: Kalkulator SAR === */
+(function(){
+ const root=$('m07c-A1');
+
+/* --- dari aktivitas asli #3 --- */
+const B0S=Object.keys(DATA.FISIKA.larmor_MHz).sort((a,b)=>a-b);
+['kb0a','kb0b'].forEach(id=>B0S.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=fmt(+k,k==='3'?0:1)+' T';$(id).appendChild(o);}));
+function hitungSAR(){
+ const bag=$('kbag').value,mode=$('kmode').value,fl=+$('kfl').value;
+ const batas=bag==='tubuh'?K.sar_tubuh_W_per_kg[mode]:(mode==='normal'?K.sar_kepala_normal_W_per_kg:null);
+ $('kfv').textContent='x'+fmt(fl,1);
+ if(batas===null){$('khasil').textContent='Batas kepala pada mode tingkat satu tidak ada di data modul ini.';$('kbadge').textContent='tanpa data';$('kbadge').className='lencana';$('kmeter').style.width='0';return;} // TODO-VERIFIKASI: batas kepala mode tingkat satu
+ const awal=+$('ksar').value||0,baru=awal*Math.pow(+$('kb0b').value/+$('kb0a').value,2)*fl*fl,p=baru/batas*100,ok=p<=100;
+ $('khasil').textContent='SAR menjadi sekitar '+fmt(baru,2)+' W/kg. Batas mode '+(mode==='normal'?'normal':'tingkat satu')+': '+fmt(batas,1)+' W/kg. Terpakai '+fmt(p,0)+' persen.';
+ $('kmeter').style.width=Math.min(p,100)+'%';
+ $('kbadge').textContent=ok?'di bawah batas':'melewati batas';$('kbadge').className='lencana '+(ok?'ok':'no');
+}
+['kbag','kmode','kb0a','kb0b','ksar','kfl'].forEach(id=>{$(id).addEventListener('input',hitungSAR);$(id).addEventListener('change',hitungSAR);});
+$('kr').onclick=()=>{$('kbag').value='tubuh';$('kmode').value='normal';$('kb0a').value=B0S[0];$('kb0b').value=B0S[0];$('ksar').value=NIL.sn/2;$('kfl').value=1;hitungSAR();};
+$('kr').onclick();
+/* --- dari aktivitas asli #16 --- */
+const g1=x=>fmt(x,Number.isInteger(x)?0:1);
+const SXW=[['tubuh','Seluruh tubuh (koil transmit volume)'],['bag','Bagian tubuh terpapar (koil volume, rentang)'],['kep','Kepala (koil transmit volume)'],['lk','Koil transmit lokal: kepala'],['lb','Koil transmit lokal: badan'],['le','Koil transmit lokal: ekstremitas']];
+SXW.forEach(a=>{const o=document.createElement('option');o.value=a[0];o.textContent=a[1];$('sxw').appendChild(o);});
+function hitungSX(){
+ const d=$('sxm').value==='n'?DATA.SN:DATA.ST,k=$('sxw').value,v=d[k],ar=Array.isArray(v),lo=ar?v[0]:v,hi=ar?v[1]:v,F=DATA.SX.fak;
+ const a=+$('sxa').value||0,pk=+$('sxp').value||0,bad=a>hi||pk>F*hi,mid=!bad&&(a>lo||pk>F*lo);
+ const L=x=>ar?g1(x*lo)+' sampai '+g1(x*hi):g1(x*lo);
+ $('sxk').textContent='Batas rata-rata '+DATA.SX.mnt+' menit: '+L(1)+' W/kg. Batas 10 detik: '+DATA.SX.fak+' kali nilai itu ('+L(F)+' W/kg).'+(ar&&mid?' Nilai Anda berada di dalam rentang: batas tepatnya bergantung pada bagian tubuh yang terpapar.':'');
+ $('sxmt').style.width=Math.min(a/hi*100,100)+'%';
+ $('sxb').textContent=bad?'melewati batas':(mid?'bergantung bagian tubuh':'di bawah batas');$('sxb').className='lencana'+(bad?' no':(mid?'':' ok'));
+ $('sxs').textContent='Suhu inti pada mode ini naik paling banyak '+g1(d.naik)+' °C dan suhu tubuh paling tinggi '+g1(d.maks)+' °C.'+(k[0]==='l'?' Dengan koil transmit lokal, suhu orbita dibatasi '+DATA.SX.orb+' °C.':'');
+}
+['sxm','sxw','sxa','sxp'].forEach(id=>{$(id).addEventListener('input',hitungSX);$(id).addEventListener('change',hitungSX);});
+$('sxr').onclick=()=>{$('sxm').value='n';$('sxw').value='tubuh';$('sxa').value=DATA.SN.tubuh/2;$('sxp').value=DATA.SN.tubuh;hitungSX();};
+$('sxr').onclick();
+/* --- dari aktivitas asli #17 --- */
+const srt=$('srt'),sri=$('sri'),srf=$('srf');let srB=B0S[B0S.length-1];
+B0S.forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=fmt(+k,k==='3'?0:1)+' T';b.dataset.k=k;b.onclick=()=>{srB=k;gambarSR();};$('srb0').appendChild(b);});
+function gambarSR(){
+ const base=+B0S[B0S.length-1],t=+srt.value,n=+sri.value,f=+srf.value,r=Math.pow(+srB/base,2)*f*f*n/t;
+ $('srtv').textContent='x'+fmt(t,1);$('sriv').textContent='x'+fmt(n,1);$('srfv').textContent='x'+fmt(f,1);
+ [...$('srb0').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===srB));
+ $('srm').style.width=Math.min(r*100,100)+'%';
+ const tr=[];if(+srB<base)tr.push('SNR turun, dan NSA yang lebih besar membuat waktu minimal dua kali lipat');if(t>1)tr.push('pembobotan citra berubah, terutama pada T1');if(n<1)tr.push('cakupan anatomi berkurang, atau akuisisi tambahan menambah waktu');if(f<1)tr.push('kualitas citra sedikit menurun');
+ $('srk').textContent='SAR relatif sekitar '+fmt(r*100,0)+' persen dari kondisi awal. Konsekuensi: '+(tr.length?tr.join('; ')+'.':'belum ada perubahan.')+' Koil kuadratur lebih efisien daripada koil linear tanpa konsekuensi bila dipilih sejak awal.';
+}
+[srt,sri,srf].forEach(e=>e.oninput=gambarSR);
+$('srr').onclick=()=>{srB=B0S[B0S.length-1];srt.value=1;sri.value=1;srf.value=1;gambarSR();};
+$('srr').onclick();
+})();
+
+/* === Aktivitas m07c-A2: Luka bakar: efek antena pada kawat dan loop konduktif === */
+(function(){
+ const root=$('m07c-A2');
+
+/* --- dari aktivitas asli #18 --- */
+const RFD=DATA.RF,anl=$('anl');anl.min=5;anl.max=300;anl.step=1;let anB=B0S[0],anM='d';
+B0S.forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent='B0 '+fmt(+k,k==='3'?0:1)+' T';b.dataset.k=k;b.onclick=()=>{anB=k;gambarAn();};$('anb0').appendChild(b);});
+[['u','Udara atau vakum'],['a','Air'],['d','Darah']].forEach(a=>{const b=document.createElement('button');b.type='button';b.textContent=a[1];b.dataset.k=a[0];b.onclick=()=>{anM=a[0];gambarAn();};$('anmd').appendChild(b);});
+function gambarAn(){
+ const L=+anl.value;$('anlv').textContent=L;
+ const f=DATA.FISIKA.larmor_MHz[anB],lam=RFD.c/(f*Math.sqrt(RFD.eps[anM])),half=lam*50,r=L/half;
+ const heat=Math.max(Math.exp(-Math.pow((r-1)/.12,2)),Math.exp(-Math.pow((r-3)/.12,2)));
+ const X=cm=>40+cm/300*520,x1=X(L);
+ let pts='';for(let cm=0;cm<=L;cm+=Math.max(L/120,.5))pts+=X(cm).toFixed(1)+','+(95-(.25+.75*heat)*60*Math.cos(2*Math.PI*cm/(lam*100))).toFixed(1)+' ';
+ let h=`<line x1='40' y1='95' x2='${x1}' y2='95' stroke='var(--teks)' stroke-width='5' stroke-linecap='round'/><polyline points='${pts}' fill='none' stroke='var(--aksen)' stroke-width='3'/>`;
+ [40,x1].forEach(x=>{h+=`<circle cx='${x}' cy='95' r='${6+16*heat}' fill='var(--salah)' fill-opacity='${.15+.6*heat}'/>`;});
+ h+=Tf(300,160,'garis biru: gelombang berdiri; lingkaran merah: pemanasan di ujung kawat','var(--lembut)','middle',11);
+ $('ansvg').innerHTML=h;
+ [...$('anb0').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===anB));[...$('anmd').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===anM));
+ $('ank').textContent='Panjang gelombang di medium ini sekitar '+fmt(lam*100,0)+' cm, jadi setengahnya sekitar '+fmt(half,0)+' cm. Kawat '+L+' cm: '+(heat>.7?'mendekati resonansi, ujung kawat memanas kuat.':(heat>.3?'agak dekat resonansi.':'jauh dari resonansi, pemanasan ujung kecil.'))+' Pemanasan relatif (gambaran): '+fmt(heat*100,0)+' persen.';
+}
+anl.oninput=gambarAn;$('anr').onclick=()=>{anB=B0S[0];anM='d';anl.value=RFD.dip;gambarAn();};
+$('anr').onclick();
+/* --- dari aktivitas asli #19 --- */
+const LPS=['Tangan di atas kepala bertemu','Tangan menyentuh paha','Tumit bersentuhan','Bantalan isolasi'];let lpA=[false,false,false,false];
+LPS.forEach((t,i)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.onclick=()=>{lpA[i]=!lpA[i];gambarLp();};$('lpbtn').appendChild(b);});
+function gambarLp(){
+ const lp=lpA[3],ov=lpA[0],th=lpA[1]&&!ov,he=lpA[2],B=`fill='#ced4da' stroke='#868e96'`;
+ let h=`<circle cx='150' cy='46' r='22' fill='#f1c27d' stroke='#7a5a2a'/><rect x='116' y='72' width='68' height='110' rx='20' ${B}/><rect x='120' y='180' width='27' height='95' rx='10' ${B}/><rect x='153' y='180' width='27' height='95' rx='10' ${B}/>`;
+ if(ov)h+=`<polyline points='120,88 96,50 147,12' fill='none' stroke='#adb5bd' stroke-width='14' stroke-linecap='round' stroke-linejoin='round'/><polyline points='180,88 204,50 153,12' fill='none' stroke='#adb5bd' stroke-width='14' stroke-linecap='round' stroke-linejoin='round'/>`;
+ else if(th)h+=`<polyline points='120,88 96,135 124,178' fill='none' stroke='#adb5bd' stroke-width='14' stroke-linecap='round' stroke-linejoin='round'/><polyline points='180,88 204,135 176,178' fill='none' stroke='#adb5bd' stroke-width='14' stroke-linecap='round' stroke-linejoin='round'/>`;
+ else h+=`<rect x='92' y='80' width='22' height='100' rx='10' ${B}/><rect x='186' y='80' width='22' height='100' rx='10' ${B}/>`;
+ const pts=[];if(ov)pts.push([150,12,14]);if(th){pts.push([124,178,16]);pts.push([176,178,16]);}if(he)pts.push([150,276,14]);
+ pts.forEach(q=>{h+=lp?`<rect x='${q[0]-14}' y='${q[1]-7}' width='28' height='14' rx='4' fill='var(--benar)' fill-opacity='.85'/>`:`<circle cx='${q[0]}' cy='${q[1]}' r='${q[2]}' fill='var(--salah)' fill-opacity='.65'/>`;});
+ $('lpsvg').innerHTML=h;
+ [...$('lpbtn').children].forEach((b,i)=>b.setAttribute('aria-pressed',lpA[i]));
+ $('lpk').textContent=pts.length===0?'Tidak ada loop alami yang terbentuk pada postur ini.':(lp?'Bantalan isolasi memutus loop, jadi arus tidak lagi terkonsentrasi di satu titik kulit.':pts.length+' titik kontak: arus induksi terkonsentrasi di area kulit yang hanya beberapa sentimeter persegi, sehingga pemanasan tajam (merah). Pasien yang dibius tidak dapat melaporkannya.');
+}
+$('lpr').onclick=()=>{lpA=[false,false,false,false];gambarLp();};
+gambarLp();
+})();
+
+/* === Aktivitas m07c-A3: Ambang stimulasi saraf oleh gradien === */
+(function(){
+ const root=$('m07c-A3');
+
+/* --- dari aktivitas asli #12 --- */
+const STM=DATA.STIM,BIS=DATA.BIS,KRI=DATA.KR;
+const Tf=(x,y,t,c,a,f)=>`<text x='${x}' y='${y}' text-anchor='${a||'start'}' fill='${c||'var(--teks)'}' font-size='${f||13}'>${t}</text>`;
+const nf=(x,d)=>x.toLocaleString('id-ID',{maximumFractionDigits:d});
+const stl=$('stl');stl.min=0;stl.max=1000;stl.step=10;
+const STP=[['Mode normal',STM.n],['Batas maksimum',STM.m],['Mode riset',STM.r]];
+STP.forEach(a=>{const b=document.createElement('button');b.type='button';b.textContent=a[0]+' ('+a[1]+'%)';b.onclick=()=>{stl.value=a[1];gambarStim();};$('stbtn').appendChild(b);});
+function gambarStim(){
+ const v=+stl.value;$('stlv').textContent=v;
+ const R=[['Saraf tepi',STM.m],['Napas (studi anjing)',STM.a],['Jantung (studi anjing)',STM.j]];
+ let h='';
+ R.forEach((r,i)=>{const y=14+i*58,hit=v>=r[1];h+=Tf(10,y+17,r[0])+`<rect x='190' y='${y}' width='370' height='24' rx='6' fill='var(--garis)'/><rect x='190' y='${y}' width='${Math.min(v/r[1],1)*370}' height='24' rx='6' fill='${hit?'var(--salah)':'var(--aksen)'}'/>`+Tf(190,y+42,'ambang: '+r[1]+' persen'+(hit?' (terlampaui)':''),hit?'var(--salah)':'var(--lembut)','start',11);});
+ $('stsvg').innerHTML=h;
+ [...$('stbtn').children].forEach((b,i)=>b.setAttribute('aria-pressed',v===STP[i][1]));
+ $('stk').textContent=(v<=STM.n?'Di dalam batas mode normal: tidak ada stimulasi.':(v<STM.m?'Di atas batas mode normal, tetapi belum melewati ambang saraf tepi.':'Melewati ambang saraf tepi: ketukan, kesemutan, atau denyutan di tungkai.'+(v>STM.r?' Di atas batas mode riset.':'')+(v>=STM.a?' Ambang napas pada studi anjing terlampaui.':'')+(v>=STM.j?' Ambang jantung pada studi anjing terlampaui.':'')))+' Pada pemindai diagnostik, slew rate dibatasi produsen (biasanya sampai '+STM.sl+' T/m/s), jadi ini jarang terjadi.';
+}
+stl.oninput=gambarStim;$('str').onclick=()=>{stl.value=STM.n;gambarStim();};
+$('str').onclick();
+})();
+
+/* === Aktivitas m07c-A4: Kalkulator bising dan lama paparan === */
+(function(){
+ const root=$('m07c-A4');
+
+/* --- dari aktivitas asli #13 --- */
+const nsS=$('nssel'),nsD=$('nsd');nsD.min=10;nsD.max=170;
+const op0=document.createElement('option');op0.value='-1';op0.textContent='Atur sendiri dengan slider';nsS.appendChild(op0);
+BIS.tabel.forEach((a,i)=>{const o=document.createElement('option');o.value=i;o.textContent=a[0]+' ('+a[1]+' dB)';nsS.appendChild(o);});
+nsS.onchange=()=>{if(+nsS.value>=0)nsD.value=BIS.tabel[+nsS.value][1];gambarBising();};
+nsD.oninput=()=>{nsS.value='-1';gambarBising();};
+const durasi=m=>m>=60?nf(m/60,1)+' jam':(m>=1?nf(m,0)+' menit':nf(m*60,0)+' detik');
+function gambarBising(){
+ const L=+nsD.value,rel=Math.pow(2,(L-BIS.ref)/BIS.tkr),mnt=BIS.mnt/rel,X=d=>40+d/170*520;
+ $('nsdv').textContent=L;
+ let h=`<rect x='40' y='14' width='520' height='24' rx='6' fill='var(--garis)'/><rect x='40' y='14' width='${X(L)-40}' height='24' rx='6' fill='${L>=BIS.ny?'var(--salah)':(L>=BIS.ref?'var(--t1)':(L>=BIS.ic?'#f2c94c':'var(--benar)'))}'/>`;
+ [[BIS.gg,''],[BIS.ic,''],[BIS.ref,''],[BIS.m15,'MRI 1,5 T'],[BIS.m3,'MRI 3 T EPI'],[BIS.ny,'nyeri']].forEach(a=>{h+=`<line x1='${X(a[0])}' y1='14' x2='${X(a[0])}' y2='44' stroke='var(--teks)'/>`+Tf(X(a[0]),58,a[0],'var(--lembut)','middle',11)+(a[1]?Tf(X(a[0]),74,a[1],'var(--lembut)','middle',11):'');});
+ $('nssvg').innerHTML=h;
+ const st=L>=BIS.ny?'Nyeri dan berisiko memecahkan gendang telinga.':(L>=BIS.ref?'Di atas patokan paparan harian, jadi durasi harus dibatasi.':(L>=BIS.ic?'ICNIRP menyarankan pelindung telinga pada tingkat ini.':(L>=BIS.gg?'Mulai mengganggu bagi banyak orang.':'Relatif aman.')));
+ $('nsk').textContent=L+' dB: intensitas sekitar '+nf(rel,rel<1?3:(rel<10?1:0))+' kali patokan '+BIS.ref+' dB. '+(L>=BIS.ref?'Batas paparan harian sekitar '+durasi(mnt)+'. ':'')+st;
+}
+$('nsr').onclick=()=>{nsS.value='-1';nsD.value=BIS.m15;gambarBising();};
+$('nsr').onclick();
+})();
+
+/* === Aktivitas m07c-A5: Panjang gelombang RF di jaringan: 1,5 T vs 3 T, pola B1 tidak rata === */
+(function(){
+ const root=$('m07c-A5');
+
+  const R=DATA.RF,Bd=DATA.B1,sl=$('bwl');let B=B0S[0];
+  sl.min=Bd.lebar_cm[0];sl.max=Bd.lebar_cm[1];sl.step=1;sl.value=Bd.lebar_cm[2];
+  B0S.forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent='B0 '+fmt(+k,k==='3'?0:1)+' T';b.dataset.k=k;b.onclick=()=>{B=k;gambarB1();};$('bwb0').appendChild(b);});
+  function gambarB1(){
+   const wd=+sl.value,f=DATA.FISIKA.larmor_MHz[B],lam=R.c/(f*Math.sqrt(R.eps.d))*100;
+   const m=Math.min(.6,.5*Math.pow(wd/lam,2)),N=60,p=[];
+   for(let i=0;i<N;i++){const x=(i+.5)/N*wd-wd/2;p.push(1+m*Math.cos(2*Math.PI*x/lam));}
+   const mn=Math.min(...p),mx=Math.max(...p),ket=(mx-mn)/(mx+mn)*100,rx=wd*5,x0=300-rx,lb=wd*10/N;
+   let h=`<defs><clipPath id='bwclip'><ellipse cx='300' cy='80' rx='${rx}' ry='64'/></clipPath></defs><g clip-path='url(#bwclip)'>`;
+   p.forEach((v,i)=>{h+=`<rect x='${(x0+i*lb).toFixed(1)}' y='10' width='${(lb+.6).toFixed(1)}' height='140' fill='var(--b0)' fill-opacity='${(.1+.8*(v-.4)/1.2).toFixed(2)}'/>`;});
+   h+=`</g><ellipse cx='300' cy='80' rx='${rx}' ry='64' fill='none' stroke='var(--teks)' stroke-width='2'/>`+Tf(300,160,'penampang tubuh (gelap = B1 lemah, terang = B1 kuat)','var(--lembut)','middle',11);
+   let pts='';p.forEach((v,i)=>{pts+=(x0+(i+.5)*lb).toFixed(1)+','+(205-(v-1)*60).toFixed(1)+' ';});
+   h+=`<line x1='${x0}' y1='205' x2='${x0+wd*10}' y2='205' stroke='var(--garis)' stroke-dasharray='5 4'/><polyline points='${pts}' fill='none' stroke='var(--aksen)' stroke-width='3'/>`+Tf(x0,232,'profil B1 melintang (garis putus-putus: rata)','var(--lembut)','start',11);
+   $('bwsvg').innerHTML=h;$('bwlv').textContent=wd;
+   [...$('bwb0').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===B));
+   const r=wd/lam;
+   $('bwk').textContent='Pada '+fmt(+B,B==='3'?0:1)+' T (frekuensi '+fmt(f,1)+' MHz) panjang gelombang di jaringan sekitar '+fmt(lam,0)+' cm. Lebar tubuh '+wd+' cm adalah '+fmt(r,1)+' kali panjang gelombang. Ketidakrataan B1 (gambaran) sekitar '+fmt(ket,0)+' persen. '+(r>.9?'Sebanding dengan panjang gelombang: interferensi kuat, ada area terang dan gelap pada citra, dan pemanasan (SAR) pun tidak merata.':(r>.7?'Mulai mendekati panjang gelombang: pola mulai tidak rata.':'Jauh lebih pendek dari panjang gelombang: pola relatif rata.'));
+  }
+  sl.oninput=gambarB1;
+  $('bwr').onclick=()=>{B=B0S[0];sl.value=Bd.lebar_cm[2];gambarB1();};
+  gambarB1();
+})();
+
+/* Soal kuis. Field: pertanyaan, pilihan, jawaban (indeks 0), penjelasan, kode (simpul T), tingkat. */
+const SOAL_M07A=[
+ {pertanyaan:'Kapan medan magnet utama (B0) menyala?',pilihan:['Hanya saat pemindaian','Selalu menyala','Hanya saat pintu ditutup','Hanya malam hari'],jawaban:1,penjelasan:'Magnet superkonduktor selalu menyala, jadi bahayanya ada walau tidak ada pemindaian.',kode:'T1.1',tingkat:1},
+ {pertanyaan:'Zona mana yang berisi pemindai MRI?',pilihan:['Zona I','Zona II','Zona III','Zona IV'],jawaban:3,penjelasan:'Zona IV adalah ruang magnet tempat pemindai berada.',kode:'T1.1',tingkat:1},
+ {pertanyaan:'Jenis implan pasien tidak bisa dipastikan dengan bukti dokumen. Apa langkah yang sesuai konsep modul ini?',pilihan:['Lanjut berdasarkan keterangan lisan','Lanjut dengan sudut flip kecil','Lanjut asal memakai proteksi telinga','Tunda atau batalkan sampai terbukti aman'],jawaban:3,penjelasan:'Keterangan lisan saja tidak cukup. Pemeriksaan ditunda sampai keamanan terbukti melalui bukti dokumen.',kode:'T1.2',tingkat:1},
+ {pertanyaan:'Siapa yang memikul tanggung jawab utama atas analisis risiko dan manfaat pada pasien dengan perangkat implan?',pilihan:['Pasien sendiri','Dokter perujuk dan radiology lead','Petugas kebersihan','Produsen perangkat saja'],jawaban:1,penjelasan:'Tanggung jawab utama ada pada dokter perujuk dan radiology lead. Praktisi MRI juga boleh menunda bila bukti kurang.',kode:'T1.2',tingkat:1},
+ {pertanyaan:'Manakah yang BUKAN salah satu dari lima sumber bahaya utama pada bagian ini?',pilihan:['Kriogen','Medan RF','Efek psikologis','Efek kimia zat kontras gadolinium'],jawaban:3,penjelasan:'Lima sumber bahaya: faktor psikologis, medan statis, medan RF, gradien, dan kriogen. Keamanan kontras gadolinium adalah keselamatan obat dan dibahas terpisah di T2.6.',kode:'T1.3',tingkat:1},
+ {pertanyaan:'Apa arti label MR Conditional pada sebuah implan?',pilihan:['Aman dalam semua kondisi','Aman bila syarat pada label dipenuhi','Selalu berbahaya','Tidak perlu skrining'],jawaban:1,penjelasan:'MR Conditional berarti aman hanya bila syarat yang tertulis dipenuhi.',kode:'T2.3',tingkat:2},
+ {pertanyaan:'Sebuah perangkat MR Conditional aman pada medan rendah. Apa kesimpulan yang tepat untuk medan yang lebih tinggi?',pilihan:['Otomatis aman','Otomatis tidak aman','Tidak perlu dicek lagi','Belum tentu aman, syaratnya harus diperiksa'],jawaban:3,penjelasan:'MR Conditional hanya berlaku pada syarat yang tertera, termasuk kekuatan medan. Aman pada medan rendah belum tentu aman pada medan tinggi.',kode:'T2.3',tingkat:2},
+ {pertanyaan:'Pada tahap mana kecemasan pasien biasanya paling tinggi?',pilihan:['Di akhir pemeriksaan','Di tengah pemindaian','Saat dimasukkan ke bore','Saat berganti pakaian'],jawaban:2,penjelasan:'Kecemasan biasanya memuncak saat pasien dimasukkan ke bore lalu menurun, sehingga strategi menenangkan difokuskan pada tahap itu.',kode:'T2.4',tingkat:2},
+ // --- [BARU] soal untuk simpul tanpa soal asli ---
+ {pertanyaan:"Di zona mana jawaban skrining dan riwayat pasien diambil, dan pasien belum bebas bergerak?",pilihan:["Zona I", "Zona II", "Zona III", "Zona IV"],jawaban:1,penjelasan:"Zona II adalah batas antara area umum dan zona terkontrol: pasien disambut, ditanyai, dan diawasi.",kode:'T2.1',tingkat:2},
+ {pertanyaan:"Siapa yang termasuk personel Level 2?",pilihan:["Pengunjung rumah sakit", "Staf kantor dengan pendidikan keselamatan minimal", "Pasien yang sudah diskrining", "Teknolog MRI, radiolog, dan perawat yang dilatih mendalam"],jawaban:3,penjelasan:"Level 2 dilatih mendalam, termasuk soal pemanasan, luka bakar, dan rangsangan saraf-otot akibat gradien.",kode:'T2.2',tingkat:2},
+ {pertanyaan:"Anda ditekan agar tetap memindai padahal ragu soal keselamatan. Tindakan yang sesuai?",pilihan:["Lanjutkan agar jadwal tidak tertunda", "Kecilkan sudut flip lalu lanjut", "Tunda pemeriksaan", "Minta pasien menandatangani formulir lalu lanjut"],jawaban:2,penjelasan:"Jangan membiarkan diri ditekan. Bila ragu, tunda pemeriksaan.",kode:'T2.5',tingkat:2},
+ {pertanyaan:"Kondisi mana yang paling perlu ditinjau ulang sebelum kontras gadolinium karena risiko NSF?",pilihan:["Alergi serbuk sari", "Gangguan ginjal berat atau cedera ginjal akut", "Tinggi badan", "Warna rambut"],jawaban:1,penjelasan:"NSF dikaitkan dengan gadolinium pada gangguan ginjal berat atau cedera ginjal akut, sehingga eGFR diperiksa pada pasien berisiko.",kode:'T2.6',tingkat:2},
+ {pertanyaan:"Bagaimana sikap yang sesuai terhadap kontras gadolinium pada pasien hamil?",pilihan:["Selalu diberikan", "Dosis digandakan", "Dihindari kecuali manfaatnya jelas lebih besar daripada risikonya", "Tidak perlu ditanyakan"],jawaban:2,penjelasan:"Gadolinium melewati plasenta. Keputusan ada pada radiolog dan dokter perujuk.",kode:'T2.6',tingkat:2},
+];
+const TK_M07A=[1, 2];
+kuisBertingkat($('kuis-m07a'),SOAL_M07A,TK_M07A);
+
+/* Soal kuis. Field: pertanyaan, pilihan, jawaban (indeks 0), penjelasan, kode (simpul T), tingkat. */
+const SOAL_M07B=[
+ {pertanyaan:'Mengapa kursi roda ferromagnetik berbahaya di ruang magnet berperisai aktif?',pilihan:['Karena medan tepinya sangat luas','Karena kursi roda memanaskan magnet','Karena medan turun curam, tarikan baru terasa saat sudah dekat','Karena kursi roda mematikan B0'],jawaban:2,penjelasan:'Pada magnet berperisai aktif, tarikan hampir tak terasa dari jauh lalu naik tajam di dekat bore.',kode:'T2.3',tingkat:2},
+ {pertanyaan:'Apa yang cenderung terjadi pada klip aneurisma ferromagnetik di jaringan lunak saat berada di medan statis?',pilihan:['Berputar sampai sejajar garis medan (torsi)','Tidak terjadi apa pun','Mencair karena panas','Berubah menjadi MR Safe'],jawaban:0,penjelasan:'Gaya putar (torsi) membuat sumbu panjang implan menyelaras dengan medan dan dapat merusak jaringan sekitarnya.',kode:'T2.5',tingkat:2},
+ {pertanyaan:'Kadar oksigen ruang magnet turun di bawah '+fmt(KRI.lo,1)+' persen. Apa yang seharusnya terjadi?',pilihan:['Tidak ada yang perlu dilakukan','Alarm sensor oksigen berbunyi','Pintu terkunci otomatis','Magnet dimatikan sendiri'],jawaban:1,penjelasan:'Ruang magnet punya sensor oksigen yang dikalibrasi untuk berbunyi saat kadar oksigen turun di bawah ambang itu.',kode:'T2.7',tingkat:2},
+ {pertanyaan:'(Lanjut) Mengapa pintu ruang magnet bisa sulit dibuka setelah pipa quench rusak?',pilihan:['Magnet menarik pintu','Tekanan udara di ruangan naik dan menekan pintu yang membuka ke dalam','Helium membekukan engsel pintu','Alarm mengunci pintu'],jawaban:1,penjelasan:'Kenaikan tekanan yang kecil pun memberi gaya besar pada pintu yang membuka ke dalam. Menyamakan tekanan mempercepat akses.',kode:'T3.1',tingkat:3},
+ // --- [BARU] ---
+ {pertanyaan:"Garis 5 gauss setara berapa mT?",pilihan:["5 mT", "0,5 mT", "50 mT", "0,05 mT"],jawaban:1,penjelasan:"5 gauss sama dengan 0,5 mT.",kode:'T2.1',tingkat:2},
+ {pertanyaan:"Siapa yang paling sering terlibat insiden proyektil?",pilihan:["Radiolog yang bertugas", "Pasien yang sudah diskrining", "Staf non-MRI yang masuk tanpa pengawasan", "Teknisi gradient coil"],jawaban:2,penjelasan:"Contohnya petugas kebersihan, porter, atau teknisi anestesi. Karena itu zonasi, pintu terkunci, dan pelatihan semua staf penting.",kode:'T2.2',tingkat:2},
+ {pertanyaan:"Bagaimana cara mengurangi keparahan vertigo saat pasien masuk ke medan sangat tinggi?",pilihan:["Menggerakkan meja lebih cepat", "Menggerakkan meja perlahan", "Mematikan magnet", "Mengganti koil"],jawaban:1,penjelasan:"Makin cepat meja bergerak, makin berat vertigo, jadi meja digerakkan perlahan.",kode:'T2.4',tingkat:2},
+ {pertanyaan:"Mengapa logam non-ferrous seperti aluminium dapat melambat saat bergerak dalam medan statis?",pilihan:["Karena ditarik magnet", "Karena memanas oleh RF", "Karena arus induksi melawan perubahan medan (efek Lenz)", "Karena berubah menjadi ferromagnetik"],jawaban:2,penjelasan:"Arus induksi selalu melawan perubahan medan yang menimbulkannya.",kode:'T2.6',tingkat:2},
+ {pertanyaan:"(Lanjut) Seseorang terjepit antara tabung oksigen ferromagnetik dan magnet. Tindakan yang dibenarkan?",pilihan:["Quench magnet untuk membebaskannya", "Menunggu pemindaian selesai", "Memindai ulang", "Mematikan lampu ruangan"],jawaban:0,penjelasan:"Quench hanya untuk ancaman nyawa akibat medan, misalnya orang terjepit benda ferromagnetik.",kode:'T3.2',tingkat:3},
+ {pertanyaan:"(Lanjut) Pasien mendadak pingsan di Zona IV tanpa terjepit. Apa yang dilakukan?",pilihan:["Quench magnet", "Biarkan di bore sampai magnet turun", "Keluarkan pasien dan tangani di luar Zona IV", "Tunggu tim datang ke ruang magnet"],jawaban:2,penjelasan:"Pasien yang sakit mendadak dikeluarkan dan ditangani di luar Zona IV. Quench tidak dipakai untuk itu.",kode:'T3.2',tingkat:3},
+];
+const TK_M07B=[2, 3];
+kuisBertingkat($('kuis-m07b'),SOAL_M07B,TK_M07B);
+
+/* Soal kuis. Field: pertanyaan, pilihan, jawaban (indeks 0), penjelasan, kode (simpul T), tingkat. */
+const SOAL_M07C=[
+ {pertanyaan:'Berapa batas SAR seluruh tubuh pada mode normal?',pilihan:[fmt(NIL.sn,0)+' W/kg',fmt(NIL.s1,0)+' W/kg',fmt(NIL.sk,1)+' W/kg','Tidak ada batas'],jawaban:0,penjelasan:'Mode normal untuk seluruh tubuh '+fmt(NIL.sn,0)+' W/kg. Mode tingkat satu '+fmt(NIL.s1,0)+' W/kg.',kode:'T2.2',tingkat:2},
+ {pertanyaan:'Mengapa lensa mata sangat peka terhadap pemanasan RF?',pilihan:['Karena tidak punya aliran darah untuk membuang panas','Karena banyak mengandung logam','Karena letaknya dekat koil','Karena sangat tipis'],jawaban:0,penjelasan:'Lensa tidak memiliki suplai darah, sehingga panas sulit tersebar.',kode:'T2.2',tingkat:2},
+ {pertanyaan:'Dibanding pulsa 90 derajat, pulsa 180 derajat memberi energi RF sebesar...',pilihan:['Setengahnya','Sama','Empat kali lipat','Dua kali lipat'],jawaban:2,penjelasan:'Energi naik dengan kuadrat sudut flip, jadi pulsa 180 derajat memberi empat kali energi pulsa 90 derajat.',kode:'T2.3',tingkat:2},
+ {pertanyaan:'Di bagian mana kawat yang beresonansi seperti antena memanas paling kuat?',pilihan:['Di tengah kawat','Di seluruh kawat sama rata','Di ujung yang jauh dari pasien','Di ujung kawat (antinode)'],jawaban:3,penjelasan:'Pada gelombang berdiri, antinode berada di ujung kawat dan di sanalah energi terbesar sehingga pemanasan terjadi.',kode:'T2.4',tingkat:2},
+ {pertanyaan:'Tingkat tekanan bunyi naik '+BIS.tkr+' dB. Apa artinya bagi intensitas bunyi?',pilihan:['Menjadi dua kali lipat','Naik sedikit sekali','Menjadi setengahnya','Tidak berubah'],jawaban:0,penjelasan:'Skala desibel logaritmik: kenaikan '+BIS.tkr+' dB berarti intensitas dua kali lipat.',kode:'T2.7',tingkat:2},
+ {pertanyaan:'(Lanjut) Mengapa panjang gelombang RF di dalam darah lebih pendek daripada di vakum?',pilihan:['Karena darah dingin','Karena permitivitas relatif darah lebih dari 1','Karena darah mengandung banyak besi bebas','Karena frekuensi RF berubah'],jawaban:1,penjelasan:'Permitivitas relatif jaringan lebih dari 1, sehingga panjang gelombang RF memendek dan panjang dipol kritisnya ikut memendek.',kode:'T3.2',tingkat:3},
+ {pertanyaan:'(Lanjut) SAR naik kira-kira dengan apa?',pilihan:['Akar B0 saja','Berbanding terbalik dengan B0','Kuadrat B0 dan kuadrat sudut flip','Tidak bergantung pada keduanya'],jawaban:2,penjelasan:'SAR naik kira-kira dengan kuadrat B0 dan kuadrat sudut flip.',kode:'T3.4',tingkat:3},
+ // --- [BARU] ---
+ {pertanyaan:"Mengapa pernyataan \"MRI tidak memakai radiasi\" kurang tepat?",pilihan:["MRI memakai sinar-X dosis kecil", "MRI memakai radiasi non-pengion (gelombang RF)", "MRI memakai radiasi neutron", "Pernyataan itu tepat"],jawaban:1,penjelasan:"MRI memakai radiasi non-pengion: energinya terlalu rendah untuk memutus ikatan kimia.",kode:'T2.1',tingkat:2},
+ {pertanyaan:"Apa fungsi bantalan isolasi di antara kulit yang bersentuhan?",pilihan:["Menahan getaran", "Memutus loop konduktif agar arus tidak terkonsentrasi", "Menurunkan B0", "Menambah sinyal"],jawaban:1,penjelasan:"Bantalan memutus loop sehingga arus induksi tidak terkonsentrasi di satu titik kulit.",kode:'T2.4',tingkat:2},
+ {pertanyaan:"Penyebab kematian terkait MRI yang paling umum dilaporkan adalah...",pilihan:["Luka bakar", "Proyektil", "Malfungsi pacu jantung", "Asfiksia helium"],jawaban:2,penjelasan:"Malfungsi pacu jantung adalah penyebab kematian terkait MRI yang paling umum dilaporkan.",kode:'T2.5',tingkat:2},
+ {pertanyaan:"Pasien merasa ketukan atau kesemutan di tungkai saat pemindaian. Penyebab paling mungkin?",pilihan:["Medan statis menarik tulang", "Helium bocor", "RF memanaskan sumsum", "Gradien yang berganti cepat menginduksi arus melewati ambang saraf tepi"],jawaban:3,penjelasan:"Arus induksi dari gradien yang berganti cepat dapat melewati ambang saraf tepi.",kode:'T2.6',tingkat:2},
+ {pertanyaan:"(Lanjut) Mode operasi mana yang hanya untuk riset dan dikunci perangkat lunak?",pilihan:["Mode normal", "Mode tingkat satu", "Mode tingkat dua", "Semua mode"],jawaban:2,penjelasan:"Mode tingkat dua hanya untuk riset, tidak untuk pemeriksaan klinis.",kode:'T3.3',tingkat:3},
+];
+const TK_M07C=[2, 3];
+kuisBertingkat($('kuis-m07c'),SOAL_M07C,TK_M07C);
+</script>
+</body>
+</html>

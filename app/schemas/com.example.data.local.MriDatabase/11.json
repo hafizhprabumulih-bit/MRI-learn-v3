@@ -1,0 +1,843 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 11,
+    "identityHash": "478a980de71e451a48904bc0f2e0f030",
+    "entities": [
+      {
+        "tableName": "node_progress",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`nodeCode` TEXT NOT NULL, `completedAt` INTEGER NOT NULL, `moduleId` TEXT NOT NULL, PRIMARY KEY(`nodeCode`))",
+        "fields": [
+          {
+            "fieldPath": "nodeCode",
+            "columnName": "nodeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedAt",
+            "columnName": "completedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "moduleId",
+            "columnName": "moduleId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "nodeCode"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_node_progress_nodeCode",
+            "unique": false,
+            "columnNames": [
+              "nodeCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_node_progress_nodeCode` ON `${TABLE_NAME}` (`nodeCode`)"
+          },
+          {
+            "name": "index_node_progress_moduleId",
+            "unique": false,
+            "columnNames": [
+              "moduleId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_node_progress_moduleId` ON `${TABLE_NAME}` (`moduleId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "study_notes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `category` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `nodeCode` TEXT, `moduleId` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nodeCode",
+            "columnName": "nodeCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "moduleId",
+            "columnName": "moduleId",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_study_notes_category",
+            "unique": false,
+            "columnNames": [
+              "category"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_study_notes_category` ON `${TABLE_NAME}` (`category`)"
+          },
+          {
+            "name": "index_study_notes_moduleId",
+            "unique": false,
+            "columnNames": [
+              "moduleId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_study_notes_moduleId` ON `${TABLE_NAME}` (`moduleId`)"
+          },
+          {
+            "name": "index_study_notes_nodeCode",
+            "unique": false,
+            "columnNames": [
+              "nodeCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_study_notes_nodeCode` ON `${TABLE_NAME}` (`nodeCode`)"
+          },
+          {
+            "name": "index_study_notes_updatedAt",
+            "unique": false,
+            "columnNames": [
+              "updatedAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_study_notes_updatedAt` ON `${TABLE_NAME}` (`updatedAt`)"
+          }
+        ]
+      },
+      {
+        "tableName": "quiz_attempts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `quizId` TEXT NOT NULL, `nodeCode` TEXT NOT NULL, `moduleId` TEXT NOT NULL, `selectedIndex` INTEGER NOT NULL, `isCorrect` INTEGER NOT NULL, `answeredAt` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quizId",
+            "columnName": "quizId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nodeCode",
+            "columnName": "nodeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "moduleId",
+            "columnName": "moduleId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "selectedIndex",
+            "columnName": "selectedIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isCorrect",
+            "columnName": "isCorrect",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "answeredAt",
+            "columnName": "answeredAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_quiz_attempts_quizId",
+            "unique": false,
+            "columnNames": [
+              "quizId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_quiz_attempts_quizId` ON `${TABLE_NAME}` (`quizId`)"
+          },
+          {
+            "name": "index_quiz_attempts_nodeCode",
+            "unique": false,
+            "columnNames": [
+              "nodeCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_quiz_attempts_nodeCode` ON `${TABLE_NAME}` (`nodeCode`)"
+          },
+          {
+            "name": "index_quiz_attempts_moduleId",
+            "unique": false,
+            "columnNames": [
+              "moduleId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_quiz_attempts_moduleId` ON `${TABLE_NAME}` (`moduleId`)"
+          },
+          {
+            "name": "index_quiz_attempts_answeredAt",
+            "unique": false,
+            "columnNames": [
+              "answeredAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_quiz_attempts_answeredAt` ON `${TABLE_NAME}` (`answeredAt`)"
+          }
+        ]
+      },
+      {
+        "tableName": "study_days",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`dateIso` TEXT NOT NULL, `nodesCompletedCount` INTEGER NOT NULL, `lastNodeCode` TEXT, `lastModuleId` TEXT, PRIMARY KEY(`dateIso`))",
+        "fields": [
+          {
+            "fieldPath": "dateIso",
+            "columnName": "dateIso",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nodesCompletedCount",
+            "columnName": "nodesCompletedCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastNodeCode",
+            "columnName": "lastNodeCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastModuleId",
+            "columnName": "lastModuleId",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "dateIso"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_study_days_dateIso",
+            "unique": false,
+            "columnNames": [
+              "dateIso"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_study_days_dateIso` ON `${TABLE_NAME}` (`dateIso`)"
+          }
+        ]
+      },
+      {
+        "tableName": "mri_modules",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `code` TEXT NOT NULL, `title` TEXT NOT NULL, `subtitle` TEXT NOT NULL, `description` TEXT NOT NULL, `levelBadge` TEXT NOT NULL, `iconName` TEXT NOT NULL, `sortOrder` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subtitle",
+            "columnName": "subtitle",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "levelBadge",
+            "columnName": "levelBadge",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "iconName",
+            "columnName": "iconName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_mri_modules_id",
+            "unique": false,
+            "columnNames": [
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mri_modules_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_mri_modules_sortOrder",
+            "unique": false,
+            "columnNames": [
+              "sortOrder"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mri_modules_sortOrder` ON `${TABLE_NAME}` (`sortOrder`)"
+          }
+        ]
+      },
+      {
+        "tableName": "mri_nodes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`code` TEXT NOT NULL, `moduleId` TEXT NOT NULL, `level` INTEGER NOT NULL, `title` TEXT NOT NULL, `summaryShort` TEXT NOT NULL, `detailFull` TEXT NOT NULL, `analogi` TEXT NOT NULL, `prerequisite` TEXT, `learningGoal` TEXT, `crossLinks` TEXT, `labType` TEXT, `sortOrder` INTEGER NOT NULL, `htmlSimulationAsset` TEXT, PRIMARY KEY(`code`))",
+        "fields": [
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "moduleId",
+            "columnName": "moduleId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "level",
+            "columnName": "level",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "summaryShort",
+            "columnName": "summaryShort",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detailFull",
+            "columnName": "detailFull",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "analogi",
+            "columnName": "analogi",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "prerequisite",
+            "columnName": "prerequisite",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "learningGoal",
+            "columnName": "learningGoal",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "crossLinks",
+            "columnName": "crossLinks",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "labType",
+            "columnName": "labType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "htmlSimulationAsset",
+            "columnName": "htmlSimulationAsset",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "code"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_mri_nodes_code",
+            "unique": false,
+            "columnNames": [
+              "code"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mri_nodes_code` ON `${TABLE_NAME}` (`code`)"
+          },
+          {
+            "name": "index_mri_nodes_moduleId",
+            "unique": false,
+            "columnNames": [
+              "moduleId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mri_nodes_moduleId` ON `${TABLE_NAME}` (`moduleId`)"
+          },
+          {
+            "name": "index_mri_nodes_level",
+            "unique": false,
+            "columnNames": [
+              "level"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mri_nodes_level` ON `${TABLE_NAME}` (`level`)"
+          },
+          {
+            "name": "index_mri_nodes_sortOrder",
+            "unique": false,
+            "columnNames": [
+              "sortOrder"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mri_nodes_sortOrder` ON `${TABLE_NAME}` (`sortOrder`)"
+          }
+        ]
+      },
+      {
+        "tableName": "quiz_questions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `moduleId` TEXT NOT NULL, `nodeCode` TEXT NOT NULL, `level` INTEGER NOT NULL, `levelBadge` TEXT NOT NULL, `question` TEXT NOT NULL, `optionA` TEXT NOT NULL, `optionB` TEXT NOT NULL, `optionC` TEXT NOT NULL, `optionD` TEXT NOT NULL, `optionsJson` TEXT NOT NULL, `correctIndex` INTEGER NOT NULL, `explanation` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "moduleId",
+            "columnName": "moduleId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nodeCode",
+            "columnName": "nodeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "level",
+            "columnName": "level",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "levelBadge",
+            "columnName": "levelBadge",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "question",
+            "columnName": "question",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionA",
+            "columnName": "optionA",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionB",
+            "columnName": "optionB",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionC",
+            "columnName": "optionC",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionD",
+            "columnName": "optionD",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionsJson",
+            "columnName": "optionsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correctIndex",
+            "columnName": "correctIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "explanation",
+            "columnName": "explanation",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_quiz_questions_id",
+            "unique": false,
+            "columnNames": [
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_quiz_questions_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_quiz_questions_moduleId",
+            "unique": false,
+            "columnNames": [
+              "moduleId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_quiz_questions_moduleId` ON `${TABLE_NAME}` (`moduleId`)"
+          },
+          {
+            "name": "index_quiz_questions_nodeCode",
+            "unique": false,
+            "columnNames": [
+              "nodeCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_quiz_questions_nodeCode` ON `${TABLE_NAME}` (`nodeCode`)"
+          },
+          {
+            "name": "index_quiz_questions_level",
+            "unique": false,
+            "columnNames": [
+              "level"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_quiz_questions_level` ON `${TABLE_NAME}` (`level`)"
+          }
+        ]
+      },
+      {
+        "tableName": "curriculum_nodes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`code` TEXT NOT NULL, `moduleId` TEXT NOT NULL, `level` INTEGER NOT NULL, `title` TEXT NOT NULL, `summaryShort` TEXT NOT NULL, `detailFull` TEXT NOT NULL, `analogi` TEXT NOT NULL, `prerequisite` TEXT, `learningGoal` TEXT, `crossLinks` TEXT, `labType` TEXT, `sortOrder` INTEGER NOT NULL, PRIMARY KEY(`code`))",
+        "fields": [
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "moduleId",
+            "columnName": "moduleId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "level",
+            "columnName": "level",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "summaryShort",
+            "columnName": "summaryShort",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detailFull",
+            "columnName": "detailFull",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "analogi",
+            "columnName": "analogi",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "prerequisite",
+            "columnName": "prerequisite",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "learningGoal",
+            "columnName": "learningGoal",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "crossLinks",
+            "columnName": "crossLinks",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "labType",
+            "columnName": "labType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "code"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_curriculum_nodes_code",
+            "unique": false,
+            "columnNames": [
+              "code"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_curriculum_nodes_code` ON `${TABLE_NAME}` (`code`)"
+          },
+          {
+            "name": "index_curriculum_nodes_moduleId",
+            "unique": false,
+            "columnNames": [
+              "moduleId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_curriculum_nodes_moduleId` ON `${TABLE_NAME}` (`moduleId`)"
+          },
+          {
+            "name": "index_curriculum_nodes_level",
+            "unique": false,
+            "columnNames": [
+              "level"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_curriculum_nodes_level` ON `${TABLE_NAME}` (`level`)"
+          },
+          {
+            "name": "index_curriculum_nodes_sortOrder",
+            "unique": false,
+            "columnNames": [
+              "sortOrder"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_curriculum_nodes_sortOrder` ON `${TABLE_NAME}` (`sortOrder`)"
+          }
+        ]
+      },
+      {
+        "tableName": "curriculum_quizzes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `moduleId` TEXT NOT NULL, `nodeCode` TEXT NOT NULL, `level` INTEGER NOT NULL, `question` TEXT NOT NULL, `optionsJson` TEXT NOT NULL, `correctIndex` INTEGER NOT NULL, `explanation` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "moduleId",
+            "columnName": "moduleId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nodeCode",
+            "columnName": "nodeCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "level",
+            "columnName": "level",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "question",
+            "columnName": "question",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionsJson",
+            "columnName": "optionsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correctIndex",
+            "columnName": "correctIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "explanation",
+            "columnName": "explanation",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_curriculum_quizzes_id",
+            "unique": false,
+            "columnNames": [
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_curriculum_quizzes_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_curriculum_quizzes_moduleId",
+            "unique": false,
+            "columnNames": [
+              "moduleId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_curriculum_quizzes_moduleId` ON `${TABLE_NAME}` (`moduleId`)"
+          },
+          {
+            "name": "index_curriculum_quizzes_nodeCode",
+            "unique": false,
+            "columnNames": [
+              "nodeCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_curriculum_quizzes_nodeCode` ON `${TABLE_NAME}` (`nodeCode`)"
+          },
+          {
+            "name": "index_curriculum_quizzes_level",
+            "unique": false,
+            "columnNames": [
+              "level"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_curriculum_quizzes_level` ON `${TABLE_NAME}` (`level`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '478a980de71e451a48904bc0f2e0f030')"
+    ]
+  }
+}

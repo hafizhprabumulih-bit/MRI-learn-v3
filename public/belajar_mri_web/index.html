@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#090d16">
+  <meta name="description" content="Belajar MRI (MRI Edu) - Aplikasi Interaktif Pembelajaran Fisika, Animasi, Catatan, & Glosarium MRI Medis">
+  <title>Belajar MRI · MRI Edu</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              obsidian: '#090d16',
+              navy: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+              cyan: '#06b6d4',
+              bright: '#22d3ee',
+              darkcyan: '#083344',
+              emerald: '#10b981',
+              amber: '#f59e0b',
+              rose: '#f43f5e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 1rem); }
+    .pt-safe { padding-top: env(safe-area-inset-top, 0.75rem); }
+    .tab-pane { display: none; animation: fadeIn 0.2s ease-in-out forwards; }
+    .tab-pane.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #090d16; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .pulse-glow {
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950">
+
+  <!-- Mobile-first Container Wrapper -->
+  <div class="max-w-md mx-auto min-h-screen bg-[#090d16] border-x border-slate-800 flex flex-col relative shadow-2xl">
+
+    <!-- Top Header with Avatar & Flame Streak beside Info -->
+    <header class="sticky top-0 z-30 bg-[#090d16]/95 backdrop-blur border-b border-slate-800/80 px-4 py-1.5 pt-safe flex items-center justify-between">
+      
+      <!-- User Avatar & Profile on Left -->
+      <div onclick="bukaModalAvatar()" class="flex items-center gap-2 cursor-pointer group" title="Ubah Avatar & Profil">
+        <div class="relative">
+          <img id="header-avatar-img" src="user_avatar_male.jpg" alt="Avatar Pengguna" class="w-8 h-8 rounded-full object-cover border-2 border-cyan-400 group-hover:border-cyan-300 transition shadow-sm">
+          <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-[#090d16]"></span>
+        </div>
+        <div>
+          <span class="text-[9px] font-bold tracking-widest text-cyan-400 uppercase block leading-none">MRI EDU</span>
+          <h1 id="header-user-name" class="text-xs font-bold text-white group-hover:text-cyan-200 transition truncate max-w-[130px]">Dr. Radiografer</h1>
+        </div>
+      </div>
+
+      <!-- Right Action Items: Flame Streak placed right beside Info -->
+      <div class="flex items-center gap-1.5">
+        <!-- Flame Streak Badge -->
+        <button onclick="bukaModalStreak()" class="px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-600/70 flex items-center gap-1 text-amber-300 hover:text-amber-200 hover:bg-amber-900/60 transition shadow-sm active:scale-95 pulse-glow" title="Lihat Progres Streak Belajar">
+          <span class="text-xs">🔥</span>
+          <span id="header-streak-badge" class="text-[10px] font-extrabold tracking-wide text-amber-200">3 Hari</span>
+        </button>
+
+        <!-- Info Button -->
+        <button onclick="bukaModalInfo()" class="w-7 h-7 rounded-full bg-slate-800/80 border border-slate-700/80 flex items-center justify-center text-cyan-400 hover:text-cyan-300 transition" aria-label="Informasi & Unduh ZIP" title="Informasi Aplikasi">
+          <i class="fa-solid fa-circle-info text-xs"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto px-4 py-3 pb-28">
+
+      <!-- ========================================== -->
+      <!-- TAB 1: BERANDA                            -->
+      <!-- ========================================== -->
+      <section id="tab-beranda" class="tab-pane active">
+        <!-- Hero Card matching photo with MRI scanner photo background -->
+        <div class="relative w-full h-48 rounded-3xl overflow-hidden shadow-xl border border-slate-700/60 mb-4">
+          <img src="mri_scanner_hero.jpg" alt="MRI Suite" class="absolute inset-0 w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#090d16] via-[#090d16]/85 to-[#090d16]/65 p-4 flex flex-col justify-between">
+            <div>
+              <span class="text-[10px] font-extrabold text-amber-400 tracking-wider uppercase">PROGRES BELAJAR</span>
+              <h2 id="hero-progress-label" class="text-lg font-bold text-white mt-0.5">2 dari 10 materi & simulasi</h2>
+              
+              <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2.5 overflow-hidden">
+                <div id="hero-progress-bar" class="bg-gradient-to-r from-cyan-400 to-teal-400 h-full rounded-full transition-all duration-300" style="width: 20%;"></div>
+              </div>
+            </div>
+
+            <!-- "Lanjutkan" Pill Button -->
+            <div onclick="pindahTab('materi'); bukaModul('M01');" class="bg-slate-100 hover:bg-white text-slate-900 rounded-2xl px-3.5 py-2 flex items-center justify-between cursor-pointer transition shadow-md active:scale-[0.99]">
+              <div>
+                <span class="text-[10px] text-slate-500 font-semibold block leading-tight">Lanjutkan</span>
+                <span id="hero-continue-text" class="text-xs font-bold text-slate-900 truncate block max-w-[210px]">Pulsa RF & Presesi Larmor</span>
+              </div>
+              <div class="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs shadow">
+                <i class="fa-solid fa-arrow-right"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Access Feature Cards: Animasi & Catatan -->
+        <div class="grid grid-cols-2 gap-2.5 mb-4">
+          <div onclick="pindahTab('animasi')" class="bg-gradient-to-br from-indigo-950/70 to-slate-900 border border-indigo-800/60 hover:border-indigo-500 rounded-2xl p-3 flex items-center gap-3 cursor-pointer transition active:scale-[0.98]">
+            <div class="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-600/30 flex items-center justify-center text-base">
+              <i class="fa-solid fa-circle-play"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-white">Animasi Belajar</h4>
+              <p class="text-[10px] text-indigo-300/80">Spin Echo & Ruang-k</p>
+            </div>
+          </div>
+
+          <div onclick="pindahTab('catatan')" class="bg-gradient-to-br from-teal-950/70 to-slate-900 border border-teal-800/60 hover:border-teal-500 rounded-2xl p-3 flex items-center gap-3 cursor-pointer transition active:scale-[0.98]">
+            <div class="w-9 h-9 rounded-xl bg-teal-600/20 text-teal-400 border border-teal-600/30 flex items-center justify-center text-base">
+              <i class="fa-solid fa-note-sticky"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-white">Catatan Saya</h4>
+              <p class="text-[10px] text-teal-300/80">Tulis Catatan Kosong</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Simulasi interaktif -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Simulasi interaktif</h3>
+            <button onclick="pindahTab('simulasi')" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold">Semua <i class="fa-solid fa-chevron-right text-[9px]"></i></button>
+          </div>
+          <div class="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none">
+            
+            <div onclick="bukaSimulasi('spin')" class="min-w-[130px] bg-slate-900 border border-slate-800 hover:border-cyan-500/60 rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition active:scale-[0.98]">
+              <div class="w-8 h-8 rounded-xl bg-cyan-950 border border-cyan-800 text-cyan-400 flex items-center justify-center text-xs mb-2.5">
+                <i class="fa-solid fa-atom"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white">Spin Proton</h4>
+                <p class="text-[10px] text-slate-400 mt-0.5">Presesi Larmor</p>
+              </div>
+            </div>
+
+            <div onclick="bukaSimulasi('kontras')" class="min-w-[130px] bg-slate-900 border border-slate-800 hover:border-emerald-500/60 rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition active:scale-[0.98]">
+              <div class="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center justify-center text-xs mb-2.5">
+                <i class="fa-solid fa-sliders"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white">Kontras TR/TE</h4>
+                <p class="text-[10px] text-slate-400 mt-0.5">T1w, T2w & PDw</p>
+              </div>
+            </div>
+
+            <div onclick="bukaSimulasi('ruangk')" class="min-w-[130px] bg-slate-900 border border-slate-800 hover:border-amber-500/60 rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition active:scale-[0.98]">
+              <div class="w-8 h-8 rounded-xl bg-amber-950 border border-amber-800 text-amber-400 flex items-center justify-center text-xs mb-2.5">
+                <i class="fa-solid fa-table-cells"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white">Ruang-k FFT</h4>
+                <p class="text-[10px] text-slate-400 mt-0.5">Kontras vs Detail</p>
+              </div>
+            </div>
+
+            <div onclick="bukaSimulasi('sar')" class="min-w-[130px] bg-slate-900 border border-slate-800 hover:border-rose-500/60 rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition active:scale-[0.98]">
+              <div class="w-8 h-8 rounded-xl bg-rose-950 border border-rose-800 text-rose-400 flex items-center justify-center text-xs mb-2.5">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white">SAR & Safety</h4>
+                <p class="text-[10px] text-slate-400 mt-0.5">IEC 60601-2-33</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Section: Modul Kurikulum Pembelajaran -->
+        <div class="flex items-center justify-between mb-2.5">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Kurikulum Radiologi Medis</h3>
+          <span class="text-[11px] text-cyan-400 font-mono">M01 - M09</span>
+        </div>
+        <div class="space-y-2.5" id="daftar-modul-beranda">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 2: ANIMASI BELAJAR (NEW!)             -->
+      <!-- ========================================== -->
+      <section id="tab-animasi" class="tab-pane">
+        <div class="mb-3">
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-circle-play text-cyan-400"></i> Animasi Fisika MRI
+          </h2>
+          <p class="text-xs text-slate-400">Visualisasi langkah-demi-langkah fenomena inti fisika MRI.</p>
+        </div>
+
+        <!-- Animation Topic Selector Tabs -->
+        <div class="flex gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 mb-3 overflow-x-auto scrollbar-none">
+          <button onclick="pilihAnimasiTopik(0)" id="btn-anim-0" class="flex-1 py-1.5 px-2.5 text-xs font-semibold rounded-lg bg-cyan-600 text-white whitespace-nowrap">Spin Echo 90°-180°</button>
+          <button onclick="pilihAnimasiTopik(1)" id="btn-anim-1" class="flex-1 py-1.5 px-2.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white whitespace-nowrap">Relaksasi T1 & T2</button>
+          <button onclick="pilihAnimasiTopik(2)" id="btn-anim-2" class="flex-1 py-1.5 px-2.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white whitespace-nowrap">Pengisian Ruang-k</button>
+        </div>
+
+        <!-- Animation Display Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-3">
+          
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 id="anim-topic-title" class="text-xs font-bold text-white">Sekuens Spin Echo: Eksitasi 90° & Refokusing 180°</h3>
+              <span id="anim-step-badge" class="text-[10px] font-mono text-cyan-400">Langkah 1 dari 4</span>
+            </div>
+            <button onclick="resetAnimasi()" class="text-xs text-slate-400 hover:text-white p-1" title="Ulang dari Awal">
+              <i class="fa-solid fa-arrow-rotate-left"></i>
+            </button>
+          </div>
+
+          <!-- Canvas Visualization Area -->
+          <div class="relative bg-[#090d16] rounded-xl border border-slate-800 h-52 flex items-center justify-center overflow-hidden mb-3">
+            <canvas id="canvas-animasi-belajar" width="340" height="208" class="w-full h-full"></canvas>
+            <div id="anim-canvas-overlay" class="absolute bottom-2 left-2 text-[10px] font-mono text-cyan-300 bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">
+              M0 Longitudinal (Z)
+            </div>
+          </div>
+
+          <!-- Step Progression Indicator -->
+          <div class="grid grid-cols-4 gap-1.5 mb-3" id="anim-step-indicators">
+            <div class="h-1 rounded-full bg-cyan-500"></div>
+            <div class="h-1 rounded-full bg-slate-800"></div>
+            <div class="h-1 rounded-full bg-slate-800"></div>
+            <div class="h-1 rounded-full bg-slate-800"></div>
+          </div>
+
+          <!-- Interactive Playback Controls -->
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <button onclick="langkahSebelumnyaAnim()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-backward-step"></i> Mundur
+            </button>
+            <button onclick="togglePutarAnimasi()" id="btn-toggle-putar-anim" class="flex-1 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow">
+              <i class="fa-solid fa-play"></i> Putar
+            </button>
+            <button onclick="langkahBerikutnyaAnim()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5">
+              Maju <i class="fa-solid fa-forward-step"></i>
+            </button>
+          </div>
+
+          <!-- Explanation Box -->
+          <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl">
+            <h4 id="anim-step-headline" class="text-xs font-bold text-cyan-300 mb-1">Keseimbangan Termal & Vektor Netto (M0)</h4>
+            <p id="anim-step-desc" class="text-[11px] text-slate-300 leading-relaxed">
+              Sebelum diberikan pulsa RF, proton-proton hidrogen berada dalam pengaruh medan magnet statis B0. Spin mengalami presesi acak searah medan magnet longitudinal (sumbu Z).
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 3: SIMULASI LENGKAP                   -->
+      <!-- ========================================== -->
+      <section id="tab-simulasi" class="tab-pane">
+        <div class="mb-3">
+          <h2 class="text-base font-bold text-white">Laboratorium Virtual MRI</h2>
+          <p class="text-xs text-slate-400">Pilih simulator untuk mempelajari fenomena fisika & teknis MRI.</p>
+        </div>
+
+        <!-- Switcher Simulator -->
+        <div class="flex gap-1.5 overflow-x-auto pb-2 mb-3 scrollbar-none">
+          <button onclick="gantiSubSimulasi('spin')" id="btn-subsim-spin" class="px-3 py-1.5 rounded-xl bg-cyan-600 text-white text-xs font-semibold whitespace-nowrap">Spin & Larmor</button>
+          <button onclick="gantiSubSimulasi('kontras')" id="btn-subsim-kontras" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap">Kontras TR/TE</button>
+          <button onclick="gantiSubSimulasi('ruangk')" id="btn-subsim-ruangk" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap">Ruang-k (k-Space)</button>
+          <button onclick="gantiSubSimulasi('sar')" id="btn-subsim-sar" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap">SAR & Keselamatan</button>
+        </div>
+
+        <!-- 1. Simulator Spin & Larmor -->
+        <div id="subsim-spin" class="subsim-panel block">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h3 class="text-sm font-bold text-white">Presesi Spin 3D & Larmor</h3>
+                <span class="text-[11px] font-mono text-cyan-400">f₀ = γ · B₀</span>
+              </div>
+              <span id="badge-larmor-freq" class="px-2.5 py-1 rounded-lg bg-cyan-950 text-cyan-300 border border-cyan-800 font-mono text-xs font-bold">63.87 MHz</span>
+            </div>
+
+            <!-- Canvas Animasi Presesi -->
+            <div class="relative bg-[#090d16] rounded-xl border border-slate-800 h-44 flex items-center justify-center overflow-hidden mb-3">
+              <canvas id="canvas-presesi" width="320" height="175" class="w-full h-full"></canvas>
+              <div class="absolute top-2 left-2 text-[10px] font-mono text-slate-400">
+                <span id="label-canvas-b0">B0: 1.5 T</span> · <span id="label-canvas-nucleus">¹H (42.58 MHz/T)</span>
+              </div>
+            </div>
+
+            <!-- Kontrol Kuat Medan B0 -->
+            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1.5">Kekuatan Medan B₀</label>
+            <div class="grid grid-cols-4 gap-2 mb-3">
+              <button onclick="pilihB0(0.5)" class="btn-b0 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold">0.5 T</button>
+              <button onclick="pilihB0(1.5)" class="btn-b0 py-1.5 rounded-lg bg-cyan-600 text-white text-xs font-bold">1.5 T</button>
+              <button onclick="pilihB0(3.0)" class="btn-b0 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold">3.0 T</button>
+              <button onclick="pilihB0(7.0)" class="btn-b0 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold">7.0 T</button>
+            </div>
+
+            <!-- Kontrol Inti Atom -->
+            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1.5">Inti Atom Aktif MR</label>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <button onclick="pilihInti('¹H', 42.58)" class="btn-inti p-2 rounded-lg bg-cyan-950 border border-cyan-700 text-cyan-300 text-xs font-bold text-left">
+                ¹H Hidrogen <span class="block text-[10px] font-normal text-slate-400">γ = 42.58 MHz/T</span>
+              </button>
+              <button onclick="pilihInti('¹⁹F', 40.05)" class="btn-inti p-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-bold text-left">
+                ¹⁹F Fluorin <span class="block text-[10px] font-normal text-slate-400">γ = 40.05 MHz/T</span>
+              </button>
+            </div>
+
+            <!-- Tombol Kirim Pulsa RF 90 Nutasi -->
+            <button onclick="togglePulsaRF()" id="btn-pulsa-rf" class="w-full py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold flex items-center justify-center gap-2">
+              <i class="fa-solid fa-bolt"></i> Kirim Pulsa RF Eksitasi 90° (Nutasi ke XY)
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Simulator Kontras TR/TE -->
+        <div id="subsim-kontras" class="subsim-panel hidden">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="text-sm font-bold text-white">Simulator Pembobotan Kontras</h3>
+                <span class="text-[11px] font-mono text-cyan-400">S = PD · (1 - e^(-TR/T1)) · e^(-TE/T2)</span>
+              </div>
+              <span id="badge-bobot-kontras" class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800">T1w</span>
+            </div>
+
+            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1.5">Pilih Sampel Jaringan Biologis</label>
+            <div class="grid grid-cols-3 gap-2 mb-3" id="wadah-chips-jaringan">
+              <!-- Render JS -->
+            </div>
+
+            <div id="detail-jaringan-box" class="bg-[#090d16] p-3 rounded-xl border border-slate-800 text-xs mb-3">
+              <!-- Dinamis -->
+            </div>
+
+            <!-- Slider TR & TE -->
+            <div class="space-y-3 mb-3 bg-slate-800/40 p-3 rounded-xl border border-slate-800">
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-300">TR (Repetition Time)</span>
+                  <span id="label-sim-tr" class="font-mono text-cyan-400 font-bold">500 ms</span>
+                </div>
+                <input type="range" id="input-sim-tr" min="50" max="4000" step="25" value="500" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400" oninput="hitungKontrasWeb()">
+              </div>
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-300">TE (Echo Time)</span>
+                  <span id="label-sim-te" class="font-mono text-cyan-400 font-bold">15 ms</span>
+                </div>
+                <input type="range" id="input-sim-te" min="5" max="180" step="1" value="15" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400" oninput="hitungKontrasWeb()">
+              </div>
+            </div>
+
+            <!-- Hasil Grayscale & Intensitas -->
+            <div class="bg-[#090d16] border border-slate-800 rounded-xl p-3 flex items-center justify-around">
+              <div id="preview-lingkaran-sinyal" class="w-14 h-14 rounded-full border-2 border-slate-600 flex items-center justify-center font-mono font-bold text-xs">
+                0%
+              </div>
+              <div>
+                <span class="text-[11px] text-slate-400 block">Intensitas Relatif:</span>
+                <span id="preview-skor-sinyal" class="text-base font-bold font-mono text-white block">0.00</span>
+                <span id="preview-kategori-sinyal" class="text-xs text-cyan-400 font-semibold block">Hiperintens</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Simulator Ruang-k -->
+        <div id="subsim-ruangk" class="subsim-panel hidden">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-4">
+            <h3 class="text-sm font-bold text-white mb-1">Ruang-k (k-Space) & Rekonstruksi FFT</h3>
+            <p class="text-xs text-slate-400 mb-3">Pusat membawa kontras & SNR. Tepi membawa ketajaman batas tepi.</p>
+            
+            <div class="relative bg-[#090d16] rounded-xl border border-slate-800 h-36 flex items-center justify-center overflow-hidden mb-3">
+              <canvas id="canvas-kspace" width="300" height="140" class="w-full h-full"></canvas>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 mb-3">
+              <button onclick="setFilterKSpace('full')" id="kbtn-full" class="py-1.5 rounded-lg bg-cyan-600 text-white text-xs font-bold">Penuh</button>
+              <button onclick="setFilterKSpace('center')" id="kbtn-center" class="py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold">Pusat Saja</button>
+              <button onclick="setFilterKSpace('edge')" id="kbtn-edge" class="py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold">Tepi Saja</button>
+            </div>
+            <p id="kspace-expl-text" class="text-xs text-slate-300 bg-[#090d16] p-2.5 rounded-lg border border-slate-800">
+              Full k-Space: Rekonstruksi FFT optimal dengan kontras utuh dan batas anatomi tajam.
+            </p>
+          </div>
+        </div>
+
+        <!-- 4. Simulator SAR -->
+        <div id="subsim-sar" class="subsim-panel hidden">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="text-sm font-bold text-white">Kalkulator SAR & Keselamatan RF</h3>
+                <span class="text-[11px] text-cyan-400">Standar IEC 60601-2-33</span>
+              </div>
+              <span id="badge-sar-value" class="px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-800 font-mono text-xs font-bold">1.45 W/kg</span>
+            </div>
+
+            <div id="banner-sar-status" class="bg-[#090d16] border border-emerald-800/80 p-3 rounded-xl mb-3 text-xs text-emerald-300">
+              <strong>Mode Normal:</strong> Aman untuk pemeriksaan klinis rutin. Batas whole-body < 2.0 W/kg.
+            </div>
+
+            <div class="space-y-3 mb-3">
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-300">Berat Badan Pasien</span>
+                  <span id="label-sar-weight" class="font-mono text-cyan-400 font-bold">70 kg</span>
+                </div>
+                <input type="range" id="input-sar-weight" min="30" max="130" step="1" value="70" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400" oninput="hitungSarWeb()">
+              </div>
+              <div class="flex items-center justify-between bg-slate-800/60 p-2 rounded-xl border border-slate-700/80">
+                <span class="text-xs text-slate-200">Sekuens Turbo Spin Echo (TSE)</span>
+                <input type="checkbox" id="check-sar-tse" checked class="w-4 h-4 accent-cyan-400" onchange="hitungSarWeb()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: CATATAN SAYA (NEW!)                 -->
+      <!-- ========================================== -->
+      <section id="tab-catatan" class="tab-pane">
+        <div class="mb-3">
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-note-sticky text-teal-400"></i> Catatan Saya
+          </h2>
+        </div>
+
+        <!-- Filter Kategori Catatan -->
+        <div class="flex gap-1.5 overflow-x-auto pb-2 mb-3 scrollbar-none">
+          <button onclick="filterCatatan('Semua')" id="btn-cat-semua" class="px-3 py-1 rounded-lg text-xs font-semibold bg-cyan-600 text-white whitespace-nowrap">Semua</button>
+          <button onclick="filterCatatan('Fisika Dasar')" id="btn-cat-fisika" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white whitespace-nowrap">Fisika Dasar</button>
+          <button onclick="filterCatatan('Sekuens Klinis')" id="btn-cat-sekuens" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white whitespace-nowrap">Sekuens Klinis</button>
+          <button onclick="filterCatatan('Protokol Scanner')" id="btn-cat-protokol" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white whitespace-nowrap">Protokol Scanner</button>
+          <button onclick="filterCatatan('Safety MR')" id="btn-cat-safety" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white whitespace-nowrap">Safety MR</button>
+        </div>
+
+        <!-- Search input for notes -->
+        <input type="text" id="cari-catatan-web" oninput="saringCatatanWeb()" placeholder="Cari dalam catatan..."
+          class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-400 mb-3 focus:outline-none focus:border-teal-500">
+
+        <!-- Daftar Catatan List -->
+        <div class="space-y-3" id="daftar-catatan-web">
+          <!-- Rendered via JS -->
+        </div>
+
+        <!-- Floating Independent Toggle Button (+ Tulis) Directly Above Bottom Footer -->
+        <div class="fixed bottom-16 left-0 right-0 max-w-md mx-auto pointer-events-none z-30 flex justify-end px-5 pb-1">
+          <button onclick="bukaEditorCatatanBaru()" class="pointer-events-auto px-4 py-2.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold rounded-full text-xs flex items-center gap-2 shadow-xl shadow-cyan-500/25 active:scale-95 transition" title="Tulis Catatan Baru">
+            <i class="fa-solid fa-plus text-sm"></i>
+            <span>+ Tulis</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 5: GLOSARIUM / KAMUS                  -->
+      <!-- ========================================== -->
+      <section id="tab-glosarium" class="tab-pane">
+        <div class="mb-3">
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-book-medical text-cyan-400"></i> Glosarium Medis MRI
+          </h2>
+          <p class="text-xs text-slate-400">Terminologi baku fisika, sekuens, dan keselamatan radiologi.</p>
+        </div>
+
+        <input type="text" id="cari-kamus-web" oninput="saringKamusWeb()" placeholder="Cari istilah (Larmor, TR, TE, FID, SAR, Inversi)..."
+          class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-400 mb-3 focus:outline-none focus:border-cyan-500">
+        
+        <div class="space-y-2.5" id="daftar-kamus-web">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- TAB DETAIL MODUL (Sub-halaman materi) -->
+      <section id="tab-materi" class="tab-pane">
+        <button onclick="pindahTab('beranda')" class="mb-3 text-xs font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 py-1">
+          <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
+        </button>
+
+        <div id="header-modul-detail" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-3">
+          <!-- Dinamis -->
+        </div>
+
+        <!-- Filter Tingkat T1 - T3 -->
+        <div class="flex items-center gap-1.5 mb-3 bg-slate-950 p-1 rounded-xl border border-slate-800">
+          <button onclick="filterTingkat(0)" id="f-tingkat-0" class="flex-1 py-1 text-xs font-medium rounded-lg bg-cyan-600 text-white">Semua</button>
+          <button onclick="filterTingkat(1)" id="f-tingkat-1" class="flex-1 py-1 text-xs font-medium rounded-lg text-slate-400">T1 Dasar</button>
+          <button onclick="filterTingkat(2)" id="f-tingkat-2" class="flex-1 py-1 text-xs font-medium rounded-lg text-slate-400">T2 Menengah</button>
+          <button onclick="filterTingkat(3)" id="f-tingkat-3" class="flex-1 py-1 text-xs font-medium rounded-lg text-slate-400">T3 Lanjut</button>
+        </div>
+
+        <div class="space-y-3" id="wadah-simpul-materi">
+          <!-- Daftar kartu materi dengan mode Singkat/Lengkap/Analogi -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar with 5 tabs -->
+    <nav class="fixed bottom-0 left-0 right-0 z-30 flex justify-center pointer-events-none pb-safe">
+      <div class="w-full max-w-md bg-[#090d16]/95 backdrop-blur-md border-t border-slate-800 pointer-events-auto px-2 py-1.5 flex items-center justify-around shadow-2xl">
+        
+        <button onclick="pindahTab('beranda')" id="nav-beranda" class="nav-item flex-1 py-1 flex flex-col items-center justify-center text-cyan-400 transition" title="Beranda">
+          <i class="fa-solid fa-house text-sm mb-1"></i>
+          <span class="text-[9px] font-semibold">Beranda</span>
+        </button>
+
+        <button onclick="pindahTab('animasi')" id="nav-animasi" class="nav-item flex-1 py-1 flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 transition" title="Animasi Belajar">
+          <i class="fa-solid fa-circle-play text-sm mb-1"></i>
+          <span class="text-[9px] font-semibold">Animasi</span>
+        </button>
+
+        <button onclick="pindahTab('simulasi')" id="nav-simulasi" class="nav-item flex-1 py-1 flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 transition" title="Simulasi">
+          <i class="fa-solid fa-sliders text-sm mb-1"></i>
+          <span class="text-[9px] font-semibold">Simulasi</span>
+        </button>
+
+        <button onclick="pindahTab('catatan')" id="nav-catatan" class="nav-item flex-1 py-1 flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 transition" title="Catatan Saya">
+          <i class="fa-solid fa-note-sticky text-sm mb-1"></i>
+          <span class="text-[9px] font-semibold">Catatan</span>
+        </button>
+
+        <button onclick="pindahTab('glosarium')" id="nav-glosarium" class="nav-item flex-1 py-1 flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 transition" title="Glosarium Medis">
+          <i class="fa-solid fa-book-medical text-sm mb-1"></i>
+          <span class="text-[9px] font-semibold">Glosarium</span>
+        </button>
+
+      </div>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: FLAME STREAK DIALOG               -->
+    <!-- ========================================== -->
+    <div id="modal-streak" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-4 hidden">
+      <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-sm w-full p-5 shadow-2xl animate-in fade-in">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🔥</span>
+            <h3 class="text-sm font-bold text-white">Streak Belajar Aktif</h3>
+          </div>
+          <button onclick="tutupModalStreak()" class="text-slate-400 hover:text-white p-1">
+            <i class="fa-solid fa-xmark text-base"></i>
+          </button>
+        </div>
+
+        <div class="text-center py-2 mb-4">
+          <div class="w-20 h-20 rounded-full bg-amber-500/10 border-2 border-amber-500/40 flex items-center justify-center mx-auto mb-2 text-4xl shadow-inner">
+            🔥
+          </div>
+          <h4 id="streak-modal-count" class="text-2xl font-black text-amber-400 font-mono">3 Hari</h4>
+          <p class="text-xs text-slate-300 mt-0.5">Konsistensi Belajar MRI Anda Sangat Baik!</p>
+        </div>
+
+        <!-- 7 Days Tracker -->
+        <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 mb-4">
+          <span class="text-[10px] text-slate-400 font-bold uppercase block mb-2 text-center">Aktivitas 7 Hari Terakhir</span>
+          <div class="grid grid-cols-7 gap-1 text-center" id="wadah-hari-streak">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-300 mb-4 leading-relaxed bg-amber-950/30 p-2.5 rounded-xl border border-amber-800/40">
+          <strong>Tips Klinis:</strong> Belajar 1 modul atau lakukan 1 simulasi setiap hari untuk mempertahankan refleks identifikasi bobot kontras citra dan keselamatan scan.
+        </p>
+
+        <div class="flex gap-2">
+          <button onclick="tambahHariStreak()" class="flex-1 py-2.5 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white rounded-xl text-xs font-bold shadow active:scale-95">
+            + Tambah 1 Hari Belajar 🔥
+          </button>
+          <button onclick="tutupModalStreak()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: AVATAR & PROFIL DIALOG            -->
+    <!-- ========================================== -->
+    <div id="modal-avatar" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-4 hidden">
+      <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-sm w-full p-5 shadow-2xl animate-in fade-in">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-user-doctor text-cyan-400"></i> Ubah Avatar & Profil
+          </h3>
+          <button onclick="tutupModalAvatar()" class="text-slate-400 hover:text-white p-1">
+            <i class="fa-solid fa-xmark text-base"></i>
+          </button>
+        </div>
+
+        <!-- Name Input -->
+        <label class="text-[11px] font-bold text-slate-300 block mb-1">Nama Panggilan / Gelar</label>
+        <input type="text" id="input-modal-username" value="Dr. Radiografer"
+          class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white mb-4 focus:outline-none focus:border-cyan-500 font-semibold">
+
+        <!-- Avatar Selection Options -->
+        <label class="text-[11px] font-bold text-slate-300 block mb-2">Pilih Foto atau Ikon Avatar</label>
+        <div class="grid grid-cols-2 gap-2.5 mb-4" id="pilihan-avatar-grid">
+          
+          <div onclick="pilihAvatarPreset('male')" id="av-opt-male" class="p-2.5 rounded-xl border border-cyan-500 bg-cyan-950/40 flex items-center gap-2.5 cursor-pointer transition">
+            <img src="user_avatar_male.jpg" alt="Pria" class="w-10 h-10 rounded-full object-cover border border-cyan-400">
+            <div>
+              <span class="text-xs font-bold text-white block">Dokter Pria</span>
+              <span class="text-[9px] text-cyan-300">Foto Profil</span>
+            </div>
+          </div>
+
+          <div onclick="pilihAvatarPreset('female')" id="av-opt-female" class="p-2.5 rounded-xl border border-slate-800 bg-slate-950 flex items-center gap-2.5 cursor-pointer transition">
+            <img src="user_avatar_female.jpg" alt="Wanita" class="w-10 h-10 rounded-full object-cover border border-slate-700">
+            <div>
+              <span class="text-xs font-bold text-white block">Dokter Wanita</span>
+              <span class="text-[9px] text-slate-400">Foto Profil</span>
+            </div>
+          </div>
+
+          <div onclick="pilihAvatarPreset('neuro')" id="av-opt-neuro" class="p-2.5 rounded-xl border border-slate-800 bg-slate-950 flex items-center gap-2.5 cursor-pointer transition">
+            <div class="w-10 h-10 rounded-full bg-purple-950 border border-purple-600 flex items-center justify-center text-xl">
+              🧠
+            </div>
+            <div>
+              <span class="text-xs font-bold text-white block">Neuro MRI</span>
+              <span class="text-[9px] text-slate-400">Spesialis</span>
+            </div>
+          </div>
+
+          <div onclick="pilihAvatarPreset('physicist')" id="av-opt-physicist" class="p-2.5 rounded-xl border border-slate-800 bg-slate-950 flex items-center gap-2.5 cursor-pointer transition">
+            <div class="w-10 h-10 rounded-full bg-cyan-950 border border-cyan-600 flex items-center justify-center text-xl">
+              🔬
+            </div>
+            <div>
+              <span class="text-xs font-bold text-white block">Fisika Medis</span>
+              <span class="text-[9px] text-slate-400">Peneliti</span>
+            </div>
+          </div>
+
+        </div>
+
+        <button onclick="simpanProfilAvatar()" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold shadow active:scale-95">
+          Simpan Perubahan
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 3: EDITOR CATATAN KOSONG             -->
+    <!-- ========================================== -->
+    <div id="modal-editor-catatan" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-4 hidden">
+      <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-sm w-full p-5 shadow-2xl animate-in fade-in">
+        <div class="flex items-center justify-between mb-3">
+          <h3 id="modal-catatan-judul-header" class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-teal-400"></i> Buat Catatan Baru
+          </h3>
+          <button onclick="tutupEditorCatatan()" class="text-slate-400 hover:text-white p-1">
+            <i class="fa-solid fa-xmark text-base"></i>
+          </button>
+        </div>
+
+        <!-- Hidden ID for editing existing -->
+        <input type="hidden" id="input-catatan-id" value="">
+
+        <!-- Title -->
+        <label class="text-[11px] font-bold text-slate-300 block mb-1">Judul Catatan</label>
+        <input type="text" id="input-catatan-judul" placeholder="Contoh: Protokol Stroke Akut DWI / Penurunan SAR"
+          class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white mb-3 focus:outline-none focus:border-teal-500 font-semibold">
+
+        <!-- Category -->
+        <label class="text-[11px] font-bold text-slate-300 block mb-1">Kategori</label>
+        <select id="input-catatan-kategori" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white mb-3 focus:outline-none focus:border-teal-500">
+          <option value="Fisika Dasar">Fisika Dasar</option>
+          <option value="Sekuens Klinis">Sekuens Klinis</option>
+          <option value="Protokol Scanner">Protokol Scanner</option>
+          <option value="Safety MR">Safety MR</option>
+          <option value="Tips Ujian">Tips Ujian</option>
+        </select>
+
+        <!-- Tempat Catatan Kosong (Textarea) -->
+        <label class="text-[11px] font-bold text-slate-300 block mb-1">
+          Isi Catatan <span class="text-teal-400 font-normal">(Tempat Catatan Kosong)</span>
+        </label>
+        <textarea id="input-catatan-isi" rows="6" placeholder="Tuliskan catatan klinis, parameter sekuens, temuan kasus radiologi, atau rumus penting Anda di sini secara bebas..."
+          class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-500 mb-4 focus:outline-none focus:border-teal-500 leading-relaxed font-sans"></textarea>
+
+        <div class="flex gap-2">
+          <button onclick="simpanCatatanWeb()" class="flex-1 py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold shadow active:scale-95">
+            Simpan Catatan
+          </button>
+          <button onclick="tutupEditorCatatan()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">
+            Batal
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 4: DETAIL GLOSARIUM DIALOG           -->
+    <!-- ========================================== -->
+    <div id="modal-glosarium-detail" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-4 hidden">
+      <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-sm w-full p-5 shadow-2xl animate-in fade-in">
+        <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2.5">
+          <div>
+            <span id="glo-detail-mod" class="text-[10px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">M01</span>
+            <h3 id="glo-detail-term" class="text-sm font-bold text-white mt-1">Frekuensi Larmor</h3>
+          </div>
+          <button onclick="tutupModalGlosarium()" class="text-slate-400 hover:text-white p-1">
+            <i class="fa-solid fa-xmark text-base"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <span class="text-[10px] text-slate-400 uppercase font-bold block mb-0.5">Definisi Fisika:</span>
+            <p id="glo-detail-arti" class="text-slate-200 leading-relaxed"></p>
+          </div>
+
+          <div class="bg-[#090d16] p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-teal-400 uppercase font-bold block mb-0.5">Korelasi Klinis & Praktik:</span>
+            <p id="glo-detail-klinis" class="text-slate-300 leading-relaxed"></p>
+          </div>
+        </div>
+
+        <button onclick="tutupModalGlosarium()" class="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold">
+          Tutup Glosarium
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 5: INFORMASI APLIKASI & UNDUH ZIP    -->
+    <!-- ========================================== -->
+    <div id="modal-info" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-4 hidden">
+      <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-circle-info text-cyan-400"></i> Tentang Belajar MRI
+          </h3>
+          <button onclick="tutupModalInfo()" class="text-slate-400 hover:text-white p-1">
+            <i class="fa-solid fa-xmark text-base"></i>
+          </button>
+        </div>
+        <div class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
+          <div class="p-2.5 rounded-xl bg-amber-950/60 border border-amber-800/80 text-[11px] text-amber-200">
+            <strong>Bukan untuk Keputusan Klinis:</strong> Aplikasi ini dirancang khusus untuk sarana pembelajaran fisika & instrumen radiografi MRI.
+          </div>
+          <p>
+            Fitur lengkap meliputi: Kurikulum Radiologi M01-M09, Animasi Belajar Spin Echo/T1-T2/k-Space, Simulator Interaktif, Catatan Saya (dengan Tempat Catatan Kosong), Glosarium Medis, Indikator Streak Api 🔥, dan Avatar Pengguna.
+          </p>
+          <div class="p-2.5 rounded-xl bg-slate-950 border border-cyan-800/60 text-[11px] text-cyan-200 font-mono">
+            <strong>Paket ZIP Mandiri:</strong> Seluruh berkas web lengkap ini telah dikemas dalam <code>public/belajar_mri_web.zip</code> untuk pengembangan pribadi Anda secara offline.
+          </div>
+        </div>
+        <button onclick="tutupModalInfo()" class="mt-4 w-full py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-semibold">
+          Tutup & Lanjutkan Belajar
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

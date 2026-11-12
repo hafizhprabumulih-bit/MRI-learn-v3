@@ -1,0 +1,1061 @@
+<!doctype html>
+<html lang='id'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>MODUL 6B: Sistem RF dan Koil</title>
+<style>
+/* TETAP: bawaan template. Jangan diubah. Gaya tambahan taruh di 02-modul.css */
+/* TETAP: awal */
+:root{--latar:#fff;--permukaan:#f4f6f8;--teks:#1b1f24;--lembut:#5a6572;--aksen:#1f6feb;--t1:#d9480f;--t2:#0b7285;--b0:#2f6bff;--benar:#2b8a3e;--salah:#c92a2a;--garis:#d5dbe3;--radius:10px;--font:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+@media(prefers-color-scheme:dark){:root{--latar:#14171a;--permukaan:#1e2328;--teks:#e8ecef;--lembut:#9aa5b1;--aksen:#5aa2ff;--t1:#ff922b;--t2:#3bc9db;--b0:#6f9bff;--garis:#2e353d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--latar);color:var(--teks);font:16px/1.6 var(--font)}
+main{max-width:860px;margin:0 auto;padding:16px}
+a{color:var(--aksen)}
+.atas{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
+h1{font-size:1.6rem;margin:.6em 0 .2em}
+h2{font-size:1.25rem;margin-top:1.6em}
+.lembut{color:var(--lembut)}
+.kartu{background:var(--permukaan);border:1px solid var(--garis);border-radius:var(--radius);padding:14px;margin:12px 0}
+.lanjut{border-left:4px solid var(--aksen)}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--garis);background:var(--permukaan);color:var(--teks);cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--aksen);outline-offset:2px}
+canvas{max-width:100%;background:var(--permukaan);border-radius:var(--radius)}
+input[type=range]{width:100%}
+.ok{color:var(--benar)}
+.no{color:var(--salah)}
+/* TETAP: akhir */
+
+/* ISI MODUL: gaya tambahan M06B. Boleh diubah. */
+
+/* --- elemen dasar tambahan --- */
+h3{font-size:1.1rem;margin:.4em 0}
+canvas{height:auto;display:block}
+label{display:block;margin-top:8px;font-weight:600}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--garis);background:var(--latar);color:var(--teks)}
+select:focus-visible{outline:2px solid var(--aksen);outline-offset:2px}
+input[type=number]{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--garis);background:var(--latar);color:var(--teks);width:9em}
+button[hidden]{display:none}
+button:active{transform:scale(.96)}
+button:disabled{opacity:.55;cursor:not-allowed}
+.baris{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;align-items:center}
+.hasil{font-weight:600;margin:6px 0}
+.gulir{overflow-x:auto}
+.sumber{font-size:.85rem}
+svg{max-width:100%;height:auto}
+
+/* --- tombol pilihan (aria-pressed) --- */
+.baris button[aria-pressed=true],.pilih button[aria-pressed=true]{background:var(--aksen);color:var(--latar);border-color:var(--aksen);font-weight:600}
+.pilih{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+
+/* --- kartu materi: singkat / lengkap / analogi --- */
+.bm[data-mode=singkat] .l,.bm[data-mode=lengkap] .s{display:none}
+.bm .l,.bm .s{animation:masuk .4s ease}
+.bm .a{display:none;border-left:3px solid var(--t2);padding-left:10px}
+.bm[data-mode=analogi] .a{display:block;animation:masuk .4s ease}
+.bm[data-mode=analogi] .l,.bm[data-mode=analogi] .s{display:none}
+.tag{font-size:.8rem;font-weight:700;color:var(--aksen);text-transform:uppercase;letter-spacing:.04em}
+.bm:target,.aktivitas:target{outline:2px solid var(--aksen);outline-offset:3px}
+html{scroll-behavior:smooth}
+
+/* --- tautan antar materi, simulasi, dan modul lain --- */
+.tautan{margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-block;font-size:.82rem;padding:2px 10px;border-radius:99px;border:1px solid var(--garis);background:var(--latar);text-decoration:none}
+.chip.sim{border-color:var(--aksen);font-weight:600}
+.chip.luar{border-style:dashed;color:var(--lembut)}
+.chip:hover{border-color:var(--aksen)}
+.chip.belum{opacity:.55;cursor:default}
+.atas .belum{opacity:.5}
+.atas a{text-decoration:none}
+.menjelaskan{margin:2px 0 8px;font-size:.9rem}
+.kode{display:inline-block;min-width:2.2em;text-align:center;padding:0 8px;margin-right:4px;border-radius:6px;background:var(--aksen);color:var(--latar);font-size:.9rem}
+.lencana-baru{font-size:.72rem;padding:1px 8px;border-radius:99px;border:1px solid var(--t2);color:var(--t2);vertical-align:middle;margin-left:4px}
+.peta summary{cursor:pointer;font-weight:600}
+.peta .tabel{margin-top:10px}
+.aktivitas{scroll-margin-top:12px}
+
+/* --- tabel --- */
+.tabel{border-collapse:collapse;width:100%;font-size:.92rem}
+.tabel th,.tabel td{border:1px solid var(--garis);padding:4px 8px;text-align:left}
+
+/* --- ukuran, meter, lencana --- */
+.lencana{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid currentColor;font-weight:600}
+.meter{height:10px;border-radius:99px;background:var(--garis);overflow:hidden;margin:6px 0}
+.meter i{display:block;height:100%;width:0;background:var(--b0);transition:width .6s ease}
+.lencana.ok{animation:hijau 1.8s infinite}
+canvas.klik{cursor:pointer}
+.zona{cursor:pointer}
+
+/* --- kuis --- */
+.opsi{display:block;width:100%;text-align:left;margin:6px 0}
+.opsi.benar{background:var(--benar);border-color:var(--benar);color:#fff;font-weight:600}
+.opsi.salah{background:var(--salah);border-color:var(--salah);color:#fff}
+.navkuis{display:flex;gap:8px;justify-content:space-between;margin-top:10px}
+
+/* --- gerak --- */
+.denyut{border-color:var(--b0);animation:denyut 1.6s infinite}
+.muncul{animation:muncul .45s ease}
+@keyframes denyut{0%,100%{box-shadow:0 0 0 0 rgba(47,107,255,.55)}50%{box-shadow:0 0 0 9px rgba(47,107,255,0)}}
+@keyframes hijau{0%,100%{box-shadow:0 0 0 0 rgba(43,138,62,.5)}50%{box-shadow:0 0 0 7px rgba(43,138,62,0)}}
+@keyframes muncul{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@keyframes masuk{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ .denyut,.muncul,.lencana.ok{animation:none}
+ .meter i{transition:none}
+ .bm .l,.bm .s,.bm[data-mode=analogi] .a{animation:none}
+}
+
+/* --- A5: penampang ruang pindai dan citra (ditanam di kartu T2.1) --- */
+.a5-bawah{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin:8px 0}
+.a5-info{flex:1;min-width:220px}
+.a5-cap{margin:4px 0 0;font-size:.85rem}
+.a5-bawah canvas{background:#1c1c1c;border-radius:var(--radius)}
+#a5-sh,#a5-wall{transition:opacity .4s}
+#a5-svg{width:100%;min-width:480px;display:block}
+.gb-w{fill:none;stroke:var(--t2);stroke-width:6;opacity:.9}
+.gb-gap{fill:var(--latar)}
+.gb-mesh{stroke:var(--t2);stroke-width:1;fill:none}
+.gb-pintu{fill:var(--permukaan);stroke:var(--t2);stroke-width:1.5}
+.gb-gagang{fill:var(--t2)}
+.gb-panel{fill:var(--permukaan);stroke:var(--t2);stroke-width:1.5}
+.gb-pipa{stroke:var(--t2);stroke-width:3;fill:none}
+.gb-pin rect{fill:none;stroke:var(--t2);stroke-width:1}
+.gb-pin circle{fill:var(--t2)}
+.gb-vent{stroke:var(--t2);stroke-width:1.5}
+.gb-hx{fill:none;stroke:var(--t2);stroke-width:1.2}
+.gb-xc{fill:var(--latar);stroke:var(--salah);stroke-width:1.5}
+.gb-xs{stroke:var(--salah);stroke-width:2;fill:none;stroke-linecap:round}
+.gb-mast{stroke:var(--lembut);stroke-width:2;fill:none}
+.gb-sumber{fill:var(--t1)}
+.gb-r{fill:none;stroke:var(--t1);stroke-width:2.5;stroke-linecap:round}
+.gb-o{fill:var(--permukaan);stroke:var(--salah);stroke-width:2}
+#a5-mri{fill:var(--latar)}
+.gb-bore{fill:var(--garis);opacity:.7}
+.gb-pasien{fill:var(--t2);opacity:.3;stroke:var(--t2)}
+.gb-meja{fill:var(--lembut)}
+.gb-b{fill:none;stroke:var(--b0);stroke-width:2.2;stroke-linecap:round}
+.gb-g{stroke:var(--garis);stroke-width:1;fill:none}
+.gb-t{fill:var(--teks);font-size:12.5px}
+.gb-l{fill:var(--lembut);font-size:12.5px}
+.gb-tr{fill:var(--t1);font-weight:700}
+.gb-tb{fill:var(--b0);font-weight:700}
+@media(prefers-reduced-motion:reduce){#a5-sh,#a5-wall{transition:none}}
+#a5-svg rect.gb-o:not(#a5-mri){stroke:var(--lembut);stroke-width:1.5}
+.tanam{margin-top:16px;padding-top:12px;border-top:1px dashed var(--garis)}
+</style>
+</head>
+<body>
+<main>
+<nav class='atas'><a class='nav' href='index.html'>&larr; Modul 6</a><span class='nav belum'>Modul 6A</span><a class='nav' href='../modul.html?m=7' target='_top'>Modul 7 &rarr;</a></nav>
+<h1>MODUL 6B: Sistem RF dan Koil</h1>
+<p class='lembut'>Media belajar, bukan untuk keputusan klinis.</p>
+
+<div class='kartu'>
+<h3>Tujuan pembelajaran M06B</h3>
+<ul><li>Menelusuri rantai sinyal RF dari coil sampai ADC.</li><li>Memilih jenis coil menurut anatomi dan kedalaman.</li><li>Menjelaskan asal fisika pergeseran kimia lemak-air dan ketidakhomogenan B1.</li></ul>
+<p><b>Prasyarat:</b> <span class='chip luar'>M01 &middot; Dasar MRI</span> <span class='chip luar'>M04A &middot; Pulsa RF dan irisan</span></p>
+<p><b>Dilanjutkan di:</b> <span class='chip luar'>M07C &middot; SAR, efek antena, luka bakar</span> <span class='chip luar'>M08A &middot; Pergeseran kimia pada citra</span></p>
+</div>
+<details class='kartu peta'>
+<summary>Peta modul M06B: materi dan simulasi</summary>
+<div class='gulir'><table class='tabel'><thead><tr><th>Kode</th><th>Materi</th><th>Tingkat</th><th>Simulasi</th></tr></thead>
+<tbody>
+<tr><td><a href='#t11'>T1.1</a></td><td>Sistem RF (pita radio VHF, frekuensi Larmor)</td><td>1</td><td><span class='lembut'>&ndash;</span></td></tr>
+<tr><td><a href='#t12'>T1.2</a></td><td>Gradient coil vs RF coil: pengingat fungsi</td><td>1</td><td><span class='lembut'>&ndash;</span></td></tr>
+<tr><td><a href='#t21'>T2.1</a></td><td>Perisai RF (kandang Faraday)</td><td>2</td><td><a href='#a5'>A5</a></td></tr>
+<tr><td><a href='#t22'>T2.2</a></td><td>Sistem pemancar RF dan pulsa sinc</td><td>2</td><td><span class='lembut'>&ndash;</span></td></tr>
+<tr><td><a href='#t23'>T2.3</a></td><td>Coil pemancar (birdcage, faktor pengisi)</td><td>2</td><td><a href='#a8'>A8</a></td></tr>
+<tr><td><a href='#t24'>T2.4</a></td><td>Sistem penerima RF (coil, preamplifier, demodulasi, ADC)</td><td>2</td><td><a href='#a1'>A1</a></td></tr>
+<tr><td><a href='#t25'>T2.5</a></td><td>Jenis coil penerima (permukaan, volume, array fasa)</td><td>2</td><td><a href='#a2'>A2</a> <a href='#a3'>A3</a> <a href='#a4'>A4</a></td></tr>
+<tr><td><a href='#t31'>T3.1</a></td><td>Pergeseran kimia lemak-air: asal fisika</td><td>3</td><td><a href='#a6'>A6</a></td></tr>
+<tr><td><a href='#t32'>T3.2</a></td><td>Ketidakhomogenan B1 dan transmit paralel</td><td>3</td><td><a href='#a7'>A7</a></td></tr>
+</tbody></table></div>
+</details>
+
+<h2>Materi</h2>
+<p class='lembut'>Tiap kartu punya pilihan sendiri: materi singkat, materi lengkap, atau analogi.</p>
+<div class='kartu bm' id='t11' data-mode='singkat'>
+<span class='tag'>T1.1 &middot; Tingkat 1: Sistem RF (pita radio VHF, frekuensi Larmor)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p class='s'>RF (B1) dipancarkan pada frekuensi Larmor, yang berada di pita radio VHF.</p>
+<p class='l'>Sistem RF memancarkan dan menerima radiasi elektromagnetik selama akuisisi. RF dalam MRI sering disebut B1, yaitu medan magnet sekunder di samping B0. Pulsa RF dipancarkan pada frekuensi Larmor untuk memberi energi pada sebagian proton di irisan yang dipilih.</p>
+<p class='l'>Rasio giromagnetik hidrogen &gamma;/2&pi; = <span id='t11-g'>42,58</span> MHz/T. Pada 1,5 T frekuensinya <span id='t11-l1'>63,87</span> MHz, dan pada 3 T <span id='t11-l3'>127,74</span> MHz. Frekuensi ini berada di pita VHF, yang juga dipakai radio FM, televisi, dan komunikasi lain. Karena itu ruang magnet dilindungi dari sumber radio luar (lihat T2.1).</p>
+<!-- TODO-VERIFIKASI: B1 efektif bila tegak lurus B0; batas pita VHF 30-300 MHz dan FM 87,5-108 MHz (pengetahuan umum, bukan dari buku sumber) -->
+<div class='gulir l'><table class='tabel'>
+<thead><tr><th>Sumber</th><th>Frekuensi</th></tr></thead>
+<tbody>
+<tr><td>MRI 1,5 T (hidrogen)</td><td><span id='t11-t1'>63,87</span> MHz</td></tr>
+<tr><td>MRI 3 T (hidrogen)</td><td><span id='t11-t3'>127,74</span> MHz</td></tr>
+<tr><td>Pita VHF</td><td>sekitar 30 sampai 300 MHz</td></tr>
+<tr><td>Radio FM</td><td>sekitar 88 sampai 108 MHz</td></tr>
+</tbody></table></div>
+<p class='a'><b>Analogi:</b> Seperti menyetel stasiun radio: proton hanya &ldquo;mendengar&rdquo; pulsa jika disetel pada frekuensi yang tepat.</p>
+
+</div>
+<div class='kartu bm' id='t12' data-mode='singkat'>
+<span class='tag'>T1.2 &middot; Tingkat 1: Gradient coil vs RF coil: pengingat fungsi</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p class='s'>Gradient coil memberi kode posisi. RF coil memancarkan pulsa dan menerima sinyal. Penjelasan lengkap ada di M06A.</p>
+<p class='l'>Pengingat singkat sebelum masuk ke sistem RF. Keduanya sama-sama kumparan, tetapi tugas dan frekuensinya berbeda.</p>
+<div class='gulir l'><table class='tabel'>
+<thead><tr><th></th><th>Gradient coil</th><th>RF coil</th></tr></thead>
+<tbody>
+<tr><td>Tugas</td><td>Membuat medan yang berubah bertahap, sehingga posisi terkode</td><td>Memancarkan pulsa RF dan/atau menerima sinyal</td></tr>
+<tr><td>Jumlah</td><td>Tiga (X, Y, Z)</td><td>Body coil, kepala, permukaan, array fasa</td></tr>
+<tr><td>Medan yang dihasilkan</td><td>Perubahan lambat pada B0 sepanjang satu arah</td><td>B1 berosilasi pada frekuensi Larmor</td></tr>
+<tr><td>Dibahas di</td><td>M06A</td><td>M06B (modul ini)</td></tr>
+</tbody></table></div>
+<p class='a'><b>Analogi:</b> Gradient coil seperti pemberi nomor kursi di gedung konser. RF coil seperti pengeras suara sekaligus mikrofon.</p>
+<p class='tautan'><a class='chip luar' href='m06a-native.html'>&rarr; M06A T1.2 (konsep lengkap)</a></p>
+</div>
+<div class='kartu bm' id='t21' data-mode='singkat'>
+<span class='tag'>T2.1 &middot; Tingkat 2: Perisai RF (kandang Faraday)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p class='s'>Dinding, lantai, langit-langit, dan pintu dilapisi logam agar radio luar tidak masuk dan RF pesawat tidak bocor.</p>
+<p class='l'>Sinyal dari jaringan sangat lemah dibandingkan siaran radio di sekitarnya. Jika sinyal luar terdeteksi, citra memuat artefak. Sebaliknya, RF dari pesawat dapat mengganggu peralatan listrik di dekatnya. Karena itu seluruh ruang pindai dilapisi logam penghantar sebagai kandang Faraday (bukan timbal seperti ruang sinar-X).</p>
+<p class='l'>Tembaga menghantar sangat baik, tetapi mahal dan berat. Aluminium kini banyak dipilih karena lebih mudah ditangani dan cocok untuk pemasangan bergerak. Celah seperti jendela observasi dan ventilasi memakai kawat jala atau filter sarang lebah. Akses sesekali untuk gas, pipa, atau cairan lewat panel penetrasi yang berisi pemandu gelombang: benda kecil bisa lewat, tetapi gelombang radio berfrekuensi MRI tidak. Panel itu juga membawa konektor multipin untuk listrik.</p>
+<p class='a'><b>Analogi:</b> Seperti ruang kedap suara: bising luar tidak masuk, dan suara dari dalam tidak keluar.</p>
+<section class='aktivitas tanam' id='a5' aria-labelledby='a5-j'>
+<h3 id='a5-j'><span class='kode'>A5</span> Perisai RF dan artefak (simulasi kebocoran radio)</h3>
+<p class='lembut'>Nyalakan sumber radio luar, lalu pasang atau lepas kandang Faraday. Bila perisai dilepas, gelombang radio masuk ke ruang pindai dan citra rusak perlahan. Pasang kembali perisai untuk memulihkan citra.</p>
+<div class='baris'>
+<button type='button' id='a5-src' aria-pressed='false'>Sumber radio luar: mati</button>
+<button type='button' id='a5-fc' aria-pressed='true'>Kandang Faraday: terpasang</button>
+</div>
+<div class='gulir gambar'>
+<svg id='a5-svg' viewBox='0 0 640 320' role='img' aria-label='Penampang ruang pindai MRI dengan sumber radio di luar'>
+<defs>
+<pattern id='a5Hex' width='17.32' height='30' patternUnits='userSpaceOnUse' patternTransform='scale(.55)'>
+<g class='gb-hx'>
+<polygon points='0,-10 8.66,-5 8.66,5 0,10 -8.66,5 -8.66,-5'/>
+<polygon points='17.32,-10 25.98,-5 25.98,5 17.32,10 8.66,5 8.66,-5'/>
+<polygon points='0,20 8.66,25 8.66,35 0,40 -8.66,35 -8.66,25'/>
+<polygon points='17.32,20 25.98,25 25.98,35 17.32,40 8.66,35 8.66,25'/>
+<polygon points='8.66,5 17.32,10 17.32,20 8.66,25 0,20 0,10'/>
+</g>
+</pattern>
+<g id='a5X'><circle r='9' class='gb-xc'/><path d='M-4,-4L4,4M-4,4L4,-4' class='gb-xs'/></g>
+<clipPath id='a5-cp'><rect id='a5-cr' x='0' y='0' width='143' height='320'/></clipPath>
+</defs>
+
+<!-- perisai RF: dinding, jendela, pintu, panel penetrasi, ventilasi (memudar bila dilepas) -->
+<g id='a5-sh'>
+<rect id='a5-wall' x='150' y='70' width='340' height='180' rx='2' class='gb-w'/>
+<rect x='380' y='64' width='60' height='12' class='gb-gap'/>
+<g class='gb-mesh'>
+<rect x='380' y='64' width='60' height='12' fill='none'/>
+<path d='M386,64V76M392,64V76M398,64V76M404,64V76M410,64V76M416,64V76M422,64V76M428,64V76M434,64V76M380,67H440M380,70H440M380,73H440'/>
+</g>
+<rect x='190' y='244' width='50' height='12' class='gb-gap'/>
+<rect x='190' y='246' width='50' height='8' class='gb-pintu'/>
+<circle cx='232' cy='250' r='2.5' class='gb-gagang'/>
+<rect x='380' y='244' width='60' height='12' class='gb-gap'/>
+<rect x='380' y='240' width='60' height='20' class='gb-panel'/>
+<path d='M394,226V274M408,226V274' class='gb-pipa'/>
+<g class='gb-pin'><rect x='418' y='244' width='16' height='12'/><circle cx='422' cy='250' r='1.4'/><circle cx='426' cy='250' r='1.4'/><circle cx='430' cy='250' r='1.4'/></g>
+<rect x='482' y='190' width='16' height='45' class='gb-vent' fill='url(#a5Hex)'/>
+</g>
+
+<!-- sumber radio luar (kiri) -->
+<g id='a5-mastg'>
+<path d='M28,210L40,138L52,210M33,186H47M36,162H44' class='gb-mast'/>
+<circle id='a5-sumber' cx='40' cy='132' r='4' class='gb-sumber'/>
+</g>
+<g id='a5-wv' clip-path='url(#a5-cp)' style='display:none'>
+<path class='gb-r'/><path class='gb-r'/><path class='gb-r'/><path class='gb-r'/>
+</g>
+<use id='a5-xr' href='#a5X' x='150' y='132' style='display:none'/>
+
+<!-- pesawat MRI -->
+<rect id='a5-mri' x='255' y='110' width='90' height='100' rx='10' class='gb-o'/>
+<rect x='255' y='145' width='90' height='30' class='gb-bore'/>
+<rect x='225' y='160' width='120' height='18' rx='9' class='gb-pasien'/>
+<rect x='215' y='178' width='150' height='6' rx='2' class='gb-meja'/>
+<path d='M372,142Q382,160 372,178M392,132Q406,160 392,188M412,122Q430,160 412,198' class='gb-b'/>
+<g id='a5-lk' style='display:none'>
+<path d='M502,148Q508,160 502,172M516,144Q524,160 516,176M530,148Q538,160 530,172' class='gb-b'/>
+</g>
+<use id='a5-xo' href='#a5X' x='490' y='160'/>
+
+<!-- alat listrik di luar (kanan) -->
+<rect x='540' y='100' width='60' height='42' rx='4' class='gb-o'/>
+<path d='M549,112H591M549,122H577M549,132H583' class='gb-g'/>
+
+<!-- garis penunjuk -->
+<path d='M190,47V66M410,47V62' class='gb-g'/>
+<path d='M215,258V272M410,262V272' class='gb-g'/>
+
+<!-- label -->
+<text x='156' y='26' class='gb-t'>Dinding, lantai, langit-langit:</text>
+<text id='a5-lbd' x='156' y='42' class='gb-t'>logam (tembaga atau aluminium)</text>
+<text x='385' y='26' class='gb-t'>Jendela observasi:</text>
+<text x='385' y='42' class='gb-t'>kawat jala</text>
+<text x='215' y='288' text-anchor='middle' class='gb-t'>Pintu berlapis logam</text>
+<text x='410' y='288' text-anchor='middle' class='gb-t'>Panel penetrasi:</text>
+<text x='410' y='304' text-anchor='middle' class='gb-t'>pemandu gelombang</text>
+<text x='508' y='208' class='gb-t'>Ventilasi:</text>
+<text x='508' y='224' class='gb-t'>sarang lebah</text>
+<text x='8' y='232' class='gb-t gb-tr'>Siaran radio luar</text>
+<text id='a5-lbs' x='8' y='248' class='gb-l'>(mati)</text>
+<text x='412' y='112' text-anchor='middle' class='gb-t gb-tb'>RF pesawat</text>
+<text x='300' y='232' text-anchor='middle' class='gb-l'>Pesawat MRI</text>
+<text x='570' y='162' text-anchor='middle' class='gb-l'>Alat listrik</text>
+<text x='570' y='178' text-anchor='middle' class='gb-l'>di sekitar</text>
+</svg>
+</div>
+<div class='a5-bawah'>
+<div>
+<canvas id='a5-cv' width='240' height='200' role='img' aria-label='Citra irisan aksial ilustrasi, bersih'></canvas>
+<p class='lembut a5-cap'>Citra (irisan aksial, ilustrasi)</p>
+</div>
+<div class='a5-info'>
+<p class='hasil' id='a5-pct'>Gangguan pada citra: 0%</p>
+<div class='meter' aria-hidden='true'><i id='a5-mt'></i></div>
+<p id='a5-ket' class='lembut' role='status' aria-live='polite'></p>
+</div>
+</div>
+<div class='baris'><button type='button' id='a5-reset'>Reset</button></div>
+</section>
+
+</div>
+<div class='kartu bm' id='t22' data-mode='singkat'>
+<span class='tag'>T2.2 &middot; Tingkat 2: Sistem pemancar RF dan pulsa sinc</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p class='s'>Pulsa sinc memuat rentang frekuensi sempit yang rata, sehingga irisan berbatas tegas.</p>
+<p class='l'>Pulsa RF memuat rentang sempit frekuensi di sekitar frekuensi Larmor. Rentang itu disebut <em>bandwidth pemancar</em> dan menentukan durasi pulsa. Agar irisan berprofil persegi, pulsa harus persegi pada domain frekuensi: hanya memuat rentang sempit yang ditetapkan gradien pemilih irisan pada ketebalan irisan, dengan amplitudo sama. Bentuk pulsa yang memenuhi syarat ini disebut <em>sinc</em>.</p>
+<p class='l'>Rantai pemancar: pembangkit gelombang digital, DAC, sintesiser frekuensi (memusatkan frekuensi di sekitar Larmor dan mengatur fase), amplifier RF berdaya tinggi, lalu coil pemancar. Pulsa dikirim berulang selama akuisisi dan dinamai menurut fungsinya: eksitasi, rephasing, atau inversi.</p>
+<p class='l'>Hubungan dasar: ketebalan irisan = bandwidth / (&gamma; &times; gradien pemilih irisan). Simulasi pulsa sinc ada di M04A A2, jadi tidak diulang di modul ini.</p>
+<p class='a'><b>Analogi:</b> Bandwidth seperti lebar kuas dan gradien seperti kerapatan garis di dinding: kuas lebih lebar menutup irisan lebih tebal.</p>
+<p class='tautan'><a class='chip luar' href='../modul.html?m=4' target='_top'>&rarr; M04A A2 (simulasi pulsa sinc)</a></p>
+</div>
+<div class='kartu bm' id='t23' data-mode='singkat'>
+<span class='tag'>T2.3 &middot; Tingkat 2: Coil pemancar (birdcage, faktor pengisi)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p class='s'>Body coil birdcage memancarkan RF yang berputar agar energi masuk ke spin seefisien mungkin.</p>
+<p class='l'>Coil pemancar adalah coil resonator. Saat beresonansi pada frekuensi yang diperlukan, muncul osilasi besar pada tegangan dan arus, lalu terpancar gelombang radio ke daerah yang diperiksa. Cara paling efisien adalah medan yang berosilasi pada frekuensi Larmor sekaligus berputar searah dengan spin (polarisasi sirkular, atau desain kuadratur). Coil dihubungkan ke dua suplai dari amplifier RF, dan suplai kedua tertunda 90&deg;, sehingga ada dua medan RF yang saling tegak lurus.</p>
+<p class='l'><em>Transceiver</em> berarti coil yang memancar dan, bila perlu, juga menerima. Pada pesawat bore tertutup, coil utamanya disebut body coil dan berdesain <em>birdcage</em>: dua cincin ujung dihubungkan batang tembaga lurus berjumlah genap, di dalam struktur plexiglass.</p>
+<p class='l'>Kualitas sinyal sangat ditentukan <em>faktor pengisi</em>, yaitu seberapa cocok bentuk dan ukuran coil dengan area anatomi. Homogenitas RF membaik pada coil yang lebih besar, tetapi ada tawar-menawar dengan faktor pengisi. Coba simulasi A8.</p>
+<!-- TODO-VERIFIKASI: penjelasan medan linear = dua komponen berputar berlawanan, hanya satu yang searah spin, adalah pengembangan di A8 dan bukan dari buku sumber. -->
+<p class='a'><b>Analogi:</b> Seperti mendorong komidi putar: dorongan paling efektif bila mengikuti arah putarannya.</p>
+<p class='tautan'><a class='chip sim' href='#a8'>&#9654; A8 &middot; Birdcage: medan B1 berputar</a></p>
+</div>
+<div class='kartu bm' id='t24' data-mode='singkat'>
+<span class='tag'>T2.4 &middot; Tingkat 2: Sistem penerima RF (coil, preamplifier, demodulasi, ADC)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p class='s'>Sinyal lemah dikuatkan, disaring dari derau, lalu didigitalkan.</p>
+<p class='l'>Sinyal dari pasien pada saat TE menginduksi tegangan berosilasi pada coil yang diletakkan dekat. Sinyal ini berfrekuensi VHF tetapi beramplitudo rendah. Pesawat lama menurunkan frekuensi sinyal (demodulasi) sebelum diproses, sedangkan teknologi baru dapat mengambil sampel langsung.</p>
+<p class='l'>Coil juga menerima derau, terutama dari gerak termal elektron di dalam coil dan jaringan tubuh. Derau ada di semua frekuensi, sehingga tampak di seluruh citra kecuali disaring. Rantai penerima: coil, preamplifier berderau rendah, penyaring, amplifier, ADC, lalu komputer. Pada pesawat modern, penguatan, penyaringan, dan digitalisasi dilakukan di dalam coil atau tubuh pesawat, lalu sinyal digital dikirim lewat serat optik yang kebal terhadap kehilangan sinyal, interferensi, dan lonjakan derau.</p>
+<p class='l'>Modul ini menelusuri rantai sampai ADC. Penyusunan data menjadi citra dibahas di modul rekonstruksi. Coba simulasi A1.</p>
+<p class='a'><b>Analogi:</b> Seperti mendengar bisikan di keramaian: dekatkan telinga (coil dekat tubuh), perkeras suara (preamplifier), dan abaikan bising (penyaring).</p>
+<p class='tautan'><a class='chip sim' href='#a1'>&#9654; A1 &middot; Rantai sinyal</a></p>
+</div>
+<div class='kartu bm' id='t25' data-mode='singkat'>
+<span class='tag'>T2.5 &middot; Tingkat 2: Jenis coil penerima (permukaan, volume, array fasa)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p class='s'>Coil permukaan: sinyal tinggi tetapi dangkal. Coil volume: merata. Array fasa: banyak elemen kecil untuk FOV luas.</p>
+<p class='l'>Ada dua jenis dasar coil penerima: coil permukaan dan coil volume. Coil permukaan dipakai untuk anatomi dekat permukaan, dan coil volume untuk jaringan yang besar. Coil permukaan tidak dipakai sebagai pemancar karena homogenitas RF-nya buruk, jadi ia hanya penerima.</p>
+<p class='l'><b>Coil permukaan</b> dipasang rata dekat anatomi, sehingga faktor pengisinya optimum dan sinyalnya tinggi. Ia juga hanya menerima derau dari area kecil. Kelemahannya: sensitivitas turun menurut jarak dari coil. Sinyal berguna hanya berasal dari kedalaman yang sebanding dengan diameter loop, jadi coil ini kurang cocok untuk anatomi yang dalam. Coba simulasi A3. Profil sensitivitas yang tidak merata ini juga menjadi sebab shading pada citra (M08C).</p>
+<p class='l'><b>Coil volume</b> mengelilingi bagian tubuh, medannya lebih merata, tetapi SNR umumnya lebih rendah daripada coil permukaan di dekat anatomi.</p>
+<p class='l'><b>Array fasa</b> terdiri atas banyak elemen kecil, tiap elemen punya kanalnya sendiri. Susunan ini memberi keunggulan SNR loop tunggal dengan FOV jauh lebih luas. Contohnya array linear untuk tulang belakang: enam bagian dengan elemen yang saling tumpang tindih. Bagian pertama dapat dipakai sendiri untuk tulang belakang servikal. Untuk FOV lebih besar, lebih banyak elemen dipilih, dan meja pasien menggeser pasien ke isosenter yang sesuai. Jumlah elemen dan kanal bervariasi menurut tujuan coil. Coba simulasi A4. Beda posisi tiap elemen juga dipakai pada parallel imaging.</p>
+<p class='l'>Untuk memilih coil menurut bagian tubuh, coba simulasi A2.</p>
+<p class='a'><b>Analogi:</b> Coil permukaan seperti senter kecil: terang tetapi jangkauannya dekat. Array fasa seperti banyak senter kecil yang berjajar, sehingga area luas tetap terang.</p>
+<p class='tautan'><a class='chip sim' href='#a2'>&#9654; A2 &middot; Pemilih coil</a> <a class='chip sim' href='#a3'>&#9654; A3 &middot; Sensitivitas coil terhadap kedalaman</a> <a class='chip sim' href='#a4'>&#9654; A4 &middot; Array fasa tulang belakang</a> <a class='chip luar' href='../modul.html?m=8' target='_top'>&rarr; M08C (shading akibat profil sensitivitas coil)</a></p>
+</div>
+<div class='kartu bm lanjut' id='t31' data-mode='singkat'>
+<span class='tag'>T3.1 &middot; Tingkat 3 (Lanjut, boleh dilewati): Pergeseran kimia lemak-air: asal fisika</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p class='s'>Selisih lemak-air tetap dalam ppm, tetapi naik dalam Hz saat B0 naik.</p>
+<p class='l'><b>Pergeseran kimia lemak-air.</b> Proton lemak berputar sedikit lebih lambat dari proton air. Selisihnya sekitar <span id='t31-ppm'>3,5</span> ppm dari frekuensi Larmor, sehingga selisih dalam Hz sama dengan ppm dikali frekuensi dalam MHz. Pada 1,5 T selisihnya sekitar <span id='t31-h1'>224</span> Hz, dan pada 3 T sekitar <span id='t31-h3'>447</span> Hz.</p>
+<p class='l'><b>Asal fisika.</b> Awan elektron di sekitar inti ikut meredam medan yang dirasakan proton (efek perisai). Proton air dan proton lemak terikat pada molekul berbeda, sehingga derajat perisainya berbeda, dan medan yang dirasakan sedikit berbeda. Perbedaan itu sebanding dengan B0, maka selisih frekuensinya juga sebanding dengan B0, dan dalam ppm nilainya tetap. Proton lemak lebih terperisai, jadi frekuensinya lebih rendah.</p>
+<!-- TODO-VERIFIKASI: penjelasan efek perisai elektron adalah pengembangan dan bukan dari buku sumber. Cek terhadap buku teks fisika MRI. -->
+<p class='l'>Pada citra, selisih ini tampak sebagai pergeseran posisi lemak pada arah baca. Besarnya dalam piksel bergantung pada lebar pita penerima. Itu dibahas di M08A. Coba simulasi A6.</p>
+<p class='a'><b>Analogi:</b> Seperti dua jam yang selisihnya selalu 1% dari kecepatannya: makin cepat jamnya, makin besar selisih detiknya.</p>
+<p class='tautan'><a class='chip sim' href='#a6'>&#9654; A6 &middot; Simulasi pergeseran kimia</a> <a class='chip luar' href='../modul.html?m=5' target='_top'>&rarr; M05 A2 (kalkulator ppm)</a> <a class='chip luar' href='../modul.html?m=8' target='_top'>&rarr; M08A A7 (pergeseran kimia pada citra)</a></p>
+</div>
+<div class='kartu bm lanjut' id='t32' data-mode='singkat'>
+<span class='tag'>T3.2 &middot; Tingkat 3 (Lanjut, boleh dilewati): Ketidakhomogenan B1 dan transmit paralel</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p class='s'>Pada B0 tinggi, pulsa RF tidak merata. Transmit paralel membantu meratakannya.</p>
+<p class='l'><b>Ketidakhomogenan B1 dan efek dielektrik.</b> Pulsa RF tidak selalu merata di seluruh tubuh. Pada B0 yang lebih tinggi, frekuensi RF naik dan panjang gelombangnya di jaringan makin pendek. Bila panjang gelombang sebanding dengan lebar tubuh, gelombang saling menguatkan di sebagian tempat dan melemahkan di tempat lain, sehingga muncul daerah yang lebih terang atau lebih gelap.</p>
+<p class='l'>Sebagai perkiraan kasar, jaringan diperlakukan seperti air: panjang gelombang di jaringan kira-kira 50 cm pada 1,5 T dan 26 cm pada 3 T, dibanding lebar badan sekitar 35 cm. Hitung sendiri di simulasi A7.</p>
+<!-- TODO-VERIFIKASI: kaitan efek dielektrik dengan B0 tinggi dan angka panjang gelombang (permitivitas relatif sekitar 80, nilai air) perlu dicek ke sumber. Jaringan nyata memiliki permitivitas lebih rendah, jadi panjang gelombangnya sedikit lebih panjang. -->
+<p class='l'><b>Transmit paralel.</b> Secara konsep, beberapa elemen pemancar diatur terpisah (amplitudo dan fase tiap elemen) agar medan B1 lebih merata.</p>
+<!-- TODO-VERIFIKASI: penjelasan konsep transmit paralel -->
+<p class='a'><b>Analogi:</b> Seperti satu lampu di ruangan besar yang menyisakan sudut gelap. Beberapa lampu kecil yang diatur sendiri-sendiri meratakan cahaya.</p>
+<p class='tautan'><a class='chip sim' href='#a7'>&#9654; A7 &middot; Ilustrasi B1 tidak merata dan transmit paralel</a> <a class='chip luar' href='../modul.html?m=7' target='_top'>&rarr; M07C (SAR, efek antena, luka bakar)</a></p>
+</div>
+
+<h2>Aktivitas</h2>
+<p class='lembut'>Kode A1 sampai A8 sama dengan diagram pohon modul. Tiap aktivitas punya tombol Reset. Simulasi A5 berada di dalam kartu materi T2.1.</p>
+<section class='kartu aktivitas' id='a1' aria-labelledby='a1-j'>
+<h3 id='a1-j'><span class='kode'>A1</span> Rantai sinyal (urutan komponen sinyal)</h3>
+<p class='lembut menjelaskan'>Menjelaskan: <a class='chip' href='#t24'>T2.4 &middot; Sistem penerima RF</a></p>
+<p class='lembut'>Pilih satu blok untuk membaca tugasnya dan melihat bentuk sinyal pada tahap itu.</p>
+<div class='baris' id='a1-rantai' role='group' aria-label='Blok rantai sinyal'></div>
+<svg id='a1-svg' viewBox='0 0 600 130' width='100%' role='img' aria-label='Bentuk sinyal pada tahap terpilih'></svg>
+<p id='a1-ket' class='hasil' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='a1-play'>Putar otomatis</button><button type='button' id='a1-reset'>Reset</button></div>
+</section>
+<section class='kartu aktivitas' id='a2' aria-labelledby='a2-j'>
+<h3 id='a2-j'><span class='kode'>A2</span> Pemilih coil (pemilihan berdasarkan anatomi)</h3>
+<p class='lembut menjelaskan'>Menjelaskan: <a class='chip' href='#t25'>T2.5 &middot; Jenis coil penerima</a></p>
+<p class='lembut'>Pilih bagian tubuh lewat daftar atau dengan mengeklik siluet.</p>
+<div class='baris' style='align-items:flex-start'>
+<svg id='a2-svg' viewBox='0 0 160 280' width='140' role='img' aria-label='Siluet tubuh dengan area coil yang dipilih'>
+<g fill='none' stroke='var(--lembut)' stroke-width='2'><circle cx='80' cy='32' r='22'/><rect x='46' y='62' width='68' height='110' rx='14'/><rect x='56' y='172' width='20' height='90' rx='8'/><rect x='84' y='172' width='20' height='90' rx='8'/><rect x='22' y='68' width='16' height='100' rx='8'/><rect x='122' y='68' width='16' height='100' rx='8'/><ellipse cx='30' cy='180' rx='8' ry='12'/><ellipse cx='130' cy='180' rx='8' ry='12'/></g>
+<g fill='var(--aksen)' fill-opacity='.25' stroke='var(--aksen)' stroke-width='3'>
+<ellipse id='a2-z0' class='zona' cx='80' cy='32' rx='32' ry='30'/>
+<rect id='a2-z1' class='zona' x='40' y='70' width='80' height='96' rx='16' style='display:none'/>
+<g id='a2-z2' class='zona' style='display:none'><circle cx='42' cy='72' r='14'/><circle cx='66' cy='215' r='14'/><circle cx='94' cy='215' r='14'/></g>
+<rect id='a2-z3' class='zona' x='72' y='62' width='16' height='110' rx='8' style='display:none'/>
+<g id='a2-z4' class='zona' style='display:none'><ellipse cx='30' cy='182' rx='15' ry='20'/><ellipse cx='130' cy='182' rx='15' ry='20'/></g>
+</g></svg>
+<div style='flex:1;min-width:220px'>
+<label for='a2-sel'>Bagian tubuh yang dicitrakan</label>
+<select id='a2-sel'></select>
+<p><span class='lencana' id='a2-jenis'></span></p>
+<p id='a2-ket' role='status' aria-live='polite'></p>
+</div></div>
+<button type='button' id='a2-reset'>Reset</button>
+</section>
+<section class='kartu aktivitas' id='a3' aria-labelledby='a3-j'>
+<h3 id='a3-j'><span class='kode'>A3</span> Sensitivitas coil terhadap kedalaman</h3>
+<p class='lembut menjelaskan'>Menjelaskan: <a class='chip' href='#t25'>T2.5 &middot; Jenis coil penerima</a></p>
+<p class='lembut'>Geser diameter loop coil permukaan dan kedalaman target. Bandingkan dengan coil volume yang lebih merata tetapi kurang sensitif.</p>
+<label for='a3-dm'>Diameter loop (satuan relatif): <span id='a3-dmv'></span></label>
+<input type='range' id='a3-dm' min='1' max='4' step='0.25' value='2'>
+<label for='a3-z'>Kedalaman target (satuan relatif): <span id='a3-zv'></span></label>
+<input type='range' id='a3-z' min='0' max='4' step='0.25' value='1'>
+<canvas id='a3-cv' width='600' height='280' role='img' aria-label='Sensitivitas coil terhadap kedalaman'></canvas>
+<p id='a3-ket' class='lembut' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='a3-reset'>Reset</button></div>
+</section>
+<section class='kartu aktivitas' id='a4' aria-labelledby='a4-j'>
+<h3 id='a4-j'><span class='kode'>A4</span> Array fasa tulang belakang (penggabungan kanal)</h3>
+<p class='lembut menjelaskan'>Menjelaskan: <a class='chip' href='#t25'>T2.5 &middot; Jenis coil penerima</a></p>
+<p class='lembut'>Tambah jumlah bagian coil yang aktif. Tiap bagian punya kanal sendiri, jadi FOV memanjang.</p>
+<label for='a4-n'>Bagian coil aktif: <span id='a4-nv'></span> dari 6</label>
+<input type='range' id='a4-n' min='1' max='6' step='1' value='1'>
+<canvas id='a4-cv' width='600' height='170' role='img' aria-label='Enam bagian coil array tulang belakang'></canvas>
+<p id='a4-ket' class='lembut' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='a4-reset'>Reset</button></div>
+</section>
+<section class='kartu aktivitas' id='a6' aria-labelledby='a6-j'>
+<h3 id='a6-j'><span class='kode'>A6</span> Simulasi pergeseran kimia (spektrum air dan lemak)</h3>
+<p class='lembut menjelaskan'>Menjelaskan: <a class='chip' href='#t31'>T3.1 &middot; Pergeseran kimia lemak-air: asal fisika</a></p>
+<p class='lembut'>Atur kekuatan medan. Puncak air ada di nol. Puncak lemak bergeser. Ganti sumbu untuk membandingkan Hz dan ppm.</p>
+<div class='baris' id='a6-pilb0' role='group' aria-label='Pilih kekuatan medan B0'></div>
+<label for='a6-b0'>B0: <span id='a6-b0v'></span> T</label>
+<input type='range' id='a6-b0' min='0.5' max='3' step='0.5' value='1.5'>
+<div class='baris'><button type='button' id='a6-sumbu' aria-pressed='false'>Sumbu: Hz</button></div>
+<canvas id='a6-cv' width='600' height='200' role='img' aria-label='Spektrum air dan lemak'></canvas>
+<p id='a6-ket' class='hasil' role='status' aria-live='polite'></p>
+<button type='button' id='a6-reset'>Reset</button>
+</section>
+<section class='kartu aktivitas' id='a7' aria-labelledby='a7-j'>
+<h3 id='a7-j'><span class='kode'>A7</span> Ilustrasi B1 tidak merata dan transmit paralel</h3>
+<p class='lembut menjelaskan'>Menjelaskan: <a class='chip' href='#t32'>T3.2 &middot; Ketidakhomogenan B1 dan transmit paralel</a></p>
+<p class='lembut'>Potongan melintang badan. Daerah lebih terang: pulsa RF lebih kuat. Pola bersifat kualitatif. Panjang gelombang dihitung dari fisika dasar.</p>
+<div class='baris' id='a7-pilb0' role='group' aria-label='Pilih B0'></div>
+<div class='baris'><button type='button' id='a7-ptx' aria-pressed='false'>Transmit paralel: mati</button></div>
+<canvas id='a7-cv' width='600' height='252' role='img' aria-label='Peta B1 pada potongan badan'></canvas>
+<p id='a7-ket' class='hasil' role='status' aria-live='polite'></p>
+<button type='button' id='a7-reset'>Reset</button>
+</section>
+<section class='kartu aktivitas' id='a8' aria-labelledby='a8-j'>
+<h3 id='a8-j'><span class='kode'>A8</span> Birdcage: medan B1 berputar (kuadratur) dan faktor pengisi <span class='lencana-baru'>baru</span></h3>
+<p class='lembut menjelaskan'>Menjelaskan: <a class='chip' href='#t23'>T2.3 &middot; Coil pemancar</a></p>
+<h4>Bagian 1. Medan B1 berputar</h4>
+<p class='lembut'>Bandingkan satu suplai (medan linear) dengan dua suplai yang tertunda 90&deg; (kuadratur). Geser fase atau putar otomatis.</p>
+<div class='baris'>
+<button type='button' id='a8-lin' aria-pressed='false'>Linear (1 suplai)</button>
+<button type='button' id='a8-kuad' aria-pressed='true'>Kuadratur (2 suplai, tunda 90&deg;)</button>
+<button type='button' id='a8-play'>Putar otomatis</button>
+</div>
+<label for='a8-fase'>Fase siklus RF: <span id='a8-fv'></span>&deg;</label>
+<input type='range' id='a8-fase' min='0' max='360' step='5' value='45'>
+<canvas id='a8-cv1' width='600' height='240' role='img' aria-label='Penampang birdcage dan arah medan B1'></canvas>
+<p id='a8-ket1' class='hasil' role='status' aria-live='polite'></p>
+
+<h4>Bagian 2. Faktor pengisi</h4>
+<p class='lembut'>Atur ukuran coil dan ukuran anatomi. Faktor pengisi di sini dihampiri dengan perbandingan luas penampang (ilustrasi sederhana).</p>
+<div class='baris'><button type='button' id='a8-kepala' aria-pressed='true'>Anatomi: kepala</button><button type='button' id='a8-badan' aria-pressed='false'>Anatomi: badan</button></div>
+<label for='a8-dc'>Diameter dalam coil: <span id='a8-dcv'></span> cm</label>
+<input type='range' id='a8-dc' min='15' max='65' step='1' value='28'>
+<canvas id='a8-cv2' width='600' height='200' role='img' aria-label='Coil dan anatomi di dalamnya'></canvas>
+<p id='a8-ket2' class='hasil' role='status' aria-live='polite'></p>
+<div class='baris'><button type='button' id='a8-reset'>Reset</button></div>
+</section>
+
+<p class='lembut sumber'>Sumber isi (diwarisi dari Modul 6 asal): Westbrook & Talbot, <i>MRI in Practice</i>, edisi ke-5 (2019), Bab 5 (hlm. 128&ndash;130) dan Bab 9 (hlm. 330&ndash;342). Ditulis ulang dengan kata-kata sendiri. Bagian bertanda TODO-VERIFIKASI di berkas sumber masih perlu dicek.</p>
+
+<h2>Cek pemahaman</h2>
+<div id='kuis-kontrol'></div>
+<div id='kuis'></div>
+</main>
+
+<script>
+/* TETAP: bawaan template. Jangan diubah. Konstanta modul sendiri ada di 04-util.js */
+/* TETAP: awal */
+// Konfigurasi dasar modul
+const DATA={
+ FISIKA:{gamma_MHz_per_T:42.58,larmor_MHz:{1.5:63.87,3:127.74},geser_kimia_lemak_air_ppm:3.5},
+ JARINGAN:[
+  {id:'csf',nama:'Cairan serebrospinal',T1_ms:2400,T2_ms:180,PD:1.00},
+  {id:'gm',nama:'Substansia grisea',T1_ms:925,T2_ms:100,PD:0.86},
+  {id:'wm',nama:'Substansia alba',T1_ms:790,T2_ms:92,PD:0.77},
+  {id:'fat',nama:'Lemak',T1_ms:260,T2_ms:85,PD:1.00},
+  {id:'muscle',nama:'Otot',T1_ms:875,T2_ms:47},
+  {id:'kidney',nama:'Ginjal',T1_ms:650,T2_ms:58},
+  {id:'liver',nama:'Hati',T1_ms:500,T2_ms:43}],
+ SKALA_B0:{1.5:{T1:1,T2:1},3:{T1:1.17,T2:0.9}},
+ INSTRUMEN:{suhu_K:4.2,gradien_mT_per_m:[20,80],slew_T_per_m_per_s:[100,200],bore_cm:[60,70]},
+ KESELAMATAN:{sar_tubuh_W_per_kg:{normal:2,tingkat1:4},sar_kepala_normal_W_per_kg:3.2,garis_gauss_mT:{standar:0.5,alternatif:0.9}}
+};
+/* TETAP: akhir */
+
+/* TETAP: bawaan template. Jangan diubah. Pemilihan soal ada di kuis/kuis-dinamis.js */
+/* TETAP: awal */
+// Mesin pemroses kuis bawaan template
+function jalankanKuis(el,soal){
+ let i=0;const st=soal.map(()=>({salah:new Set(),benar:-1}));
+ function skor(){return st.filter(x=>x.benar>=0&&x.salah.size===0).length;}
+ function tampil(){
+  el.innerHTML='';
+  const kartu=document.createElement('div');kartu.className='kartu';el.appendChild(kartu);
+  if(i>=soal.length){
+   kartu.innerHTML='<b>Skor: '+skor()+' / '+soal.length+'</b><p class=\'lembut\'>Dihitung dari soal yang benar pada percobaan pertama.</p>';
+   const n=document.createElement('div');n.className='navkuis';
+   const b1=document.createElement('button');b1.textContent='\u2190 Kembali ke soal';b1.onclick=()=>{i=soal.length-1;tampil();};
+   const b2=document.createElement('button');b2.textContent='Ulangi kuis';b2.onclick=()=>{st.forEach(x=>{x.salah.clear();x.benar=-1;});i=0;tampil();};
+   n.append(b1,b2);kartu.appendChild(n);return;
+  }
+  const s=soal[i],t=st[i];
+  const p=document.createElement('p');p.innerHTML='<b>'+(i+1)+'/'+soal.length+'.</b> '+s.pertanyaan;kartu.appendChild(p);
+  s.pilihan.forEach((teks,k)=>{
+   const b=document.createElement('button');b.className='opsi';b.type='button';
+   if(t.benar===k){b.classList.add('benar');b.textContent='\u2713 '+teks;}
+   else if(t.salah.has(k)){b.classList.add('salah');b.textContent='\u2717 '+teks;}
+   else b.textContent=teks;
+   b.disabled=(t.benar>=0&&t.benar!==k)||t.salah.has(k);
+   b.onclick=()=>{if(t.benar>=0)return;if(k===s.jawaban)t.benar=k;else t.salah.add(k);tampil();};
+   kartu.appendChild(b);
+  });
+  const info=document.createElement('p');info.setAttribute('role','status');info.setAttribute('aria-live','polite');
+  if(t.benar>=0){info.className='ok';info.textContent='Benar. '+s.penjelasan;}
+  else if(t.salah.size){info.className='no';info.textContent='Belum tepat. Coba pilihan lain.';}
+  kartu.appendChild(info);
+  const n=document.createElement('div');n.className='navkuis';
+  const bk=document.createElement('button');bk.textContent='\u2190 Kembali';bk.disabled=i===0;bk.onclick=()=>{i--;tampil();};
+  const bl=document.createElement('button');bl.textContent=i===soal.length-1?'Selesai':'Lanjut \u2192';bl.onclick=()=>{i++;tampil();};
+  n.append(bk,bl);kartu.appendChild(n);
+ }
+ tampil();
+}
+/* TETAP: akhir */
+
+/* PENGATURAN UI: tombol Materi singkat / Materi lengkap / Analogi di tiap kartu .bm */
+document.querySelectorAll('.bm').forEach(k=>{
+ if(!k.dataset.mode) k.dataset.mode='singkat';
+ const g=k.querySelector('.pilih');
+ if(g){
+  const btns=g.querySelectorAll('button');
+  btns.forEach(b=>{
+   const m=b.dataset.mode||(b.textContent.includes('singkat')?'singkat':b.textContent.includes('lengkap')?'lengkap':'analogi');
+   b.onclick=()=>{k.dataset.mode=m;btns.forEach(x=>x.setAttribute('aria-pressed',x===b));};
+  });
+ }
+});
+function bukaKartuDariHash(){
+ const k=location.hash&&document.querySelector(location.hash+'.bm');
+ if(k&&k.dataset.mode==='singkat'){const b=k.querySelectorAll('.pilih button')[1];if(b)b.click();}
+}
+window.addEventListener('hashchange',bukaKartuDariHash);
+
+/* ISI MODUL: fungsi bantu dan konstanta M06B. Dipakai bersama oleh semua aktivitas. */
+const $=(id)=>document.getElementById(id);
+const warna=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(x,d)=>x.toFixed(d).replace('.',',');              // 3.5 -> "3,5"
+const TT=(x,y,s,c,u)=>`<text x='${x}' y='${y}' text-anchor='middle' fill='${c||'var(--lembut)'}' font-size='${u||13}'>${s}</text>`;
+const REDUCED=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Konstanta dari DATA (01-data.js) */
+const GR=DATA.INSTRUMEN.gradien_mT_per_m;                    // rentang amplitudo gradien
+const GM=DATA.FISIKA.gamma_MHz_per_T;                        // 42,58 MHz/T
+const LAR=DATA.FISIKA.larmor_MHz;                            // {1.5:63.87, 3:127.74}
+const PPM=DATA.FISIKA.geser_kimia_lemak_air_ppm;             // 3,5 ppm
+const KS=Object.keys(LAR).map(Number).sort((a,b)=>a-b);      // [1.5, 3]
+const larmor=B=>GM*B;                                        // MHz untuk B0 (T)
+const hzGeser=B=>PPM*larmor(B);                              // ppm x MHz = Hz
+
+/* Gambar ulang canvas/SVG saat tema terang-gelap berganti.
+   Tiap aktivitas mendaftarkan fungsi gambarnya: daftarTema(gambar). */
+const _redrawTema=[];
+function daftarTema(f){_redrawTema.push(f);}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>_redrawTema.forEach(f=>{try{f();}catch(e){console.error(e);}}));
+
+/* Tombol pilihan B0 (1,5 T dan 3 T) yang dipakai A6 dan A7 */
+function grupB0(el,atur){KS.forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=String(k).replace('.',',')+' T';b.dataset.k=k;b.setAttribute('aria-pressed','false');b.onclick=()=>atur(k);el.appendChild(b);});}
+function tandaB0(el,k){[...el.children].forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.k===+k)));}
+
+/* ISI MODUL: mengisi angka dinamis di kartu materi (dihitung dari DATA, jadi selalu konsisten) */
+(function(){
+ const s=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
+ s('t11-g',fmt(GM,2));s('t11-l1',fmt(LAR[1.5],2));s('t11-l3',fmt(LAR[3],2));
+ s('t11-t1',fmt(LAR[1.5],2));s('t11-t3',fmt(LAR[3],2));
+ s('t31-ppm',fmt(PPM,1));s('t31-h1',Math.round(hzGeser(1.5)));s('t31-h3',Math.round(hzGeser(3)));
+})();
+
+/* ===== M06B A1: Rantai sinyal (urutan komponen sinyal) ===== */
+try{(function(){
+// A1: rantai sinyal penerima sampai ADC. Menjelaskan T2.4.
+const RANTAI=[
+ ['Coil','RF coil menangkap sinyal lemah dari tubuh dan mengubahnya menjadi tegangan listrik berosilasi pada frekuensi Larmor. Derau ikut tertangkap.','Lemah, frekuensi VHF, berderau'],
+ ['Preamplifier','Memperkuat sinyal sedini mungkin agar tidak tenggelam oleh derau elektronik di tahap berikutnya. Biasanya disusul penyaring dan penguat lanjutan.','Lebih kuat, masih frekuensi VHF'],
+ ['Demodulasi','Memisahkan informasi sinyal dari frekuensi Larmor yang membawanya, sehingga tersisa frekuensi yang lebih rendah.','Frekuensi rendah, analog'],
+ ['ADC','Mengubah sinyal analog menjadi angka digital yang bisa diproses komputer. Setelah ini data diteruskan untuk disusun menjadi citra.','Digital: deretan angka']];
+const a1Btn=[],a1Box=$('a1-rantai');let a1Tm=null,a1N=-1;
+RANTAI.forEach((r,i)=>{
+ const b=document.createElement('button');b.type='button';b.textContent=(i+1)+'. '+r[0];b.setAttribute('aria-pressed','false');
+ b.onclick=()=>{a1Henti();a1Pilih(i);};a1Box.appendChild(b);a1Btn.push(b);
+ const a=document.createElement('span');a.setAttribute('aria-hidden','true');a.className='lembut';a.textContent=i<RANTAI.length-1?'\u2192':'\u2192 komputer (rekonstruksi)';a1Box.appendChild(a);
+});
+function a1Noise(i){return Math.sin(i*12.9898)*0.5+Math.sin(i*78.233)*0.5;}
+function a1Gambar(){
+ const n=a1N,W=600,y0=65;let h='<line x1="10" y1="'+y0+'" x2="590" y2="'+y0+'" stroke="var(--garis)"/>';
+ if(n>=0){
+  const col=warna('--aksen');let p='';
+  if(n<=1){const A=n===0?10:30,nz=n===0?4:12;
+   for(let x=10;x<=590;x+=2){const y=y0-A*Math.sin(x*0.55)-nz*a1Noise(x);p+=(x===10?'M':'L')+x+' '+y.toFixed(1);}
+   h+='<path d="'+p+'" fill="none" stroke="'+col+'" stroke-width="1.6"/>';
+  }else if(n===2){
+   for(let x=10;x<=590;x+=2){const y=y0-30*Math.sin((x-10)*0.045);p+=(x===10?'M':'L')+x+' '+y.toFixed(1);}
+   h+='<path d="'+p+'" fill="none" stroke="'+col+'" stroke-width="2.5"/>';
+  }else{
+   for(let x=10;x<=590;x+=2){const y=y0-30*Math.sin((x-10)*0.045);p+=(x===10?'M':'L')+x+' '+y.toFixed(1);}
+   h+='<path d="'+p+'" fill="none" stroke="var(--garis)" stroke-width="1.5"/>';
+   for(let x=10;x<=590;x+=14){const y=Math.round((y0-30*Math.sin((x-10)*0.045))/6)*6;h+='<rect x="'+(x-3)+'" y="'+(y-3)+'" width="6" height="6" fill="'+warna('--t1')+'"/><line x1="'+x+'" y1="'+y0+'" x2="'+x+'" y2="'+y+'" stroke="'+warna('--t1')+'" stroke-opacity=".35"/>';}
+  }
+  h+=TT(300,122,RANTAI[n][2]);
+ }else h+=TT(300,70,'Pilih satu blok');
+ $('a1-svg').innerHTML=h;
+}
+function a1Pilih(n){
+ a1N=n;a1Btn.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===n)));
+ $('a1-ket').textContent=n<0?'Belum ada blok yang dipilih.':(n+1)+'. '+RANTAI[n][0]+': '+RANTAI[n][1];
+ a1Gambar();
+}
+const a1Play=$('a1-play');
+function a1Henti(){clearInterval(a1Tm);a1Tm=null;a1Play.textContent='Putar otomatis';}
+a1Play.onclick=()=>{if(a1Tm){a1Henti();return;}let n=0;a1Pilih(0);a1Play.textContent='Berhenti';
+ a1Tm=setInterval(()=>{n++;if(n>=RANTAI.length){a1Henti();return;}a1Pilih(n);},1800);};
+$('a1-reset').onclick=()=>{a1Henti();a1Pilih(-1);};
+daftarTema(a1Gambar);a1Pilih(-1);
+})();}catch(e){console.error('[M06B A1]',e);}
+
+/* ===== M06B A2: Pemilih coil (pemilihan berdasarkan anatomi) ===== */
+try{(function(){
+// A2: pemilih coil menurut anatomi. Menjelaskan T2.5.
+// TODO-VERIFIKASI: penggolongan jenis coil per anatomi disederhanakan; coil lutut atau kepala nyata bisa volume atau array.
+const COIL=[
+ ['Kepala','Coil kepala','Coil volume (mengelilingi)','Mengelilingi kepala dengan jarak dekat, jadi SNR relatif tinggi untuk daerah itu.'],
+ ['Perut atau dada','Coil body atau array fasa','Array fasa','Array fasa menutup area luas. SNR relatif baik, dan parallel imaging dimungkinkan.'],
+ ['Sendi dangkal (bahu, lutut)','Coil permukaan','Permukaan','Dekat dengan jaringan yang dicitrakan, jadi SNR relatif tinggi. Jangkauan kedalamannya terbatas.'],
+ ['Tulang belakang','Array fasa','Array fasa','Beberapa elemen tersusun memanjang. Cakupan luas dengan SNR relatif baik (lihat A4).'],
+ ['Tangan atau pergelangan','Coil permukaan kecil atau coil khusus pergelangan','Permukaan','Melingkupi atau menempel pada tangan, jadi SNR relatif tinggi. Cakupannya kecil.']];
+const a2Sel=$('a2-sel');
+COIL.forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=c[0];a2Sel.appendChild(o);});
+function a2Tampil(){
+ const k=+a2Sel.value,c=COIL[k];
+ for(let i=0;i<COIL.length;i++){const e=$('a2-z'+i);if(e)e.style.display=(i===k)?'':'none';}
+ $('a2-jenis').textContent=c[2];
+ $('a2-ket').textContent='Contoh pilihan: '+c[1]+'. '+c[3]+' Ini ilustrasi belajar, bukan petunjuk protokol.';
+}
+a2Sel.onchange=a2Tampil;
+// klik pada siluet: kepala, badan, tulang belakang (garis tengah), sendi (bahu, tungkai), tangan
+$('a2-svg').addEventListener('click',e=>{
+ const r=$('a2-svg').getBoundingClientRect(),x=(e.clientX-r.left)*160/r.width,y=(e.clientY-r.top)*280/r.height;
+ let k=-1;
+ if(Math.hypot(x-80,y-32)<34)k=0;
+ else if(x>70&&x<90&&y>62&&y<172)k=3;
+ else if(x>40&&x<120&&y>62&&y<172)k=1;
+ else if(y>60&&y<260&&(x<46||x>114||y>172))k=(y>172&&(x<40||x>120))?4:2;
+ if(k>=0){a2Sel.value=k;a2Tampil();}
+});
+$('a2-reset').onclick=()=>{a2Sel.value=0;a2Tampil();};
+a2Tampil();
+})();}catch(e){console.error('[M06B A2]',e);}
+
+/* ===== M06B A3: Sensitivitas coil terhadap kedalaman ===== */
+try{(function(){
+// A3: sensitivitas coil terhadap kedalaman. Menjelaskan T2.5. Shading terkait: M08C.
+// TODO-VERIFIKASI: kurva memakai medan loop pada sumbu, s = (D^2 / (D^2 + z^2))^1,5. Tingkat 0,35 untuk coil volume hanyalah ilustrasi.
+// Sumber menyebut kedalaman berguna sebanding dengan diameter loop; hubungan pastinya perlu dicek.
+const a3Dm=$('a3-dm'),a3Z=$('a3-z'),a3C=$('a3-cv'),VOL=.35;
+const a3S=(D,z)=>Math.pow(D*D/(D*D+z*z),1.5);
+function a3Gambar(){
+ const D=+a3Dm.value,zt=+a3Z.value,c=a3C.getContext('2d'),W=a3C.width,H=a3C.height,x0=60,x1=W-30,yT=30,yB=H-50;
+ $('a3-dmv').textContent=fmt(D,2);$('a3-zv').textContent=fmt(zt,2);c.clearRect(0,0,W,H);
+ const X=z=>x0+(x1-x0)*z/4,Y=s=>yB-(yB-yT)*s;
+ c.strokeStyle=warna('--garis');c.lineWidth=1;c.beginPath();c.moveTo(x0,yT);c.lineTo(x0,yB);c.lineTo(x1,yB);c.stroke();
+ c.font='13px sans-serif';c.fillStyle=warna('--lembut');c.textAlign='center';c.fillText('kedalaman dari coil (satuan relatif)',(x0+x1)/2,H-12);
+ c.save();c.translate(18,(yT+yB)/2);c.rotate(-Math.PI/2);c.fillText('sensitivitas relatif',0,0);c.restore();
+ c.strokeStyle=warna('--aksen');c.lineWidth=3;c.beginPath();
+ for(let i=0;i<=200;i++){const z=4*i/200,s=a3S(D,z);i?c.lineTo(X(z),Y(s)):c.moveTo(X(z),Y(s));}c.stroke();
+ c.setLineDash([6,5]);c.strokeStyle=warna('--t2');c.beginPath();c.moveTo(x0,Y(VOL));c.lineTo(x1,Y(VOL));c.stroke();c.setLineDash([]);
+ const zc=D*Math.sqrt(Math.pow(VOL,-2/3)-1);
+ c.fillStyle=warna('--aksen');c.textAlign='left';c.fillText('loop permukaan',x0+8,yT+14);
+ c.fillStyle=warna('--t2');c.fillText('coil volume (lebih merata, SNR lebih rendah)',x0+8,Y(VOL)-6);
+ if(zc<=4){c.strokeStyle=warna('--t1');c.lineWidth=2;c.beginPath();c.moveTo(X(zc),yB);c.lineTo(X(zc),Y(VOL));c.stroke();}
+ // penanda kedalaman target
+ const st=a3S(D,zt);c.strokeStyle=warna('--teks');c.lineWidth=1.5;c.setLineDash([3,3]);c.beginPath();c.moveTo(X(zt),yB);c.lineTo(X(zt),Y(st));c.stroke();c.setLineDash([]);
+ c.fillStyle=warna('--teks');c.beginPath();c.arc(X(zt),Y(st),5,0,6.2832);c.fill();
+ const menang=st>=VOL?'loop permukaan':'coil volume';
+ const t='Loop berdiameter '+fmt(D,2)+' lebih sensitif daripada coil volume sampai kedalaman sekitar '+fmt(zc,2)+' satuan, yaitu kira-kira sebanding dengan diameternya. Pada kedalaman target '+fmt(zt,2)+', sensitivitas loop sekitar '+Math.round(st*100)+'% dari nilainya di permukaan, jadi di titik itu '+menang+' lebih unggul. Loop yang lebih besar menjangkau lebih dalam, tetapi menerima derau dari area lebih luas.';
+ $('a3-ket').textContent=t;a3C.setAttribute('aria-label','Sensitivitas coil terhadap kedalaman. '+t);
+}
+a3Dm.oninput=a3Z.oninput=a3Gambar;
+$('a3-reset').onclick=()=>{a3Dm.value=2;a3Z.value=1;a3Gambar();};
+daftarTema(a3Gambar);a3Gambar();
+})();}catch(e){console.error('[M06B A3]',e);}
+
+/* ===== M06B A4: Array fasa tulang belakang (penggabungan kanal) ===== */
+try{(function(){
+// A4: array fasa tulang belakang, penggabungan kanal. Menjelaskan T2.5.
+// TODO-VERIFIKASI: pembagian dua bagian per akuisisi dibaca dari gambar buku sumber dan perlu dicek.
+const a4N=$('a4-n'),a4C=$('a4-cv');
+function a4Gambar(){
+ const n=+a4N.value,c=a4C.getContext('2d'),W=a4C.width,H=a4C.height;
+ $('a4-nv').textContent=n;c.clearRect(0,0,W,H);
+ const w=(W-40)/6;c.font='13px sans-serif';c.textAlign='center';
+ for(let i=0;i<6;i++){const x=20+i*w,on=i<n;
+  c.globalAlpha=on?.45:.12;c.fillStyle=on?warna('--t2'):warna('--lembut');c.fillRect(x+3,30,w-6,70);c.globalAlpha=1;
+  c.strokeStyle=on?warna('--t2'):warna('--garis');c.lineWidth=on?3:1;c.strokeRect(x+3,30,w-6,70);
+  c.fillStyle=warna('--teks');c.fillText('Bagian '+(i+1),x+w/2,62);
+  c.fillStyle=warna('--lembut');c.fillText(on?'kanal '+(i+1):'mati',x+w/2,82);
+  c.fillText('Akuisisi '+(Math.floor(i/2)+1),x+w/2,120);}
+ // tanda jangkauan
+ c.strokeStyle=warna('--t1');c.lineWidth=4;c.beginPath();c.moveTo(23,140);c.lineTo(20+n*w-3,140);c.stroke();
+ c.fillStyle=warna('--t1');c.fillText('FOV: '+n+' bagian',20+n*w/2,158);
+ c.fillStyle=warna('--lembut');c.fillText('kepala  \u2192  kaki',W/2,16);
+ const ak=Math.ceil(n/2);
+ const t=n+' bagian aktif, masing-masing dengan kanal sendiri, sehingga FOV memanjang sepanjang '+n+' bagian. Dengan pembagian dua bagian per akuisisi, cakupan ini butuh '+ak+' akuisisi, dan meja pasien menggeser pasien ke isosenter yang sesuai. Satu bagian pertama dapat dipakai sendiri untuk tulang belakang servikal; enam bagian mencakup seluruh tulang belakang. Sinyal tiap kanal digabung, jadi SNR loop kecil tetap terjaga.';
+ $('a4-ket').textContent=t;a4C.setAttribute('aria-label','Enam bagian coil array. '+t);
+}
+a4N.oninput=a4Gambar;$('a4-reset').onclick=()=>{a4N.value=1;a4Gambar();};
+daftarTema(a4Gambar);a4Gambar();
+})();}catch(e){console.error('[M06B A4]',e);}
+
+/* ===== M06B A5: Perisai RF dan artefak (simulasi kebocoran radio) ===== */
+try{(function(){
+// A5: perisai RF dan artefak. Menjelaskan T2.1 (ditanam di kartu T2.1).
+// TODO-VERIFIKASI: pola garis dan bintik artefak hanyalah ilustrasi; laju kerusakan (sekitar 9 detik) dipilih agar mudah diamati.
+const A5={src:false,fc:true},a5C=$('a5-cv'),a5W=a5C.width,a5H=a5C.height;
+let a5D=0,a5Raf=null,a5T0=0,a5Fase=0,a5Tahap='';
+const A5_LAJU_RUSAK=0.115,A5_LAJU_PULIH=0.5;   // bagian per detik
+
+// bilangan acak tetap (seed) agar pola artefak tidak berkedip
+function a5Acak(s){return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+// citra dasar (irisan aksial ilustrasi), digambar sekali
+const a5Dasar=document.createElement('canvas');a5Dasar.width=a5W;a5Dasar.height=a5H;
+(function(){
+ const c=a5Dasar.getContext('2d'),cx=a5W/2,cy=a5H/2;
+ c.fillStyle='#1c1c1c';c.fillRect(0,0,a5W,a5H);
+ let g=c.createRadialGradient(cx,cy,20,cx,cy,105);g.addColorStop(0,'#cfcfcf');g.addColorStop(.7,'#8a8a8a');g.addColorStop(1,'#4a4a4a');
+ c.fillStyle=g;c.beginPath();c.ellipse(cx,cy,108,86,0,0,6.2832);c.fill();      // badan
+ c.strokeStyle='#e6e6e6';c.lineWidth=3;c.beginPath();c.ellipse(cx,cy,100,78,0,0,6.2832);c.stroke();  // kulit/lemak
+ c.fillStyle='#6b6b6b';c.beginPath();c.ellipse(cx,cy,78,60,0,0,6.2832);c.fill();
+ c.fillStyle='#0d0d0d';[-18,18].forEach(dx=>{c.beginPath();c.ellipse(cx+dx,cy+2,9,19,0,0,6.2832);c.fill();});  // struktur gelap di tengah
+})();
+// pola derau halus, digambar sekali
+const a5Bintik=document.createElement('canvas');a5Bintik.width=a5W;a5Bintik.height=a5H;
+(function(){
+ const c=a5Bintik.getContext('2d'),im=c.createImageData(a5W,a5H),r=a5Acak(7);
+ for(let i=0;i<im.data.length;i+=4){const v=r()>.5?255:0;im.data[i]=im.data[i+1]=im.data[i+2]=v;im.data[i+3]=Math.floor(r()*160);}
+ c.putImageData(im,0,0);
+})();
+// posisi garis artefak, diurutkan acak tetap: garis ke-i muncul saat gangguan melewati ambangnya
+const a5Garis=(function(){const r=a5Acak(21),a=[];for(let i=0;i<48;i++)a.push({x:Math.floor(r()*a5W),w:1+Math.floor(r()*2),k:r(),t:r()});return a;})();
+
+function a5Citra(){
+ const c=a5C.getContext('2d'),d=a5D;
+ c.globalAlpha=1;c.drawImage(a5Dasar,0,0);
+ if(d>0){
+  c.globalAlpha=Math.min(.9,d*1.1);c.drawImage(a5Bintik,0,0);                    // bintik
+  a5Garis.forEach(g=>{if(g.t<d){c.globalAlpha=Math.min(.9,(d-g.t)*2.2+.15)*(.35+.65*g.k);c.fillStyle=g.k>.5?'#fff':'#000';c.fillRect(g.x,0,g.w,a5H);}});  // garis tipis
+  if(d>.5){                                                                        // pita lebar menutupi anatomi
+   const a=(d-.5)*2;c.globalAlpha=Math.min(.85,a*.85);
+   for(let x=0;x<a5W;x+=6){const s=Math.sin(x*.9)+Math.sin(x*.23);c.fillStyle=s>0?'#fff':'#000';c.fillRect(x,0,3,a5H);}
+  }
+  c.globalAlpha=1;
+ }
+}
+
+function a5Gelombang(){
+ const cx=40,cy=132,R=330;
+ $('a5-wv').querySelectorAll('.gb-r').forEach((p,i)=>{
+  const f=(a5Fase+i/4)%1,r=14+f*R,t=Math.atan(Math.min(62,16+r*.22)/r);   // t: setengah sudut busur (rad), tinggi busur dibatasi
+  const x1=cx+r*Math.cos(-t),y1=cy+r*Math.sin(-t),x2=cx+r*Math.cos(t),y2=cy+r*Math.sin(t);
+  p.setAttribute('d','M'+x1.toFixed(1)+','+y1.toFixed(1)+'A'+r.toFixed(1)+','+r.toFixed(1)+' 0 0 1 '+x2.toFixed(1)+','+y2.toFixed(1));
+  p.style.opacity=(1-f*.55).toFixed(2);
+ });
+}
+
+function a5Teks(){
+ const d=a5D,rusak=A5.src&&!A5.fc;let k,tahap;
+ if(!A5.src){tahap='mati';k=A5.fc?'Tidak ada gangguan radio. Citra bersih.':'Perisai dilepas, tetapi sumber radio luar mati sehingga tidak ada yang masuk. Nyalakan sumber untuk melihat kebocoran.';}
+ else if(A5.fc){tahap='tahan';k='Sumber radio luar menyala, tetapi kandang Faraday menahannya di dinding. Citra tetap bersih.';}
+ else if(d<.05){tahap='mulai';k='Perisai dilepas: gelombang radio luar mulai masuk ke ruang pindai.';}
+ else if(d<.5){tahap='sedang';k='Sinyal radio terdeteksi bersama sinyal tubuh: garis tipis dan bintik mulai muncul di citra.';}
+ else if(d<.95){tahap='berat';k='Gangguan terus menumpuk: garis makin banyak dan kontras anatomi memudar.';}
+ else{tahap='penuh';k='Artefak menutupi anatomi. Citra tidak dapat dipakai dan pindaian harus diulang setelah perisai dipulihkan.';}
+ if(!rusak&&d>0.01)k+=' Citra sedang pulih.';
+ if(tahap+(!rusak&&d>0.01?'p':'')!==a5Tahap){a5Tahap=tahap+(!rusak&&d>0.01?'p':'');$('a5-ket').textContent=k;a5C.setAttribute('aria-label','Citra irisan aksial ilustrasi. Gangguan '+Math.round(d*100)+' persen. '+k);}
+}
+
+function a5Tampil(){
+ const rusak=A5.src&&!A5.fc;
+ $('a5-src').textContent='Sumber radio luar: '+(A5.src?'nyala':'mati');$('a5-src').setAttribute('aria-pressed',String(A5.src));
+ $('a5-fc').textContent='Kandang Faraday: '+(A5.fc?'terpasang':'dilepas');$('a5-fc').setAttribute('aria-pressed',String(A5.fc));
+ // perisai: solid saat terpasang, putus-putus dan memudar saat dilepas
+ $('a5-sh').style.opacity=A5.fc?1:.45;
+ $('a5-wall').style.strokeDasharray=A5.fc?'none':'14 10';
+ $('a5-lbd').textContent=A5.fc?'logam (tembaga atau aluminium)':'tanpa logam: tanpa perisai';
+ $('a5-lbs').textContent=A5.src?'(menyala)':'(mati)';
+ $('a5-wv').style.display=A5.src?'':'none';
+ $('a5-wv').style.opacity=1;
+ $('a5-cr').setAttribute('width',A5.fc?143:345);               // gelombang berhenti di dinding atau sampai pesawat
+ $('a5-xr').style.display=(A5.src&&A5.fc)?'':'none';           // tanda tahan di dinding (radio luar)
+ $('a5-xo').style.display=A5.fc?'':'none';                     // RF pesawat tertahan
+ $('a5-lk').style.display=A5.fc?'none':'';                     // RF pesawat bocor keluar
+ $('a5-sumber').style.opacity=A5.src?1:.4;
+ a5Gelombang();a5Teks();
+}
+function a5Angka(){
+ const p=Math.round(a5D*100);
+ $('a5-pct').textContent='Gangguan pada citra: '+p+'%';$('a5-mt').style.width=p+'%';
+ a5Citra();
+}
+
+function a5Langkah(t){
+ const dt=Math.min(.1,(t-a5T0)/1000);a5T0=t;
+ const rusak=A5.src&&!A5.fc;
+ if(A5.src)a5Fase=(a5Fase+dt*.45)%1;
+ if(rusak)a5D=Math.min(1,a5D+dt*A5_LAJU_RUSAK);else if(a5D>0)a5D=Math.max(0,a5D-dt*A5_LAJU_PULIH);
+ if(A5.src)a5Gelombang();
+ a5Angka();a5Teks();
+ a5Raf=(A5.src||a5D>0)?requestAnimationFrame(a5Langkah):null;
+}
+function a5Mulai(){
+ if(REDUCED){                       // tanpa gerak: lompat ke keadaan akhir
+  a5D=(A5.src&&!A5.fc)?1:0;a5Tampil();a5Angka();return;
+ }
+ a5Tampil();
+ if(!a5Raf){a5T0=performance.now();a5Raf=requestAnimationFrame(a5Langkah);}
+}
+$('a5-src').onclick=()=>{A5.src=!A5.src;a5Mulai();};
+$('a5-fc').onclick=()=>{A5.fc=!A5.fc;a5Mulai();};
+$('a5-reset').onclick=()=>{A5.src=false;A5.fc=true;a5D=0;a5Tahap='';a5Mulai();a5Angka();a5Teks();};
+a5Tampil();a5Angka();
+})();}catch(e){console.error('[M06B A5]',e);}
+
+/* ===== M06B A6: Simulasi pergeseran kimia (spektrum air dan lemak) ===== */
+try{(function(){
+// A6: spektrum air dan lemak. Menjelaskan T3.1. Kalkulator ppm: M05 A2. Pergeseran pada citra: M08A A7.
+// Frekuensi dihitung dari gamma x B0, jadi B0 di luar 1,5 dan 3 T (mis. 0,5 T) ikut bisa dicoba.
+let a6B=KS[0],a6Ppm=false;
+const a6S=$('a6-b0'),a6C=$('a6-cv');
+function a6Gambar(){
+ const B=a6B,c=a6C.getContext('2d'),W=a6C.width,H=a6C.height,m=40,base=H-34;
+ c.clearRect(0,0,W,H);
+ const hzMaks=hzGeser(3)*1.25,ppmMaks=PPM*1.25;
+ const px=v=>m+v/(a6Ppm?ppmMaks:hzMaks)*(W-2*m);
+ c.strokeStyle=warna('--garis');c.lineWidth=1;c.beginPath();c.moveTo(m,base);c.lineTo(W-m,base);c.stroke();
+ function puncak(cx,tinggi,w,col){c.strokeStyle=col;c.lineWidth=3;c.beginPath();
+  for(let x=m;x<=W-m;x++){const y=base-tinggi*Math.exp(-Math.pow((x-cx)/w,2));x===m?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();}
+ const geser=a6Ppm?PPM:hzGeser(B);
+ puncak(px(0),H-70,7,warna('--t2'));puncak(px(geser),(H-70)*0.6,7,warna('--t1'));
+ c.fillStyle=warna('--teks');c.font='13px sans-serif';c.textAlign='left';
+ c.fillText('air',px(0)-8,base+16);c.fillText('lemak',px(geser)-14,base+16);c.fillText(a6Ppm?'ppm':'Hz',W-m+4,base+4);
+ const hz=hzGeser(B);
+ const t='B0 '+fmt(B,1)+' T (Larmor '+fmt(larmor(B),2)+' MHz): lemak bergeser '+fmt(PPM,1)+' ppm, yaitu sekitar '+Math.round(hz)+' Hz dari air ('+fmt(PPM,1)+' ppm \u00d7 '+fmt(larmor(B),2)+' MHz). '+(a6Ppm?'Pada sumbu ppm, posisi puncak lemak tidak berubah.':'Pada sumbu Hz, puncak lemak makin menjauh bila B0 naik.');
+ $('a6-ket').textContent=t;a6C.setAttribute('aria-label','Spektrum air dan lemak. '+t);
+ $('a6-b0v').textContent=fmt(B,1);a6S.value=B;
+ tandaB0($('a6-pilb0'),B);
+ $('a6-sumbu').textContent='Sumbu: '+(a6Ppm?'ppm':'Hz');$('a6-sumbu').setAttribute('aria-pressed',String(a6Ppm));
+}
+grupB0($('a6-pilb0'),k=>{a6B=k;a6Gambar();});
+a6S.oninput=()=>{a6B=+a6S.value;a6Gambar();};
+$('a6-sumbu').onclick=()=>{a6Ppm=!a6Ppm;a6Gambar();};
+$('a6-reset').onclick=()=>{a6B=KS[0];a6Ppm=false;a6Gambar();};
+daftarTema(a6Gambar);a6Gambar();
+})();}catch(e){console.error('[M06B A6]',e);}
+
+/* ===== M06B A7: Ilustrasi B1 tidak merata dan transmit paralel ===== */
+try{(function(){
+// A7: B1 tidak merata dan transmit paralel. Menjelaskan T3.2. SAR dan efek antena: M07C.
+// TODO-VERIFIKASI: lambda = c / (f x akar(permitivitas relatif)); permitivitas 80 (nilai air) hanya perkiraan kasar. Pola terang-gelap hanyalah model kualitatif.
+const C_LUAR=299.792458,EPS=80,LEBAR_CM=35,TINGGI_CM=23; // c dalam Mm/s -> lambda (cm) = C_LUAR*100/(f_MHz*sqrt(eps))
+let a7B=KS[0],a7Ptx=false;const a7C=$('a7-cv');
+const lamCm=B=>C_LUAR*100/(larmor(B)*Math.sqrt(EPS));
+function a7Gambar(){
+ const c=a7C.getContext('2d'),W=a7C.width,H=a7C.height;c.clearRect(0,0,W,H);
+ const lam=lamCm(a7B),pxcm=8.2,cx=W/2,cy=H/2,rx=LEBAR_CM/2*pxcm,ry=TINGGI_CM/2*pxcm;
+ const img=c.createImageData(W,H);
+ const amp=a7Ptx?0.06:0.38;
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+  const ex=(x-cx)/rx,ey=(y-cy)/ry;if(ex*ex+ey*ey>1)continue;
+  const rcm=Math.hypot((x-cx)/pxcm,(y-cy)/pxcm);
+  const b1=1+amp*Math.cos(2*Math.PI*rcm/lam),v=Math.max(0,Math.min(1,0.5*b1));
+  const g=Math.round(40+190*v),i=(y*W+x)*4;
+  img.data[i]=g;img.data[i+1]=g;img.data[i+2]=Math.min(255,g+25);img.data[i+3]=255;
+ }
+ c.putImageData(img,0,0);
+ c.strokeStyle=warna('--lembut');c.lineWidth=2;c.beginPath();c.ellipse(cx,cy,rx,ry,0,0,6.2832);c.stroke();
+ if(a7Ptx){c.fillStyle=warna('--t1');[[cx,cy-ry-14],[cx,cy+ry+14],[cx-rx-14,cy],[cx+rx+14,cy]].forEach(p=>{c.beginPath();c.arc(p[0],p[1],8,0,6.2832);c.fill();});}
+ else{c.strokeStyle=warna('--t1');c.lineWidth=3;c.setLineDash([6,4]);c.beginPath();c.ellipse(cx,cy,rx+12,ry+12,0,0,6.2832);c.stroke();c.setLineDash([]);}
+ c.font='13px sans-serif';c.textAlign='center';c.fillStyle=warna('--lembut');
+ c.fillText(a7Ptx?'Beberapa pemancar diatur terpisah':'Satu pemancar untuk seluruh badan',cx,H-4);
+ tandaB0($('a7-pilb0'),a7B);
+ const bt=$('a7-ptx');bt.textContent='Transmit paralel: '+(a7Ptx?'hidup':'mati');bt.setAttribute('aria-pressed',String(a7Ptx));
+ const rasio=lam/LEBAR_CM;
+ const t='B0 '+fmt(a7B,1)+' T: panjang gelombang RF di jaringan sekitar '+Math.round(lam)+' cm, atau '+fmt(rasio,1)+' kali lebar badan ('+LEBAR_CM+' cm). '+(a7Ptx?'Pemancar yang diatur terpisah membuat B1 lebih merata. Ini gambaran konsep.':(rasio>1.2?'Panjang gelombang jauh lebih besar dari badan: pola terang-gelap lemah.':'Panjang gelombang sebanding dengan badan: pola terang-gelap jelas.'));
+ $('a7-ket').textContent=t;a7C.setAttribute('aria-label','Peta B1 pada potongan badan. '+t);
+}
+grupB0($('a7-pilb0'),k=>{a7B=k;a7Gambar();});
+$('a7-ptx').onclick=()=>{a7Ptx=!a7Ptx;a7Gambar();};
+$('a7-reset').onclick=()=>{a7B=KS[0];a7Ptx=false;a7Gambar();};
+daftarTema(a7Gambar);a7Gambar();
+})();}catch(e){console.error('[M06B A7]',e);}
+
+/* ===== M06B A8: Birdcage: medan B1 berputar (kuadratur) dan faktor pengisi ===== */
+try{(function(){
+// A8 [BARU]: birdcage, medan B1 berputar (kuadratur) dan faktor pengisi. Menjelaskan T2.3.
+// TODO-VERIFIKASI: (1) medan linear = dua komponen berputar berlawanan, hanya satu yang searah spin (pengetahuan umum, bukan dari buku sumber).
+// (2) Faktor pengisi ~ (d_anatomi / d_coil)^2 hanyalah hampiran; ukuran kepala 18 cm dan badan 35 cm hanya ilustrasi.
+let a8Kuad=true,a8Tm=null;
+const a8F=$('a8-fase'),a8C1=$('a8-cv1'),a8C2=$('a8-cv2'),a8Dc=$('a8-dc');
+let a8Ob=18;// diameter anatomi (cm)
+function panahC(c,x0,y0,x1,y1,col,lw,dash){
+ c.strokeStyle=col;c.fillStyle=col;c.lineWidth=lw;c.setLineDash(dash||[]);
+ c.beginPath();c.moveTo(x0,y0);c.lineTo(x1,y1);c.stroke();c.setLineDash([]);
+ const L=Math.hypot(x1-x0,y1-y0);if(L<6)return;const a=Math.atan2(y1-y0,x1-x0),s=9;
+ c.beginPath();c.moveTo(x1,y1);c.lineTo(x1-s*Math.cos(a-.45),y1-s*Math.sin(a-.45));c.lineTo(x1-s*Math.cos(a+.45),y1-s*Math.sin(a+.45));c.closePath();c.fill();
+}
+function a8Gambar1(){
+ const ph=+a8F.value*Math.PI/180,c=a8C1.getContext('2d'),W=a8C1.width,H=a8C1.height;
+ $('a8-fv').textContent=a8F.value;c.clearRect(0,0,W,H);
+ const cx=150,cy=120,R=95,L=70;
+ // birdcage: cincin dan batang
+ c.strokeStyle=warna('--lembut');c.lineWidth=2;c.beginPath();c.arc(cx,cy,R,0,6.2832);c.stroke();
+ for(let i=0;i<8;i++){const a=i*Math.PI/4;c.fillStyle=warna('--t2');c.beginPath();c.arc(cx+R*Math.cos(a),cy+R*Math.sin(a),6,0,6.2832);c.fill();}
+ c.font='13px sans-serif';c.textAlign='center';c.fillStyle=warna('--lembut');c.fillText('penampang birdcage (8 batang)',cx,cy+R+22);
+ const co=[Math.cos(ph),-Math.sin(ph)],ct=[Math.cos(ph),Math.sin(ph)];// y layar terbalik
+ if(a8Kuad){
+  panahC(c,cx,cy,cx+L*co[0],cy+L*co[1],warna('--aksen'),4);
+  c.fillStyle=warna('--aksen');c.textAlign='left';c.fillText('panah biru: B1 (berputar)',16,22);
+ }else{
+  panahC(c,cx,cy,cx+L*Math.cos(ph),cy,warna('--teks'),4);
+  panahC(c,cx,cy,cx+.5*L*Math.cos(ph),cy-.5*L*Math.sin(ph),warna('--aksen'),3);
+  panahC(c,cx,cy,cx+.5*L*Math.cos(ph),cy+.5*L*Math.sin(ph),warna('--lembut'),3,[5,4]);
+ }
+ // grafik waktu
+ const gx=350,gw=230,gy=120,ga=60;c.strokeStyle=warna('--garis');c.lineWidth=1;c.beginPath();c.moveTo(gx,gy);c.lineTo(gx+gw,gy);c.moveTo(gx,gy-ga-10);c.lineTo(gx,gy+ga+10);c.stroke();
+ const kurva=(fn,col,dash)=>{c.strokeStyle=col;c.lineWidth=2.5;c.setLineDash(dash||[]);c.beginPath();for(let i=0;i<=120;i++){const p=2*Math.PI*i/120,x=gx+gw*i/120,y=gy-ga*fn(p);i?c.lineTo(x,y):c.moveTo(x,y);}c.stroke();c.setLineDash([]);};
+ kurva(p=>Math.cos(p),warna('--t1'));
+ if(a8Kuad)kurva(p=>Math.sin(p),warna('--t2'),[6,4]);
+ c.fillStyle=warna('--teks');const mx=gx+gw*ph/(2*Math.PI);c.beginPath();c.arc(mx,gy-ga*Math.cos(ph),5,0,6.2832);c.fill();
+ c.strokeStyle=warna('--lembut');c.lineWidth=1;c.beginPath();c.moveTo(mx,gy-ga-10);c.lineTo(mx,gy+ga+10);c.stroke();
+ c.fillStyle=warna('--t1');c.textAlign='left';c.fillText('suplai 1 (0\u00b0)',gx+4,gy-ga-14);
+ if(a8Kuad){c.fillStyle=warna('--t2');c.fillText('suplai 2 (tunda 90\u00b0)',gx+110,gy-ga-14);}
+ c.fillStyle=warna('--lembut');c.textAlign='center';c.fillText('satu siklus RF',gx+gw/2,H-12);
+ $('a8-lin').setAttribute('aria-pressed',String(!a8Kuad));$('a8-kuad').setAttribute('aria-pressed',String(a8Kuad));
+ const t=a8Kuad?'Dua medan tegak lurus yang tertunda 90\u00b0 membentuk satu medan yang berputar. Seluruhnya searah dengan presesi spin, jadi energi RF terpakai efektif.':'Satu suplai menghasilkan medan yang hanya berosilasi. Medan ini setara dua komponen berputar berlawanan, masing-masing setengah amplitudo. Hanya komponen yang searah spin (biru) yang efektif; sisanya (putus-putus) terbuang.';
+ $('a8-ket1').textContent=t;a8C1.setAttribute('aria-label','Penampang birdcage dan arah medan B1. '+t);
+}
+function a8Gambar2(){
+ const dc=+a8Dc.value,c=a8C2.getContext('2d'),W=a8C2.width,H=a8C2.height;c.clearRect(0,0,W,H);
+ $('a8-dcv').textContent=dc;
+ const pxcm=2.9,cx=150,cy=96,Rc=dc/2*pxcm,Ro=a8Ob/2*pxcm,muat=a8Ob<=dc*0.95;
+ c.strokeStyle=warna('--t2');c.lineWidth=5;c.beginPath();c.arc(cx,cy,Rc,0,6.2832);c.stroke();
+ c.fillStyle=warna('--t1');c.globalAlpha=muat?.45:.2;c.beginPath();c.arc(cx,cy,Ro,0,6.2832);c.fill();c.globalAlpha=1;
+ c.strokeStyle=warna('--t1');c.lineWidth=2;c.beginPath();c.arc(cx,cy,Ro,0,6.2832);c.stroke();
+ c.font='13px sans-serif';c.textAlign='center';c.fillStyle=warna('--lembut');c.fillText('coil '+dc+' cm  |  anatomi '+a8Ob+' cm',cx,H-6);
+ const eta=muat?Math.min(1,Math.pow(a8Ob/dc,2)):0,hom=(dc-15)/50;
+ const bar=(y,lbl,v,col)=>{c.fillStyle=warna('--lembut');c.textAlign='left';c.fillText(lbl,330,y);c.fillStyle=warna('--garis');c.fillRect(330,y+6,240,12);c.fillStyle=col;c.fillRect(330,y+6,240*v,12);};
+ bar(60,'Faktor pengisi (hampiran)',eta,warna('--t1'));
+ bar(120,'Homogenitas RF (kualitatif)',Math.max(0.05,hom),warna('--t2'));
+ $('a8-kepala').setAttribute('aria-pressed',String(a8Ob===18));$('a8-badan').setAttribute('aria-pressed',String(a8Ob===35));
+ const t=!muat?'Anatomi tidak muat di dalam coil. Perbesar coil.':'Faktor pengisi sekitar '+Math.round(eta*100)+'%. Coil yang pas dengan anatomi memberi faktor pengisi tinggi dan sinyal baik. Coil lebih besar lebih homogen, tetapi faktor pengisinya turun: ada tawar-menawar.';
+ $('a8-ket2').textContent=t;a8C2.setAttribute('aria-label','Coil dan anatomi. '+t);
+}
+function a8Semua(){a8Gambar1();a8Gambar2();}
+$('a8-lin').onclick=()=>{a8Kuad=false;a8Gambar1();};
+$('a8-kuad').onclick=()=>{a8Kuad=true;a8Gambar1();};
+a8F.oninput=()=>{a8Henti();a8Gambar1();};
+const a8P=$('a8-play');
+function a8Henti(){if(a8Tm){cancelAnimationFrame(a8Tm);a8Tm=null;}a8P.textContent='Putar otomatis';}
+a8P.onclick=()=>{if(a8Tm){a8Henti();return;}a8P.textContent='Berhenti';
+ const langkah=()=>{a8F.value=(+a8F.value+(REDUCED?20:3))%361;a8Gambar1();a8Tm=requestAnimationFrame(langkah);};a8Tm=requestAnimationFrame(langkah);};
+$('a8-kepala').onclick=()=>{a8Ob=18;if(+a8Dc.value<a8Ob/0.95)a8Dc.value=Math.ceil(a8Ob/0.95);a8Gambar2();};
+$('a8-badan').onclick=()=>{a8Ob=35;if(+a8Dc.value<a8Ob/0.95)a8Dc.value=Math.ceil(a8Ob/0.95);a8Gambar2();};
+a8Dc.oninput=a8Gambar2;
+$('a8-reset').onclick=()=>{a8Henti();a8Kuad=true;a8Ob=18;a8F.value=45;a8Dc.value=28;a8Semua();};
+daftarTema(a8Semua);a8Semua();
+})();}catch(e){console.error('[M06B A8]',e);}
+
+/* BANK SOAL M06B. Tambah atau ubah soal di sini.
+   tingkat: 1, 2, atau 3 (sama dengan tingkat materi). kode: simpul pohon yang diuji.
+   jawaban: indeks pilihan yang benar (mulai dari 0). Urutan pilihan diacak otomatis saat kuis. */
+const SOAL=[
+ /* Tingkat 1 */
+ {kode:'T1.1',tingkat:1,pertanyaan:'Rentang frekuensi RF yang dipakai MRI berada pada pita...',pilihan:['VHF (very high frequency), yang juga dipakai radio FM dan televisi','Sinar-X','Gelombang bunyi','Inframerah'],jawaban:0,penjelasan:'Frekuensi Larmor hidrogen berada di pita VHF, sehingga ruang magnet perlu dilindungi dari sumber radio luar.'},
+ {kode:'T1.1',tingkat:1,pertanyaan:'Berapa frekuensi Larmor hidrogen pada 3 T (\u03b3/2\u03c0 = 42,58 MHz/T)?',pilihan:['Sekitar 63,9 MHz','Sekitar 127,7 MHz','Sekitar 42,6 MHz','Sekitar 255 MHz'],jawaban:1,penjelasan:'Frekuensi = 42,58 \u00d7 3 = 127,74 MHz. Pada 1,5 T hasilnya 63,87 MHz.'},
+ {kode:'T1.2',tingkat:1,pertanyaan:'Manakah pasangan tugas yang benar?',pilihan:['Gradient coil memancarkan pulsa RF; RF coil memberi kode posisi','Gradient coil memberi kode posisi; RF coil memancarkan pulsa dan menerima sinyal','Keduanya hanya menerima sinyal','Keduanya menghasilkan B0'],jawaban:1,penjelasan:'Gradient coil membuat medan yang berubah bertahap untuk mengode posisi. RF coil memancarkan B1 dan menerima sinyal.'},
+ {kode:'T2.1',tingkat:1,pertanyaan:'Apa fungsi utama kandang Faraday pada ruang magnet?',pilihan:['Menahan medan B0','Mencegah gelombang radio luar masuk dan RF pesawat bocor keluar','Mendinginkan gradient coil','Menambah slew rate'],jawaban:1,penjelasan:'Lapisan logam penghantar mengisolasi ruang dari gangguan radio, sehingga citra bebas artefak dan peralatan lain tidak terganggu.'},
+ /* Tingkat 2 */
+ {kode:'T2.2',tingkat:2,pertanyaan:'Bentuk pulsa RF yang menghasilkan irisan berprofil mendekati persegi adalah...',pilihan:['Persegi pada domain waktu','Sinc, yang persegi pada domain frekuensi','Segitiga','Konstan'],jawaban:1,penjelasan:'Irisan persegi memerlukan rentang frekuensi yang rata dan sempit, dan itulah profil pulsa sinc.'},
+ {kode:'T2.3',tingkat:2,pertanyaan:'Mengapa body coil birdcage dihubungkan ke dua suplai yang berbeda fase 90\u00b0 (kuadratur)?',pilihan:['Agar medan B1 berputar searah spin, sehingga energi RF terpakai efisien','Agar gradien lebih cepat','Agar derau hilang sepenuhnya','Agar coil menjadi coil permukaan'],jawaban:0,penjelasan:'Dua medan tegak lurus yang tertunda 90\u00b0 menghasilkan medan sirkular yang berputar searah presesi spin.'},
+ {kode:'T2.3',tingkat:2,pertanyaan:'Faktor pengisi (filling factor) yang baik berarti...',pilihan:['Coil jauh dari tubuh','Bentuk dan ukuran coil sesuai dengan bagian tubuh yang diperiksa','Coil berisi banyak udara','Coil sebesar bore'],jawaban:1,penjelasan:'Makin cocok coil dengan anatomi, makin sedikit ruang kosong dan jaringan lain yang ikut menyumbang derau.'},
+ {kode:'T2.4',tingkat:2,pertanyaan:'Manakah urutan rantai sinyal penerima yang benar?',pilihan:['Coil, ADC, preamplifier, demodulasi','Coil, preamplifier, demodulasi, ADC','Preamplifier, coil, ADC, demodulasi','Coil, demodulasi, ADC, preamplifier'],jawaban:1,penjelasan:'Sinyal diperkuat dahulu, didemodulasi, lalu didigitalkan oleh ADC sebelum diproses komputer.'},
+ {kode:'T2.5',tingkat:2,pertanyaan:'Mengapa coil permukaan hanya dipakai sebagai penerima?',pilihan:['Karena tidak bisa menerima sinyal','Karena homogenitas RF-nya buruk','Karena terlalu besar','Karena memakai gradien'],jawaban:1,penjelasan:'Pemancar perlu RF yang merata. Coil permukaan tidak merata, tetapi sangat sensitif untuk menerima dari area dekat.'},
+ {kode:'T2.5',tingkat:2,pertanyaan:'Keunggulan utama coil array fasa dibanding satu loop permukaan adalah...',pilihan:['Hanya satu kanal sehingga murah','SNR loop kecil dipertahankan pada FOV yang jauh lebih luas','Dapat dipakai sebagai pemancar utama','Tidak memerlukan preamplifier'],jawaban:1,penjelasan:'Banyak elemen kecil, masing-masing dengan kanal sendiri, memberi SNR loop tunggal dengan cakupan yang luas.'},
+ /* Tingkat 3 */
+ {kode:'T3.1',tingkat:3,pertanyaan:'Pergeseran kimia lemak-air tetap dalam ppm. Apa yang terjadi pada selisihnya dalam Hz bila B0 dinaikkan?',pilihan:['Menjadi lebih kecil','Tidak berubah','Hilang sama sekali','Menjadi lebih besar'],jawaban:3,penjelasan:'Selisih dalam Hz sama dengan ppm dikali frekuensi Larmor, jadi naik bersama B0.'},
+ {kode:'T3.1',tingkat:3,pertanyaan:'Dengan 3,5 ppm, kira-kira berapa selisih frekuensi lemak-air pada 1,5 T (63,87 MHz)?',pilihan:['Sekitar 22 Hz','Sekitar 224 Hz','Sekitar 447 Hz','Sekitar 3,5 kHz'],jawaban:1,penjelasan:'3,5 ppm \u00d7 63,87 MHz \u2248 224 Hz. Pada 3 T hasilnya sekitar 447 Hz.'},
+ {kode:'T3.1',tingkat:3,pertanyaan:'Apa penyebab fisika pergeseran kimia lemak-air?',pilihan:['Lemak dan air berada pada irisan yang berbeda','Awan elektron meredam medan secara berbeda di molekul lemak dan air','Gradien memberi frekuensi berbeda pada lemak','Lemak tidak memiliki proton'],jawaban:1,penjelasan:'Derajat perisai elektron berbeda, sehingga medan yang dirasakan proton sedikit berbeda dan frekuensi presesinya ikut berbeda.'},
+ {kode:'T3.2',tingkat:3,pertanyaan:'Mengapa B1 menjadi kurang merata pada B0 yang lebih tinggi?',pilihan:['Panjang gelombang RF di jaringan memendek dan mendekati ukuran badan','Gradien menjadi lebih lemah','Frekuensi RF turun','Coil menjadi lebih besar'],jawaban:0,penjelasan:'Frekuensi naik, panjang gelombang memendek, sehingga muncul daerah penguatan dan pelemahan di dalam badan.'},
+ {kode:'T3.2',tingkat:3,pertanyaan:'Apa tujuan transmit paralel?',pilihan:['Meratakan B1 dengan mengatur amplitudo dan fase beberapa elemen pemancar secara terpisah','Menambah kecepatan ADC','Menghilangkan kebutuhan gradien','Menurunkan frekuensi Larmor'],jawaban:0,penjelasan:'Beberapa elemen pemancar yang diatur sendiri-sendiri dapat mengimbangi pola terang-gelap sehingga B1 lebih merata.'}
+];
+
+/* KUIS DINAMIS: memilih soal menurut tingkat, mengacak soal dan urutan pilihan.
+   Mesin kuis bawaan (jalankanKuis di 02-kuis-mesin.js) tidak diubah. */
+const KUIS_JUMLAH_CAMPURAN={1:2,2:3,3:2};   // total 7 soal, sesuai usulan di diagram pohon
+const KUIS_MODE=[['campur','Campuran (7 soal)'],['1','Tingkat 1'],['2','Tingkat 2'],['3','Tingkat 3']];
+let kuisMode='campur';
+
+function acak(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function salinAcakPilihan(s){
+ const idx=acak(s.pilihan.map((_,i)=>i));
+ return Object.assign({},s,{pilihan:idx.map(i=>s.pilihan[i]),jawaban:idx.indexOf(s.jawaban)});
+}
+function pilihSoal(mode){
+ let daftar;
+ if(mode==='campur'){daftar=[];[1,2,3].forEach(t=>{daftar=daftar.concat(acak(SOAL.filter(s=>s.tingkat===t)).slice(0,KUIS_JUMLAH_CAMPURAN[t]));});daftar.sort((a,b)=>a.tingkat-b.tingkat);}
+ else daftar=acak(SOAL.filter(s=>s.tingkat===+mode));
+ return daftar.map(salinAcakPilihan);
+}
+function mulaiKuis(){
+ const k=$('kuis-kontrol');k.innerHTML='';
+ const g=document.createElement('div');g.className='pilih';g.setAttribute('role','group');g.setAttribute('aria-label','Pilih tingkat kuis');
+ KUIS_MODE.forEach(([m,t])=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.setAttribute('aria-pressed',String(m===kuisMode));b.onclick=()=>{kuisMode=m;mulaiKuis();};g.appendChild(b);});
+ const r=document.createElement('button');r.type='button';r.textContent='Acak ulang soal';r.onclick=mulaiKuis;g.appendChild(r);
+ k.appendChild(g);
+ jalankanKuis($('kuis'),pilihSoal(kuisMode));
+}
+mulaiKuis();
+</script>
+</body>
+</html>

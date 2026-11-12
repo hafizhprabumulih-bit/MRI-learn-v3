@@ -1,0 +1,1134 @@
+<!doctype html>
+<html lang='id'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>MODUL 8A: Artefak Pengodean dan Jaringan</title>
+<style>
+/* TETAP: awal */
+:root{--latar:#fff;--permukaan:#f4f6f8;--teks:#1b1f24;--lembut:#5a6572;--aksen:#1f6feb;--t1:#d9480f;--t2:#0b7285;--b0:#2f6bff;--benar:#2b8a3e;--salah:#c92a2a;--garis:#d5dbe3;--radius:10px;--font:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+@media(prefers-color-scheme:dark){:root{--latar:#14171a;--permukaan:#1e2328;--teks:#e8ecef;--lembut:#9aa5b1;--aksen:#5aa2ff;--t1:#ff922b;--t2:#3bc9db;--b0:#6f9bff;--garis:#2e353d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--latar);color:var(--teks);font:16px/1.6 var(--font)}
+main{max-width:860px;margin:0 auto;padding:16px}
+a{color:var(--aksen)}
+.atas{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
+h1{font-size:1.6rem;margin:.6em 0 .2em}
+h2{font-size:1.25rem;margin-top:1.6em}
+.lembut{color:var(--lembut)}
+.kartu{background:var(--permukaan);border:1px solid var(--garis);border-radius:var(--radius);padding:14px;margin:12px 0}
+.lanjut{border-left:4px solid var(--aksen)}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--garis);background:var(--permukaan);color:var(--teks);cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--aksen);outline-offset:2px}
+canvas{max-width:100%;background:var(--permukaan);border-radius:var(--radius)}
+input[type=range]{width:100%}
+.ok{color:var(--benar)}
+.no{color:var(--salah)}
+/* TETAP: akhir */
+/* KELAS UTILITAS TAMBAHAN */
+h3{font-size:1.1rem;margin:1.2em 0 .3em}
+canvas{height:auto;display:block;width:100%}
+.baris{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.lencana{background:var(--aksen);color:var(--latar);border-radius:6px;padding:1px 8px;font-size:.8rem;font-weight:700}
+button[aria-pressed=true]{background:var(--aksen);border-color:var(--aksen);color:var(--latar)}
+button:disabled{opacity:.6;cursor:default}
+select{font:inherit;padding:8px;border-radius:8px;border:1px solid var(--garis);background:var(--permukaan);color:var(--teks)}
+select:focus-visible{outline:2px solid var(--aksen);outline-offset:2px}
+label{display:block;font-weight:600;margin-top:6px}
+.hasil{font-weight:600;margin:6px 0}
+table{width:100%;border-collapse:collapse;margin:8px 0}
+th,td{border-bottom:1px solid var(--garis);padding:6px;text-align:left}
+.terbaik{font-weight:700}
+.tag{font-size:.8rem;font-weight:700;color:var(--aksen);text-transform:uppercase;letter-spacing:.04em}
+.pilih{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.pilih button[aria-pressed=true]{background:var(--aksen);color:var(--latar);border-color:var(--aksen);font-weight:600}
+.bm[data-mode=singkat] .l,.bm[data-mode=lengkap] .s{display:none}
+.bm .l,.bm .s{animation:masuk .4s ease}
+.opsi{display:block;width:100%;text-align:left;margin:6px 0}
+.opsi.benar{background:var(--benar);border-color:var(--benar);color:#fff;font-weight:600}
+.opsi.salah{background:var(--salah);border-color:var(--salah);color:#fff}
+.navkuis{display:flex;gap:8px;justify-content:space-between;margin-top:10px}
+.bungkus-tabel{overflow-x:auto}
+.tabel{border-collapse:collapse;width:100%;font-size:.92rem}
+.tabel caption{text-align:left;font-weight:600;padding-bottom:4px}
+.tabel th,.tabel td{border:1px solid var(--garis);padding:6px 8px;text-align:center}
+.tabel th{background:var(--latar)}
+button:active{transform:scale(.96)}
+.denyut{border-color:var(--b0);animation:denyut 1.6s infinite}
+.muncul{animation:muncul .45s ease}
+@keyframes denyut{0%,100%{box-shadow:0 0 0 0 rgba(47,107,255,.55)}50%{box-shadow:0 0 0 9px rgba(47,107,255,0)}}
+@keyframes muncul{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@keyframes masuk{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.denyut,.muncul,.bm .l,.bm .s{animation:none}}
+.sumber{font-size:.85rem}
+.kisi{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:320px;margin:8px 0}
+.sel{padding:0;min-height:40px}
+svg{max-width:100%;height:auto;display:block}
+.tabel tr.terbaik td{background:var(--latar);font-weight:700}
+.bm .a{display:none;border-left:3px solid var(--t2);padding-left:10px}
+.bm[data-mode=analogi] .a{display:block;animation:masuk .4s ease}
+.bm[data-mode=analogi] .l,.bm[data-mode=analogi] .s{display:none}
+.meter{height:10px;border-radius:99px;background:var(--garis);overflow:hidden;margin:6px 0}
+.meter i{display:block;height:100%;width:0;background:var(--b0);transition:width .6s ease}
+.lencana.ok{background:var(--benar);color:#fff;animation:hijau 1.8s infinite}
+@keyframes hijau{0%,100%{box-shadow:0 0 0 0 rgba(43,138,62,.5)}50%{box-shadow:0 0 0 7px rgba(43,138,62,0)}}
+@media(prefers-reduced-motion:reduce){.meter i{transition:none}.lencana.ok,.bm[data-mode=analogi] .a{animation:none}}
+/* ISI MODUL: CSS tambahan */
+.tabel.kiri th,.tabel.kiri td{text-align:left;vertical-align:top}
+.tabel td.n,.tabel th.n{text-align:right;font-variant-numeric:tabular-nums}
+.dua{display:flex;flex-wrap:wrap;gap:12px}
+.dua>figure{flex:1 1 200px;min-width:0;margin:0}
+.dua figcaption{font-size:.9rem;color:var(--lembut);margin-bottom:4px}
+.dua canvas.k{image-rendering:pixelated}
+.kontrol{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 16px}
+.kontrol label{font-size:.92rem}
+.kontrol output{font-weight:600;font-variant-numeric:tabular-nums}
+.rinci dt{font-weight:600;margin-top:.6em}
+.rinci dd{margin:0}
+.bar{position:relative;height:12px;min-width:96px;background:var(--latar);border:1px solid var(--garis);border-radius:6px}
+.bar .band{position:absolute;left:25%;width:50%;top:0;bottom:0;background:var(--garis);opacity:.7}
+.bar .mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--lembut)}
+.bar .pen{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);transition:left .25s}
+.bar .pen-ok{background:var(--benar)}
+.bar .pen-no{background:var(--salah)}
+@media(prefers-reduced-motion:reduce){.bar .pen{transition:none}}
+.kartu.bm .tag+.pilih{margin-top:4px}
+.bm ul{margin:.4em 0;padding-left:1.2em}
+.bm h4{margin:.8em 0 .1em;font-size:.95rem}
+.sv-t{font-size:12px;fill:var(--lembut)}
+.sv-b{font-size:12px;fill:var(--teks);font-weight:600}
+.tebak{max-width:340px}
+.skor{font-weight:700;font-variant-numeric:tabular-nums}
+.pil{display:flex;flex-wrap:wrap;gap:8px}
+/* TAMBAHAN M08A/B/C: judul tingkat, tautan simpul, kartu capstone, blok prasyarat */
+.tingkat-judul{margin:1.8em 0 .2em;padding-bottom:4px;border-bottom:2px solid var(--garis);font-size:1.1rem}
+.tautan{font-size:.9rem;color:var(--lembut);margin:.6em 0 0}
+.tautan a{font-weight:600}
+.kode{font-variant-numeric:tabular-nums;font-weight:700}
+.kartu.capstone{border-left:4px solid var(--t1)}
+.prasyarat{display:flex;flex-wrap:wrap;gap:6px;margin:.4em 0}
+.prasyarat .lencana{background:var(--permukaan);color:var(--teks);border:1px solid var(--garis)}
+.kartu h4{margin:1em 0 .2em;font-size:1rem}
+</style>
+</head>
+<body>
+<main>
+<nav class='atas'><a href='modul8-native.html'>&larr; Gabungan Modul 8</a><a href='m07c-native.html'>&larr; Sebelumnya</a><a href='m08b-native.html'>Berikutnya &rarr;</a></nav>
+<h1>MODUL 8A: Artefak Pengodean dan Jaringan</h1>
+<p class='lembut'>Media belajar, bukan untuk keputusan klinis. Prosedur nyata mengikuti SOP dan kebijakan fasilitas setempat yang berlaku.</p>
+<div class='kartu'><b>Prasyarat</b><div class='prasyarat'><span class='lencana' title='aliasing, Nyquist, ruang-k'>&#9873; M04B</span></div><p class='lembut'>Modul ini bagian dari M08 (Klinis, Artefak, dan QA). Urutan: <a href='m08a-native.html'>M08A</a>, <a href='m08b-native.html'>M08B</a>, <a href='m08c-native.html'>M08C</a>.</p></div>
+<!-- BAGIAN MATERI -->
+<h2>Materi</h2>
+<p class='lembut'>Tiap kartu punya pilihan sendiri: materi singkat, materi lengkap, atau analogi.</p>
+<div class='kartu'>
+<b>Tujuan belajar</b>
+<ul>
+<li>Mengenali aliasing, ghosting gerak, dan pergeseran kimia pada citra.</li>
+<li>Menghitung aliasing frekuensi dan pergeseran piksel.</li>
+<li>Memilih perbaikan yang tepat dan menyebut harganya.</li>
+</ul>
+</div>
+<h3 class='tingkat-judul'>Tingkat 1 (Dasar)</h3>
+<div class='kartu bm' id='mat-T1-1' data-mode='singkat'>
+<span class='tag'><span class='kode'>T1.1</span> Peta artefak</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Artefak adalah gambaran pada citra yang tidak sesuai dengan jaringan sebenarnya. Tiap artefak punya penyebab fisik yang bisa ditelusuri ke modul sebelumnya. Kolom Lihat menunjuk ke simpul yang membahasnya di M08A, M08B, atau M08C.</p>
+<p class='s'>Singkatnya: kenali tampilannya, cari penyebab fisiknya, lalu pilih cara mengurangi.</p>
+<div class='l'>
+<!-- TODO-VERIFIKASI: cara mengurangi ditulis umum; teknik spesifik berbeda tiap produsen. -->
+<div class='bungkus-tabel'>
+<table class='tabel kiri'>
+<thead><tr><th>Artefak</th><th>Penyebab fisik</th><th>Asal konsep</th><th>Cara mengurangi</th><th>Lihat</th></tr></thead>
+<tbody>
+<tr><td>Gerak</td><td>Jaringan bergerak antar pengambilan data, sehingga ruang-k tidak konsisten.</td><td>Modul 4</td><td>Menyangga pasien, sekuens lebih cepat, sinkronisasi gerak.</td><td><a href='#mat-T1-3'>T1.3</a></td></tr>
+<tr><td>Aliasing (wrap)</td><td>Undersampling frekuensi: anatomi di luar FOV punya frekuensi di atas Nyquist dan terlipat ke dalam citra.</td><td>Modul 4</td><td>Perbesar FOV, pita presaturasi, antialiasing (filter low-pass, oversampling fase).</td><td><a href='#mat-T1-2'>T1.2</a></td></tr>
+<tr><td>Kerentanan magnetik</td><td>Logam mengubah B0 setempat, frekuensi Larmor menyimpang.</td><td>Modul 1, 3</td><td>Spin echo, TE lebih pendek, ubah orientasi. Kadang justru berguna: pada gradient echo ia memperjelas tampilan perdarahan.</td><td><a href='m08c-native.html#mat-T2-6'>M08C T2.6</a></td></tr>
+<tr><td>Pergeseran kimia</td><td>Lemak dan air punya frekuensi Larmor berbeda (self-shielding), sehingga sinyal lemak bergeser beberapa piksel pada arah frekuensi. Besarnya bergantung pada B0, bandwidth penerimaan, matriks, dan FOV.</td><td>Modul 6</td><td>B0 lebih rendah, FOV lebih kecil, bandwidth lebih lebar, jenuhkan lemak atau air.</td><td><a href='#mat-T1-4'>T1.4</a></td></tr>
+<tr><td>Pembatalan sinyal luar-fase</td><td>Lemak dan air dalam satu voksel berlawanan fase pada TE tertentu dan saling meniadakan. Tidak ada pergeseran posisi.</td><td>Modul 3, 6</td><td>TE sesuai periodisitas lemak-air, atau spin echo.</td><td><a href='#mat-T2-3'>T2.3</a></td></tr>
+<tr><td>Sudut ajaib</td><td>Serat kolagen pada sudut tertentu terhadap B0 memperpanjang T2, sehingga tendon tampak terang pada TE pendek.</td><td>Modul 2</td><td>Ubah sudut anatomi terhadap B0, atau perpanjang TE.</td><td><a href='#mat-T2-4'>T2.4</a></td></tr>
+<tr><td>Aliran (ESP dan TOF)</td><td>Spin yang mengalir masuk irisan belum jenuh (ESP), sedangkan pada kecepatan tinggi sinyal lumen turun (TOF).</td><td>Modul 2, 3</td><td>Atur TR, sudut flip, tebal irisan, dan arah eksitasi; slab saturasi.</td><td><a href='m08b-native.html#mat-T1-1'>M08B T1.1</a></td></tr>
+<tr><td>Kegagalan peralatan</td><td>Kerusakan besar pada gradien, arus eddy pada gradient coil, atau galat akuisisi data.</td><td>Modul 6</td><td>Ulangi pemindaian. Jika menetap, panggil teknisi.</td><td><a href='m08c-native.html#mat-T2-5'>M08C T2.5</a></td></tr>
+<tr><td>Gibbs (truncation)</td><td>Ruang-k dipotong sebelum tepi tajam terekam utuh.</td><td>Modul 4</td><td>Lebih banyak langkah fase, filter.</td><td><a href='#mat-T2-5'>T2.5</a></td></tr>
+<tr><td>Ghosting fase</td><td>Kesalahan fase berulang antar garis ruang-k.</td><td>Modul 4, 6</td><td>Perbaikan fase, shimming, sinkronisasi.</td><td><a href='#mat-T1-3'>T1.3</a></td></tr>
+<tr><td>Cross-excitation</td><td>Profil irisan nyata tidak persegi, tetangga ikut terpapar RF.</td><td>Modul 3, 4</td><td>Celah antar irisan, eksitasi selang-seling, interleaved.</td><td><a href='m08c-native.html#mat-T2-1'>M08C T2.1</a></td></tr>
+<tr><td>Zipper (garis RF)</td><td>RF luar masuk pada frekuensi echo.</td><td>Modul 5, 6</td><td>Tutup pintu ruang magnet, perbaiki kebocoran sangkar RF.</td><td><a href='m08c-native.html#mat-T2-2'>M08C T2.2</a></td></tr>
+<tr><td>Shading</td><td>Eksitasi tidak merata (sudut flip menyimpang dari 90° dan 180°), beban coil tidak normal, atau B0 tidak homogen.</td><td>Modul 1, 5, 6</td><td>Coil sesuai ukuran, pasien tidak menyentuh coil, bantalan busa, parameter prescan tepat, shimming.</td><td><a href='m08c-native.html#mat-T2-3'>M08C T2.3</a></td></tr>
+<tr><td>Moiré (lonjakan derau)</td><td>Satu lonjakan derau di satu titik ruang-k menjadi garis sejajar setelah transformasi Fourier.</td><td>Modul 4</td><td>Jaga kelembapan ruangan, pastikan steker kabel coil terpasang kuat.</td><td><a href='m08c-native.html#mat-T2-4'>M08C T2.4</a></td></tr>
+<tr><td>Moiré (pita zebra)</td><td>Pada gradient echo, aliasing dan ketidakhomogenan medan membuat sinyal saling menguatkan atau meniadakan di tepi FOV.</td><td>Modul 3, 4, 5</td><td>Pakai spin echo daripada gradient echo, dan pakai cara anti-aliasing.</td><td><a href='m08c-native.html#mat-T2-4'>M08C T2.4</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<p class='a'><b>Analogi:</b> artefak seperti gejala pada mobil. Lampu yang menyala menunjuk ke bagian tertentu yang bermasalah.</p>
+</div>
+<div class='kartu bm' id='mat-T1-2' data-mode='singkat'>
+<span class='tag'><span class='kode'>T1.2</span> Aliasing (wrap)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Aliasing atau wrap terjadi bila anatomi di luar FOV terlipat ke atas anatomi di dalam FOV. Contoh: pada citra sagital otak, FOV arah fase lebih kecil dari dimensi depan-belakang kepala.</p>
+<p class='s'>Singkatnya: sinyal dari luar FOV tetap diterima coil, tetapi frekuensinya melewati batas Nyquist, sehingga salah dibaca dan muncul di sisi seberang.</p>
+<div class='l'>
+<h4>Penyebab</h4>
+<p>Anatomi di luar FOV tetap terkena gradien dan menghasilkan sinyal bila masih berada dalam volume penerimaan coil. Sinyalnya berfrekuensi lebih tinggi atau lebih rendah daripada yang ada di dalam FOV, karena inti berada di bagian gradien yang melampaui FOV. Jika frekuensinya melebihi frekuensi Nyquist, ia tidak terdigitalisasi dengan akurat dan dianggap sebagai frekuensi yang lebih rendah.</p>
+<p>Gambaran sampling: dua sampel per siklus membuat gelombang terbaca benar. Satu sampel per siklus membuatnya terbaca sebagai garis lurus. Kurang dari satu sampel per siklus membuatnya terbaca sebagai frekuensi yang salah.</p>
+<h4>Frequency wrap</h4>
+<p>Aliasing pada arah pengodean frekuensi. Bila FOV lebih kecil dari anatomi pada arah frekuensi, frekuensi di luar FOV melampaui Nyquist dan dipetakan ke frekuensi yang lebih rendah. Ini disebut high-frequency aliasing.</p>
+<h4>Phase wrap</h4>
+<p>Aliasing pada arah fase, akibat undersampling data sepanjang sumbu fase. Sinyal dari luar FOV pada arah fase mendapat nilai fase dan pseudo-frekuensi yang sudah dimiliki sinyal dari dalam FOV, sehingga bagian luar itu terlipat ke dalam. Contoh: FOV kanan-kiri lebih kecil dari lebar perut.</p>
+<h4>Arah irisan</h4>
+<p>Pada pencitraan volume, gradien pemilih irisan bekerja seperti gradien fase kedua untuk menentukan letak tiap irisan. Aliasing juga bisa terjadi di arah ini, misalnya sinyal dari hidung terlipat ke area oksipital otak. Cara mengurangi: volume harus mencakup seluruh anatomi di luar daerah yang diperiksa.</p>
+<!-- TODO-VERIFIKASI: seluruh uraian bersumber dari buku acuan; pastikan istilah (misalnya pseudo-frekuensi) cocok dengan Modul 4. -->
+<p class='lembut'>Coba pada A5 dan A6.</p>
+</div>
+<p class='a'><b>Analogi:</b> roda mobil di film tampak berputar mundur karena kamera memotret terlalu jarang.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A5'>A5 Aliasing fase dan oversampling</a>, <a href='#akt-A6'>A6 Aliasing frekuensi dan Nyquist</a></p>
+</div>
+<div class='kartu bm' id='mat-T1-3' data-mode='singkat'>
+<span class='tag'><span class='kode'>T1.3</span> Phase mismapping (ghosting gerak)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Artefak ini membuat salinan anatomi yang bergerak, berulang sepanjang arah pengodean fase. Sumbernya biasanya gerak periodik: dinding perut saat bernapas, denyut pembuluh dan CSF, menelan, atau gerak mata.</p>
+<p class='s'>Singkatnya: anatomi bergerak saat gradien fase berganti tiap TR, sehingga sinyalnya salah tempat. Hantu muncul hanya pada arah fase.</p>
+<div class='l'>
+<h4>Tampilan</h4>
+<p>Hantu makin samar bila makin jauh dari sumber gerak. Jarak antar hantu bergantung pada parameter waktu pemindaian dan periode gerak. Pada A3 kamu bisa mengubahnya.</p>
+<p><b>Jarak antar hantu (piksel) = TR × matriks fase × NSA ÷ periode gerak</b>. Pembilangnya sama dengan waktu pemindaian. Jika periode gerak dihitung dari denyut jantung 60 kali per menit, periodenya 1 detik. Hasilnya dalam piksel dan dikali ukuran piksel memberi jarak sebenarnya.</p>
+<h4>Penyebab</h4>
+<p>Gradien fase diterapkan dengan amplitudo berbeda tiap TR, tidak seperti gradien frekuensi dan gradien pemilih irisan yang sama tiap kali. Anatomi berada di satu posisi pada gradien fase saat satu TR, lalu mungkin pindah ke posisi lain pada langkah fase berikutnya. Sinyalnya jadi mendapat nilai fase yang salah.</p>
+<p>Gerak berulang menimbulkan gangguan periodik pada data ruang-k. Setelah transformasi Fourier, gangguan itu menjadi hantu anatomi di tempat yang keliru. Peristiwa ini disebut juga inter-view atau view-to-view mismapping.</p>
+<p>Ada juga jeda antara pengodean fase dan pembacaan (intra-view mismapping). Jeda ini hanya beberapa milidetik, sehingga gerak dalam jeda itu kecil. Pergeseran di arah frekuensi umumnya tidak terjadi, karena frekuensi dibaca dan didigitalkan langsung dari echo.</p>
+<!-- TODO-VERIFIKASI: tampilan hantu pada A3 hanya meniru letak dan jumlah hantu dari persamaan; amplitudo dan efek strategi bersifat kualitatif. -->
+</div>
+<p class='a'><b>Analogi:</b> memotret orang yang berjalan dengan foto panjang yang disusun baris demi baris. Tiap baris dipotret pada saat berbeda, sehingga orangnya muncul di beberapa tempat.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A3'>A3 Jarak hantu gerak (phase mismapping)</a></p>
+</div>
+<div class='kartu bm' id='mat-T1-4' data-mode='singkat'>
+<span class='tag'><span class='kode'>T1.4</span> Pergeseran kimia (bas-relief)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Artefak ini menggeser letak sinyal lemak pada citra. Di antarmuka lemak-air ia juga dapat menimbulkan area kosong sinyal dan area sinyal tumpang tindih (sangat terang).</p>
+<p class='s'>Singkatnya: lemak berpresesi sedikit lebih lambat dari air. Selisih frekuensi itu terbaca sebagai selisih posisi pada arah frekuensi.</p>
+<div class='l'>
+<h4>Tampilan</h4>
+<p>Contoh yang baik adalah ginjal yang berisi cairan dan dikelilingi lemak perirenal. Sinyal lemak bergeser beberapa voksel, sehingga tepi ginjal pada satu sisi kehilangan sinyal. Pada sisi seberang, sinyal lemak yang bergeser menumpuk di atas sinyal organ dan tampak hiperintens. Citra tampak seperti timbul, seakan disinari dari satu arah dan membuat "bayangan" di sisi lain, sehingga disebut juga bas-relief artifact.</p>
+<h4>Penyebab</h4>
+<p>Lingkungan kimia lemak dan air berbeda. Pada air, hidrogen terikat pada satu atom oksigen. Pada lemak, hidrogen berada pada molekul besar berantai karbon dan dikelilingi banyak atom. Awan elektron pada molekul trigliserida "melindungi" hidrogen dari B0 (self-shielding), sehingga frekuensi Larmor hidrogen lemak sedikit lebih rendah.</p>
+<p>Selisihnya dinyatakan dalam ppm dan nilainya tetap, tidak bergantung kekuatan medan (sekitar 3,5 ppm). Selisih dalam Hz: frekuensi Larmor dikali pergeseran kimia. Jadi pada B0 lebih tinggi, selisih dalam Hz lebih besar, dan pada B0 rendah (sekitar 0,5 T atau kurang) umumnya tidak berarti.</p>
+<p>Bandwidth penerimaan menentukan rentang frekuensi yang dipetakan sepanjang FOV pada arah frekuensi. Bandwidth tiap piksel adalah bandwidth penerimaan dibagi jumlah titik data pada satu garis. Selisih frekuensi lemak-air dibagi bandwidth piksel memberi pergeseran dalam piksel. Dikali ukuran piksel (FOV dibagi matriks), hasilnya pergeseran sebenarnya dalam milimeter.</p>
+<h4>Cara mengurangi</h4>
+<ul>
+<li>Pindai pada kekuatan medan lebih rendah.</li>
+<li>Perkecil FOV, agar piksel lebih kecil.</li>
+<li>Naikkan bandwidth penerimaan. Tiap piksel mencakup rentang frekuensi lebih lebar, sehingga selisih frekuensi lemak-air menjadi pergeseran piksel yang kecil.</li>
+</ul>
+<h4>Kompromi dengan SNR</h4>
+<p>SNR naik bila bandwidth penerimaan sempit, tetapi pergeseran kimia membesar. Cara lain: jenuhkan sinyal lemak atau air, sehingga tidak ada yang bergeser terhadap yang lain.</p>
+<!-- TODO-VERIFIKASI: buku acuan memakai 220 Hz pada 1,5 T (frekuensi 63,86 MHz) dan 147 Hz pada 1,0 T. Halaman ini menghitung dari data modul (3,5 ppm dan 63,87 MHz), sehingga hasil berbeda sedikit. -->
+<p class='lembut'>Hitung sendiri pada A7.</p>
+</div>
+<p class='a'><b>Analogi:</b> dua penyiar radio dengan frekuensi yang sedikit berbeda. Pada pemindai yang resolusinya kasar, keduanya terdengar bergeser satu kanal.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A7'>A7 Pergeseran kimia dalam piksel (tampilan pada citra)</a> &middot; &rarr; Asal fisika: M06B T3.1</p>
+</div>
+<h3 class='tingkat-judul'>Tingkat 2 (Menengah)</h3>
+<div class='kartu bm' id='mat-T2-1' data-mode='singkat'>
+<span class='tag'><span class='kode'>T2.1</span> Mengurangi aliasing</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Aliasing pada arah frekuensi maupun fase mengganggu citra dan perlu dikompensasi.</p>
+<p class='s'>Singkatnya: perbesar FOV, jenuhkan sinyal di luar FOV, atau pakai antialiasing (filter pada arah frekuensi, oversampling pada arah fase).</p>
+<div class='l'>
+<ul>
+<li><b>Perbesar FOV</b> agar semua anatomi penghasil sinyal masuk. Pada FOV arah fase, cara ini menambah waktu pemindaian.</li>
+<li><b>Pita presaturasi</b> di area luar FOV yang berpotensi terlipat, untuk meniadakan sinyalnya.</li>
+<li><b>Antialiasing arah frekuensi:</b> laju sampling digital dinaikkan (selang sampling dipendekkan dengan jendela sampling yang sama), sehingga semua frekuensi terdigitalisasi cukup. Titik data bertambah, tetapi hanya frekuensi tengah yang ditampilkan. Ini filter low-pass yang membuang frekuensi di luar bandwidth, seperti menurunkan bass dan treble pada equalizer.</li>
+<li><b>Antialiasing arah fase</b> (no phase wrap, phase oversampling, atau fold-over suppression): jumlah langkah fase ditambah, sehingga garis ruang-k bertambah dan tidak ada frekuensi spasial yang terduplikasi. Waktu pemindaian naik. Sebagian produsen mengimbanginya dengan menurunkan NSA.</li>
+</ul>
+<h4>Di balik layar</h4>
+<p>Antialiasing tidak mengubah ukuran piksel. Yang bertambah adalah jumlah piksel berukuran sama pada arah fase, sehingga FOV fase membesar relatif terhadap FOV frekuensi.</p>
+<p>Contoh: FOV frekuensi 256 mm, FOV fase 200 %, matriks 256 × 256. FOV fase menjadi 512 mm, dan ukuran piksel tetap 1 mm × 1 mm. Sistem mengisi 512 garis ruang-k, bukan 256, sehingga waktu pemindaian dua kali lipat. Ada dua kemungkinan:</p>
+<ul>
+<li><b>Opsi 1:</b> FOV fase membesar untuk memuat anatomi, dan waktu bertambah sebanding. Kita memutuskan sendiri apakah mengimbanginya lewat parameter lain.</li>
+<li><b>Opsi 2:</b> FOV fase otomatis dua kali, bagian tambahan dibuang sehingga FOV asli tersisa. Waktu dua kali, tetapi sistem mengimbanginya dengan membagi dua NSA. Akibatnya hantu gerak bisa lebih terlihat dari perkiraan (NSA tampil 4 padahal hanya 2 yang dipakai), tetapi SNR hampir tidak berubah karena oversampling mengimbangi penurunan NSA.</li>
+</ul>
+<!-- TODO-VERIFIKASI: contoh 200 %, 256 mm, dan pembagian NSA berasal dari buku acuan; perilaku nyata berbeda antar produsen. -->
+</div>
+<p class='a'><b>Analogi:</b> lemari laci. Tinggi bingkai (ukuran piksel) tetap, tetapi laci dibuat lebih tipis sehingga muat lebih banyak laci (garis ruang-k).</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A5'>A5 Aliasing fase dan oversampling</a></p>
+</div>
+<div class='kartu bm' id='mat-T2-2' data-mode='singkat'>
+<span class='tag'><span class='kode'>T2.2</span> Mengurangi ghosting gerak</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Ada beberapa cara. Persamaan jarak hantu sudah memberi petunjuk pertama.</p>
+<p class='s'>Singkatnya: perbesar jarak antar hantu, pindahkan arah fase, jenuhkan sumber gerak, rata-ratakan sinyal, atau sinkronkan dengan gerak.</p>
+<div class='l'>
+<ul>
+<li><b>Atur parameter.</b> Jika TR, matriks fase, dan NSA naik, jarak antar hantu bertambah dan hantu di dalam citra berkurang. Hal yang sama berlaku bila struktur berdenyut cepat, karena periode gerak memendek.</li>
+<li><b>Tukar fase dan frekuensi.</b> Hantu hanya muncul pada arah fase, jadi arahnya bisa diubah agar tidak menutupi area yang diperiksa. Contoh: pada potongan aksial dada, arah fase depan-belakang membuat denyut jantung menutupi aorta. Bila fase dan frekuensi ditukar (fase kanan-kiri), hantu bergeser menjauh dari aorta. Strategi ini tidak menghilangkan artefak, hanya memindahkannya.</li>
+<li><b>Pulsa presaturasi.</b> Pulsa ini meniadakan sinyal dari daerah tertentu. Bila ditaruh di atas sumber gerak, misalnya tenggorokan pada pencitraan tulang belakang leher, hantu akibat menelan berkurang. Presaturasi juga bisa ditaruh di luar FOV untuk menjenuhkan darah yang masuk, sehingga hantu akibat aliran berdenyut berkurang.</li>
+<li><b>NSA lebih banyak.</b> Sinyal yang benar muncul di posisi yang sama dan makin kuat. Sinyal salah posisi tersebar acak dan makin hilang bila dirata-ratakan. Konsekuensinya waktu pemindaian naik. Pengisian ruang-k radial dapat mengurangi konsekuensi itu, karena pusat ruang-k terisi berulang dan tepinya hanya sekali.</li>
+<li><b>Kenyamanan pasien.</b> Gerak sukarela berkurang dengan posisi yang senyaman mungkin, bantalan dan tali, penjelasan prosedur yang jelas, dan pengingat lewat interkom.</li>
+</ul>
+<!-- TODO-VERIFIKASI: pernyataan tentang kondisi tertentu (misalnya gerak usus) dan tindakan medis tidak dimuat di sini. Keputusan tindakan ada pada tim klinis. -->
+</div>
+<p class='a'><b>Analogi:</b> kalau hantu tidak bisa dihilangkan, geser panggungnya agar tidak menutupi bintang utamanya.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A3'>A3 Jarak hantu gerak (phase mismapping)</a>, <a href='#akt-A4'>A4 Triggering dan gating napas</a></p>
+</div>
+<div class='kartu bm' id='mat-T2-3' data-mode='singkat'>
+<span class='tag'><span class='kode'>T2.3</span> Pembatalan sinyal luar-fase</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Artefak ini tampak sebagai cincin gelap di sekitar organ tertentu, di tempat antarmuka lemak dan air berada dalam satu voksel. Ia memburukkan citra pada sekuens gradient echo.</p>
+<p class='s'>Singkatnya: lemak dan air di voksel yang sama berlawanan fase pada TE tertentu dan saling meniadakan. Pilih TE yang cocok atau pakai spin echo.</p>
+<div class='l'>
+<h4>Beda dengan pergeseran kimia</h4>
+<p>Pergeseran kimia terjadi karena lemak dan air berpresesi pada frekuensi berbeda (selisihnya sekitar 3,5 ppm, lihat data modul). Akibatnya sinyal lemak bergeser sepanjang arah frekuensi. Besar pergeserannya dipengaruhi kekuatan medan, bandwidth penerimaan, dan FOV.</p>
+<p>Pada pembatalan luar-fase tidak ada sinyal yang bergeser. Artefak muncul dalam piksel yang memuat lemak dan air sekaligus, di arah dan lokasi mana pun pada citra. Kadang disebut "pergeseran kimia jenis kedua", tetapi istilah itu keliru. Contoh: pada infiltrasi lemak di hati, seluruh organ bisa tampak turun sinyalnya pada citra luar-fase.</p>
+<h4>Penyebab</h4>
+<p>Momen magnetik hidrogen di lemak dan air berpresesi pada frekuensi berbeda. Posisi fasenya pun berbeda, dan secara berkala berubah. Kadang keduanya searah (in-phase), kadang berlawanan 180° dan saling meniadakan (out-of-phase).</p>
+<h4>Analogi jam</h4>
+<p>Jarum jam dan jarum menit berputar dengan kecepatan berbeda. Pada waktu tertentu keduanya bertumpuk (sekitar 12.00, 1.05, 2.10, 3.15) dan pada waktu lain berlawanan (sekitar 12.33, 1.38, 2.49, 3.50). Coba di A1.</p>
+<h4>Cara mengurangi</h4>
+<ul>
+<li>Pilih TE yang cocok dengan periodisitas lemak-air. Periodisitas bergantung pada kekuatan medan: makin tinggi B0, makin pendek periodenya.</li>
+<li>Pakai spin echo, karena pulsa rephasing 180° mengompensasi selisih fase. Rephasing dengan gradien tidak punya efek itu.</li>
+</ul>
+<h4>Justru berguna</h4>
+<p>Patologi yang memuat lemak sekaligus air menunjukkan sinyal turun pada citra luar-fase (tumor adrenal adalah contoh yang baik). Citra luar-fase juga dapat menekan latar pada angiografi inflow pembuluh otak. Selain itu, algoritma komputer dapat mengolah citra searah dan berlawanan fase menjadi citra khusus lemak dan khusus air (teknik Dixon).</p>
+<!-- TODO-VERIFIKASI: buku acuan menyebut TE kelipatan sekitar 4,2 ms pada 1,5 T. Hitungan dari data modul (3,5 ppm pada 63,87 MHz) memberi nilai berbeda sedikit. Pastikan nilai pergeseran lemak yang dipakai. -->
+</div>
+<p class='a'><b>Analogi:</b> dua jarum jam yang kadang bertumpuk sehingga tampak satu, dan kadang berlawanan arah.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A1'>A1 Lemak, air, dan TE (luar-fase)</a></p>
+</div>
+<div class='kartu bm' id='mat-T2-4' data-mode='singkat'>
+<span class='tag'><span class='kode'>T2.4</span> Sudut ajaib (magic angle)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Artefak ini membuat jaringan berkolagen, misalnya tendon, tampak terang secara tidak wajar. Pada tendon patela, tampilannya bisa menyerupai kelainan.</p>
+<p class='s'>Singkatnya: serat kolagen pada sudut sekitar 55° terhadap B0 memperpanjang T2, sehingga tendon terang pada TE pendek. Ubah sudut atau perpanjang TE.</p>
+<div class='l'>
+<h4>Penyebab</h4>
+<p>Kolagen kaya hidrogen, tetapi biasanya sinyalnya sangat rendah. Air yang terikat pada serat kolagen mengalami peluruhan T2 yang sangat cepat.</p>
+<p>Artefak muncul bila serat kolagen membentuk sudut sekitar 55° dengan B0. Bentuk molekul kolagen yang anisotropik membuat interaksi spin-spin turun mendekati nol pada sudut itu. Waktu peluruhan T2 memanjang, dan sinyal tampak lebih tinggi bila TE pendek. Dari rumus 3cos²θ − 1 = 0, sudutnya <b id='sudutM'>54,7</b>°.</p>
+<h4>Cara mengurangi</h4>
+<ul>
+<li>Ubah sudut anatomi terhadap B0, atau perpanjang TE.</li>
+<li>Jika sinyal tetap tinggi, kemungkinan besar itu cairan, bukan artefak sudut ajaib.</li>
+</ul>
+<!-- TODO-VERIFIKASI: sudut dihitung dari rumus, buku acuan membulatkannya menjadi 55°. Model sinyal pada A2 hanya ilustrasi relatif, bukan nilai T2 jaringan nyata. -->
+<p class='lembut'>Coba pada A2.</p>
+</div>
+<p class='a'><b>Analogi:</b> kerumunan yang saling bertabrakan sehingga cepat berhenti. Pada susunan tertentu mereka tidak saling mengganggu, dan gerak mereka bertahan lebih lama.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A2'>A2 Sudut ajaib pada tendon</a></p>
+</div>
+<div class='kartu bm' id='mat-T2-5' data-mode='singkat'>
+<span class='tag'><span class='kode'>T2.5</span> Truncation (Gibbs)</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Artefak ini muncul sebagai pita terang dan gelap sejajar tepi yang tajam.</p>
+<p class='s'>Singkatnya: data ruang-k kurang, jadi tepi tajam tidak direkonstruksi mulus. Tambah langkah pengodean fase.</p>
+<div class='l'>
+<h4>Penyebab</h4>
+<p>Ruang-k berhenti sebelum frekuensi tinggi terekam semuanya. Rekonstruksi Fourier lalu berosilasi di dekat tepi dengan kontras tinggi.</p>
+<h4>Cara mengurangi</h4>
+<ul>
+<li>Hindari kekurangan data. Caranya, tambah jumlah langkah pengodean fase, misalnya memakai matriks yang lebih besar pada arah fase.</li>
+<li>Hindari teknik yang hanya mengisi sebagian ruang-k, seperti partial Fourier (lihat Modul 4).</li>
+<li>Pada citra berbobot T1, supresi lemak bisa membantu karena menurunkan sinyal lemak yang tinggi di awal dan akhir jendela sampling.</li>
+<li>Filter yang memaksa amplitudo sinyal menjadi nol di ujung jendela sampling juga bisa dipakai.</li>
+</ul>
+<!-- TODO-VERIFIKASI: uraian penyebab ditulis dari pengetahuan umum; uraian cara mengurangi merujuk bab artefak pada buku acuan (lihat catatan sumber). -->
+</div>
+<p class='a'><b>Analogi:</b> menggambar kotak tajam dengan pena yang terlalu tebal. Garis tepinya bergetar karena detail halus tidak muat.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A8'>A8 Truncation (Gibbs): ubah matriks, lihat ringing</a></p>
+</div>
+<h3 class='tingkat-judul'>Tingkat 3 (Lanjut)</h3>
+<div class='kartu bm lanjut' id='mat-T3-1' data-mode='singkat'>
+<span class='tag'><span class='kode'>T3.1</span> Periodisitas lemak-air dan teknik Dixon</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Lemak dan air kembali searah setiap satu periode, yaitu kebalikan dari selisih frekuensinya.</p>
+<p class='s'>Singkatnya: periode = 1 dibagi selisih frekuensi. B0 lebih tinggi berarti selisih Hz lebih besar dan periode lebih pendek.</p>
+<div class='l'>
+<p>Selisih frekuensi = selisih ppm dikali frekuensi Larmor. Dari data modul: pada 1,5 T selisihnya <b id='dfO15'>224</b> Hz dan periodenya <b id='perO15'>4,47</b> ms. Pada 3 T selisihnya <b id='dfO3'>447</b> Hz dan periodenya <b id='perO3'>2,24</b> ms.</p>
+<p>TE yang searah adalah kelipatan periode. TE yang berlawanan fase adalah setengah periode ditambah kelipatan periode. Teknik Dixon memakai dua citra, searah dan berlawanan fase, lalu menghitung citra khusus air dan khusus lemak.</p>
+<!-- TODO-VERIFIKASI: nilai periode dihitung dari data modul, sedangkan nilai di buku acuan sedikit berbeda; hubungan umum (periode = 1 / selisih frekuensi) tetap berlaku. -->
+</div>
+<p class='a'><b>Analogi:</b> dua pelari di lintasan melingkar dengan kecepatan berbeda. Mereka bertemu tiap beberapa putaran, dan di tengah-tengahnya berada di sisi berlawanan.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A1'>A1 Lemak, air, dan TE (luar-fase)</a></p>
+</div>
+<div class='kartu bm lanjut' id='mat-T3-2' data-mode='singkat'>
+<span class='tag'><span class='kode'>T3.2</span> Mengapa hantu hanya pada arah fase</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Alasannya ada di selang waktu antar titik data di ruang-k.</p>
+<p class='s'>Singkatnya: titik data sepanjang satu garis diambil dalam milidetik, sedangkan antar garis diambil tiap TR. Peluang anatomi bergerak jauh lebih besar antar garis.</p>
+<div class='l'>
+<p>Pada arah frekuensi (kiri-kanan di ruang-k), data satu garis diambil dalam jendela sampling yang pendek. Selang antar titik data adalah 1 dibagi bandwidth penerimaan. Contoh: bandwidth 32 kHz memberi selang 1 ÷ 32 000 s, yaitu sekitar <b id='g9Sel'>0,031</b> ms.</p>
+<p>Pada arah fase (atas-bawah di ruang-k), satu garis baru diisi tiap TR, dan seluruh pemindaian (menit) dipakai untuk mengisi semua garis. Selang antar titik data pada satu kolom sama dengan TR, yaitu ratusan hingga ribuan milidetik. Peluang ada yang bergerak dalam 0,031 ms sangat kecil, tetapi dalam ratusan atau ribuan milidetik cukup besar. Itu sebabnya gerak memengaruhi arah fase.</p>
+<!-- TODO-VERIFIKASI: contoh bandwidth 32 kHz berasal dari buku acuan; nilai dihitung di halaman dari rumus 1 / bandwidth, bukan dari data modul. -->
+</div>
+<p class='a'><b>Analogi:</b> menulis satu kalimat dalam sekejap (arah frekuensi) berbeda dengan menulis satu bab sambil tiap kalimat ditulis pada hari berbeda (arah fase). Perubahan antar hari jauh lebih mungkin.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A3'>A3 Jarak hantu gerak (phase mismapping)</a></p>
+</div>
+<div class='kartu bm lanjut' id='mat-T3-3' data-mode='singkat'>
+<span class='tag'><span class='kode'>T3.3</span> Kompensasi napas, triggering, dan gating</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Pada pemindaian yang lama, gerak napas dikurangi dengan sinkronisasi. Pada pemindaian cepat, pasien biasanya bisa menahan napas.</p>
+<p class='s'>Singkatnya: kompensasi napas mengatur ulang urutan garis ruang-k, triggering memicu RF pada fase napas yang sama, dan gating membuang data di ujung siklus napas.</p>
+<div class='l'>
+<h4>Kompensasi napas</h4>
+<p>Ada dua jenis sensor. Pertama, perangkat fisik seperti bellows pernapasan di sekeliling dada atau bantalan sensor dekat anatomi yang bergerak. Perubahan volume dan tekanan udara dalam bellows diubah transduser menjadi sinyal listrik. Kedua, strategi perangkat lunak dengan navigator echo yang dipasang di dalam sekuens, ditempatkan di atas hemidiafragma kanan dan mengambil sampel sekitar lima kali per detik untuk melacak posisi diafragma.</p>
+<p>Sistem lalu mengatur ulang urutan pengodean fase. Garis tengah ruang-k (gradien fase landai, memberi sinyal dan kontras) diisi saat gerak dinding dada minimal. Garis tepi (gradien fase curam, memberi resolusi) diisi saat gerak maksimal. Data di ruang-k menjadi tidak periodik, sehingga hantu berkurang.</p>
+<h4>Triggering napas</h4>
+<p>Pulsa RF dipicu oleh tiap gerak napas, jadi tiap echo diperoleh pada fase napas yang sama. Kekurangannya: periodisitas napas menjadi TR dan menentukan kontras (pada sekitar 15 napas per menit TR sekitar 4000 ms atau kelipatannya), dan laju napas bisa berubah selama pemindaian sehingga kontras bercampur.</p>
+<h4>Gating napas</h4>
+<p>Gating menetapkan ambang (gerbang) sehingga data hanya diterima saat kondisi tertentu terpenuhi, misalnya diafragma relatif diam pada ekspirasi penuh. Gating tidak memengaruhi parameter biasa, termasuk TR. Kelemahannya, hingga 60 % data bisa ditolak, sehingga waktu pemindaian naik cukup banyak. Coba pada A4.</p>
+<h4>Triggering jantung</h4>
+<p>Pulsa RF dikoordinasikan dengan gelombang R dari sistol. Ada dua bentuk: EKG (elektroda di dada, dipakai untuk dada, jantung, dan pembuluh besar) dan pemicu denyut perifer (sensor cahaya di jari, kurang akurat untuk jantung tetapi efektif untuk pembuluh kecil atau sumsum tulang belakang tempat aliran CSF mengganggu).</p>
+<p>Istilah gating pada pencitraan jantung juga dipakai untuk pengurutan ulang data yang dikumpulkan terus-menerus menjadi tumpukan citra pada posisi siklus jantung berbeda. Secara ketat itu mekanisme pengurutan data, bukan obat untuk phase mismapping.</p>
+<!-- TODO-VERIFIKASI: angka 15 napas per menit, TR sekitar 4000 ms, laju sampel sekitar lima per detik, dan "hingga 60 %" berasal dari buku acuan. -->
+</div>
+<p class='a'><b>Analogi:</b> memotret ombak. Triggering memotret tiap kali ombak ada di posisi yang sama. Gating membuang foto yang diambil saat ombak sedang memuncak.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A4'>A4 Triggering dan gating napas</a></p>
+</div>
+<div class='kartu bm lanjut' id='mat-T3-4' data-mode='singkat'>
+<span class='tag'><span class='kode'>T3.4</span> Menghitung aliasing frekuensi</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Frekuensi yang dipersepsikan sistem ditentukan dengan membandingkan frekuensi sebenarnya dengan frekuensi Nyquist.</p>
+<p class='s'>Singkatnya: frekuensi dipersepsikan = frekuensi sebenarnya − 2 × frekuensi Nyquist (untuk frekuensi di atas Nyquist).</p>
+<div class='l'>
+<p>Contoh: bandwidth penerimaan 64 kHz berarti frekuensi maksimum +32 kHz dan minimum −32 kHz terhadap frekuensi tengah. Anggap sebagian anatomi di luar FOV punya frekuensi sebenarnya +35 kHz. Frekuensi dipersepsikan adalah 35 − 2 × 32 = −29 kHz. Nilai itu jauh lebih rendah dari +35 kHz, sehingga sinyalnya dipetakan ke sisi frekuensi rendah di seberang FOV.</p>
+<!-- TODO-VERIFIKASI: contoh bandwidth 64 kHz dan frekuensi 35 kHz berasal dari buku acuan; nilai ini hanya contoh hitung, bukan data modul. -->
+<p class='lembut'>Coba pada A6.</p>
+</div>
+<p class='a'><b>Analogi:</b> jarum jam yang "melompat" lewat angka 12 dan muncul kembali di sisi lain. Nilai melewati batas dan kembali dari ujung seberang.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A6'>A6 Aliasing frekuensi dan Nyquist</a></p>
+</div>
+<div class='kartu bm lanjut' id='mat-T3-5' data-mode='singkat'>
+<span class='tag'><span class='kode'>T3.5</span> Menghitung pergeseran piksel</span>
+<div class='pilih' role='group' aria-label='Kedalaman materi kartu ini'><button type='button' data-mode='singkat' aria-pressed='true'>Materi singkat</button><button type='button' data-mode='lengkap' aria-pressed='false'>Materi lengkap</button><button type='button' data-mode='analogi' aria-pressed='false'>Analogi</button></div>
+<p>Pergeseran kimia dalam piksel adalah selisih frekuensi lemak-air dibagi bandwidth satu piksel.</p>
+<p class='s'>Singkatnya: pergeseran piksel = (selisih ppm × frekuensi Larmor) ÷ (bandwidth penerimaan ÷ matriks frekuensi).</p>
+<div class='l'>
+<p>Selisih frekuensi dari data modul: pada 1,5 T sekitar <b id='kmDf15'>224</b> Hz, pada 3 T sekitar <b id='kmDf3'>447</b> Hz.</p>
+<p>Contoh bandwidth ±16 kHz dengan 256 titik data: bandwidth piksel <b id='kmPx'>125</b> Hz. Pada 1,5 T, pergeseran sekitar <b id='kmPs'>1,79</b> piksel. Dengan FOV 240 mm, ukuran piksel sekitar <b id='kmMm'>0,94</b> mm, sehingga pergeseran sebenarnya sekitar <b id='kmMm2'>1,68</b> mm.</p>
+<p>Menaikkan bandwidth menjadi ±32 kHz membuat bandwidth piksel dua kali lebih besar dan pergeseran kurang dari satu piksel. Menurunkannya menjadi ±8 kHz membuat pergeseran lebih besar.</p>
+<!-- TODO-VERIFIKASI: buku acuan memberi 1,76 piksel dan 1,63 mm (memakai 220 Hz). Halaman ini memakai data modul, jadi angkanya sedikit berbeda. -->
+<p class='lembut'>Coba pada A7.</p>
+</div>
+<p class='a'><b>Analogi:</b> penggaris dengan garis tiap 1 mm. Selisih 1,8 garis terlihat sebagai selisih letak yang jelas. Bila garisnya lebih rapat, selisih itu menjadi lebih sedikit garis.</p>
+<p class='tautan'>&#9654; Simulasi: <a href='#akt-A7'>A7 Pergeseran kimia dalam piksel (tampilan pada citra)</a></p>
+</div>
+<!-- BAGIAN AKTIVITAS -->
+<h2>Aktivitas</h2>
+<div class='kartu'>
+<b>Kemajuan aktivitas</b> <span class='lencana' id='mtrL'></span>
+<div class='meter' id='mtrBar' role='progressbar' aria-valuemin='0' aria-label='Kemajuan aktivitas'><i id='mtr'></i></div>
+<p class='lembut' id='mtrT' aria-live='polite'></p>
+<div class='baris'><button type='button' id='resetMtr'>Reset kemajuan</button></div>
+</div>
+<div class='kartu' id='akt-A1'>
+<h3>A1. Lemak, air, dan TE (luar-fase)</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T2-3'>T2.3 Pembatalan sinyal luar-fase</a>, <a href='#mat-T3-1'>T3.1 Periodisitas lemak-air dan teknik Dixon</a></p>
+<!-- asal: M08 #6 -->
+<p>Tujuan: geser TE dan lihat selisih fase lemak dan air, jarum jam sebagai analogi, serta sinyal voksel campuran.</p>
+<div class='baris' id='oB0' role='group' aria-label='Kekuatan medan'></div>
+<div class='baris' id='oSek' role='group' aria-label='Jenis sekuens'></div>
+<div class='kontrol'>
+<div><label for='oTE'>TE: <output id='oTEO'></output> ms</label><input type='range' id='oTE' min='0' max='12' step='0.05' value='2.2'></div>
+<div><label for='oF'>Bagian lemak dalam voksel: <output id='oFO'></output> %</label><input type='range' id='oF' min='0' max='100' value='50'></div>
+</div>
+<div class='dua' style='margin-top:8px'>
+<figure><figcaption>Vektor air dan lemak</figcaption><svg id='svgO1' viewBox='0 0 220 236' role='img' aria-label='Vektor air dan lemak'></svg></figure>
+<figure><figcaption>Analogi jam</figcaption><svg id='svgO2' viewBox='0 0 220 236' role='img' aria-label='Jam'></svg></figure>
+</div>
+<figure style='margin:8px 0'><figcaption class='lembut'>Sinyal voksel campuran terhadap TE (100 % = lemak dan air searah)</figcaption><svg id='svgO3' viewBox='0 0 640 200' role='img' aria-label='Grafik sinyal terhadap TE'></svg></figure>
+<dl class='rinci' id='oInfo' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='oPutar' aria-pressed='false'>Putar TE</button><button type='button' id='reset6'>Reset</button></div>
+</div>
+<div class='kartu' id='akt-A2'>
+<h3>A2. Sudut ajaib pada tendon</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T2-4'>T2.4 Sudut ajaib (magic angle)</a></p>
+<!-- asal: M08 #7 -->
+<p>Tujuan: putar serat tendon terhadap B0 dan lihat kapan tendon menjadi terang. Satuan sinyal bersifat relatif.</p>
+<div class='kontrol'>
+<div><label for='mTh'>Sudut serat terhadap B0: <output id='mThO'></output>°</label><input type='range' id='mTh' min='0' max='90' step='0.5' value='20'></div>
+<div><label for='mTE'>TE (relatif): <output id='mTEO'></output></label><input type='range' id='mTE' min='5' max='100' value='15'></div>
+</div>
+<svg id='svgM' viewBox='0 0 640 270' role='img' aria-label='Tendon dan kurva sinyal terhadap sudut'></svg>
+<dl class='rinci' id='mInfo' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='mKe'>Ke sudut ajaib</button><button type='button' id='mPutar' aria-pressed='false'>Putar sudut</button><button type='button' id='reset7'>Reset</button></div>
+</div>
+<div class='kartu' id='akt-A3'>
+<h3>A3. Jarak hantu gerak (phase mismapping)</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T1-3'>T1.3 Phase mismapping (ghosting gerak)</a>, <a href='#mat-T2-2'>T2.2 Mengurangi ghosting gerak</a>, <a href='#mat-T3-2'>T3.2 Mengapa hantu hanya pada arah fase</a></p>
+<!-- asal: M08 #9 -->
+<p>Tujuan: ubah TR, matriks fase, NSA, dan periode gerak, lalu lihat jarak antar hantu. Coba juga strateginya.</p>
+<div class='baris' id='g9Tombol' role='group' aria-label='Strategi'></div>
+<div class='kontrol'>
+<div><label for='g9TR'>TR: <output id='g9TRO'></output> ms</label><input type='range' id='g9TR' min='100' max='5000' step='50' value='500'></div>
+<div><label for='g9M'>Matriks fase: <output id='g9MO'></output></label><input type='range' id='g9M' min='64' max='512' step='32' value='256'></div>
+<div><label for='g9N'>NSA: <output id='g9NO'></output></label><input type='range' id='g9N' min='1' max='8' value='2'></div>
+<div><label for='g9Tm'>Periode gerak: <output id='g9TmO'></output> detik</label><input type='range' id='g9Tm' min='0.5' max='10' step='0.1' value='4'></div>
+<div><label for='g9A'>Kekuatan gerak: <output id='g9AO'></output></label><input type='range' id='g9A' min='0' max='100' value='60'></div>
+</div>
+<div class='baris' role='group' aria-label='Sumber gerak cepat'><span class='lembut'>Sumber gerak:</span><button type='button' data-tm='1'>Denyut jantung (1 detik)</button><button type='button' data-tm='4'>Napas (4 detik)</button></div>
+<div class='dua'>
+<figure><figcaption>Tanpa gerak</figcaption><canvas id='cvG1' width='96' height='96' role='img' aria-label='Citra tanpa hantu'></canvas></figure>
+<figure><figcaption>Dengan hantu gerak</figcaption><canvas id='cvG2' width='96' height='96' role='img' aria-label='Citra dengan hantu gerak'></canvas></figure>
+</div>
+<dl class='rinci' id='g9Info' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset9'>Reset</button></div>
+</div>
+<div class='kartu' id='akt-A4'>
+<h3>A4. Triggering dan gating napas</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T2-2'>T2.2 Mengurangi ghosting gerak</a>, <a href='#mat-T3-3'>T3.3 Kompensasi napas, triggering, dan gating</a></p>
+<!-- asal: M08 #10 -->
+<p>Tujuan: bandingkan triggering (TR mengikuti napas) dengan gating (data di luar gerbang ditolak).</p>
+<div class='baris' id='g0Mode' role='group' aria-label='Mode sinkronisasi'></div>
+<div class='kontrol'>
+<div><label for='g0Bpm'>Laju napas: <output id='g0BpmO'></output> per menit</label><input type='range' id='g0Bpm' min='8' max='30' value='15'></div>
+<div><label for='g0Gate'>Lebar gerbang (gating): <output id='g0GateO'></output> % dari simpangan</label><input type='range' id='g0Gate' min='10' max='100' value='40'></div>
+</div>
+<svg id='svgG0' viewBox='0 0 640 220' role='img' aria-label='Gelombang napas'></svg>
+<dl class='rinci' id='g0Info' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset10'>Reset</button></div>
+</div>
+<div class='kartu' id='akt-A5'>
+<h3>A5. Aliasing fase dan oversampling</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T1-2'>T1.2 Aliasing (wrap)</a>, <a href='#mat-T2-1'>T2.1 Mengurangi aliasing</a></p>
+<!-- asal: M08 #11 -->
+<p>Tujuan: perkecil FOV fase sampai anatomi terlipat, lalu coba antialiasing dan lihat konsekuensi waktu pemindaian.</p>
+<div class='baris' id='aMode' role='group' aria-label='Mode antialiasing'></div>
+<div class='kontrol'>
+<div><label for='aFov'>FOV fase: <output id='aFovO'></output> % dari anatomi</label><input type='range' id='aFov' min='50' max='120' value='70'></div>
+<div><label for='aOS'>FOV oversampling: <output id='aOSO'></output> %</label><input type='range' id='aOS' min='100' max='300' step='25' value='200'></div>
+</div>
+<div class='dua' style='margin-top:8px'>
+<figure><figcaption>Anatomi lengkap</figcaption><canvas id='cvAa' width='96' height='96' role='img' aria-label='Anatomi lengkap'></canvas></figure>
+<figure><figcaption>Hasil citra</figcaption><canvas id='cvAb' width='96' height='96' role='img' aria-label='Hasil citra dengan atau tanpa aliasing'></canvas></figure>
+</div>
+<dl class='rinci' id='aInfo' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset11'>Reset</button></div>
+</div>
+<div class='kartu' id='akt-A6'>
+<h3>A6. Aliasing frekuensi dan Nyquist</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T1-2'>T1.2 Aliasing (wrap)</a>, <a href='#mat-T3-4'>T3.4 Menghitung aliasing frekuensi</a></p>
+<!-- asal: M08 #12 -->
+<p>Tujuan: geser frekuensi sebenarnya sinyal dan lihat frekuensi yang dipersepsikan sistem. Nyatakan dalam kHz terhadap frekuensi tengah.</p>
+<div class='kontrol'>
+<div><label for='nBw'>Bandwidth penerimaan total: <output id='nBwO'></output> kHz</label><input type='range' id='nBw' min='16' max='128' step='8' value='64'></div>
+<div><label for='nF'>Frekuensi sebenarnya: <output id='nFO'></output> kHz</label><input type='range' id='nF' min='-100' max='100' value='35'></div>
+</div>
+<div class='baris'><button type='button' id='nLP' aria-pressed='false'>Filter low-pass (antialiasing frekuensi)</button></div>
+<svg id='svgN' viewBox='0 0 640 150' role='img' aria-label='Garis frekuensi'></svg>
+<dl class='rinci' id='nInfo' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset12'>Reset</button></div>
+</div>
+<div class='kartu' id='akt-A7'>
+<h3>A7. Pergeseran kimia dalam piksel (tampilan pada citra)</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T1-4'>T1.4 Pergeseran kimia (bas-relief)</a>, <a href='#mat-T3-5'>T3.5 Menghitung pergeseran piksel</a></p>
+<!-- asal: M08 #13 + M06 "Ilustrasi Pergeseran Kimia pada Citra" (tampilan citra sudah ada pada #13) -->
+<p>Tujuan: ubah B0, bandwidth, matriks, dan FOV, lalu lihat pergeseran lemak dalam piksel dan milimeter.</p>
+<div class='baris' id='kB0' role='group' aria-label='Kekuatan medan'></div>
+<div class='kontrol'>
+<div><label for='kBw'>Bandwidth penerimaan: ±<output id='kBwO'></output> kHz</label><input type='range' id='kBw' min='4' max='64' value='16'></div>
+<div><label for='kM'>Matriks frekuensi: <output id='kMO'></output></label><input type='range' id='kM' min='128' max='512' step='64' value='256'></div>
+<div><label for='kFov'>FOV: <output id='kFovO'></output> mm</label><input type='range' id='kFov' min='100' max='500' step='10' value='240'></div>
+</div>
+<div class='baris'><button type='button' id='kEks' aria-pressed='false'>Perbesar efek pada citra (4 kali)</button></div>
+<div class='dua' style='margin-top:8px'>
+<figure><figcaption>Citra sintetis dengan pergeseran lemak</figcaption><canvas id='cvK2' width='96' height='96' role='img' aria-label='Citra dengan pergeseran kimia'></canvas></figure>
+<figure style='flex:2 1 300px'><figcaption>Posisi lemak dan air pada piksel</figcaption><svg id='svgK' viewBox='0 0 400 150' role='img' aria-label='Piksel dengan posisi lemak dan air'></svg></figure>
+</div>
+<dl class='rinci' id='kInfo' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='reset13'>Reset</button></div>
+</div>
+<div class='kartu' id='akt-A8'>
+<h3>A8. Truncation (Gibbs): ubah matriks, lihat ringing</h3>
+<p class='tautan'>Menjelaskan: <a href='#mat-T2-5'>T2.5 Truncation (Gibbs)</a></p>
+<!-- asal: [BARU] -->
+<!-- [BARU] Simulasi usulan M08A A8 (menjelaskan T2.5). Memakai pustaka citra bersama (BASE, dft2, gambarWarna). -->
+<p>Tujuan: kurangi jumlah langkah pengodean fase (matriks), lalu lihat pita terang-gelap sejajar tepi yang tajam. Citra dibuat oleh kode, bukan citra pasien.</p>
+<div class='kontrol'>
+<div><label for='gM'>Matriks fase (jumlah garis ruang-k): <output id='gMO'></output></label><input type='range' id='gM' min='16' max='96' step='8' value='40'></div>
+</div>
+<div class='baris'>
+<span class='lembut'>Pemotongan ruang-k:</span>
+<div class='pilih' id='gMode' role='group' aria-label='Arah pemotongan ruang-k'></div>
+<button type='button' id='gFilt' aria-pressed='false'>Filter di ujung jendela: mati</button>
+</div>
+<div class='dua'>
+<figure><figcaption>Citra rekonstruksi</figcaption><canvas id='gCv' width='96' height='96' role='img' aria-label='Citra rekonstruksi dari ruang-k terpotong'></canvas></figure>
+<figure><figcaption>Ruang-k (kotak = data yang diambil)</figcaption><canvas id='gKs' class='k' width='96' height='96' role='img' aria-label='Ruang-k dengan kotak daerah yang diambil'></canvas></figure>
+</div>
+<figure style='margin:8px 0'><figcaption class='lembut'>Profil sinyal sepanjang garis tengah tegak (arah fase). Abu-abu: ideal. Warna: rekonstruksi.</figcaption><canvas id='gPr' width='600' height='150' role='img' aria-label='Profil sinyal ideal dan rekonstruksi'></canvas></figure>
+<dl class='rinci' id='gInfo' aria-live='polite'></dl>
+<div class='baris'><button type='button' id='resetG8'>Reset</button></div>
+</div>
+<!-- BAGIAN KUIS -->
+<h2>Cek pemahaman</h2>
+<p class='lembut'>Pilih tingkat soal. Soal Tingkat 3 bersifat lanjutan dan boleh dilewati.</p>
+<div class='pilih' id='kuis-pilih' role='group' aria-label='Pilih tingkat soal kuis'></div>
+<p class='lembut' id='kuis-info' role='status' aria-live='polite'></p>
+<div id='kuis'></div>
+<h2>Tautan silang</h2>
+<div class='kartu'>
+<ul>
+<li>Teori Nyquist dan aliasing: M04B T2.5-T2.6</li>
+<li>Parallel imaging dan aliasing: M04C T3.6</li>
+<li>Artefak aliran: <a href='m08b-native.html'>M08B</a></li>
+<li>Artefak perangkat keras, QA, capstone: <a href='m08c-native.html'>M08C</a></li>
+</ul>
+</div>
+<p class='sumber lembut'>Catatan sumber: Materi aliasing, pergeseran kimia, phase mismapping, kompensasi napas, triggering dan gating, sudut ajaib, kegagalan peralatan, pembatalan sinyal luar-fase, truncation, cross-excitation, zipper, shading, dan moiré disusun ulang dengan kata sendiri dari bab artefak pada buku MRI in Practice (Bab 8), seperti pada berkas PDF yang diberikan. Gambar pada PDF tidak disalin. Ilustrasi di modul ini dibuat oleh kode.</p>
+</main>
+<script>
+/* TETAP: awal */
+const DATA={
+ FISIKA:{gamma_MHz_per_T:42.58,larmor_MHz:{1.5:63.87,3:127.74},geser_kimia_lemak_air_ppm:3.5},
+ JARINGAN:[
+  {id:'csf',nama:'Cairan serebrospinal',T1_ms:2400,T2_ms:180,PD:1.00},
+  {id:'gm',nama:'Substansia grisea',T1_ms:925,T2_ms:100,PD:0.86},
+  {id:'wm',nama:'Substansia alba',T1_ms:790,T2_ms:92,PD:0.77},
+  {id:'fat',nama:'Lemak',T1_ms:260,T2_ms:85,PD:1.00},
+  {id:'muscle',nama:'Otot',T1_ms:875,T2_ms:47},
+  {id:'kidney',nama:'Ginjal',T1_ms:650,T2_ms:58},
+  {id:'liver',nama:'Hati',T1_ms:500,T2_ms:43}],
+ SKALA_B0:{1.5:{T1:1,T2:1},3:{T1:1.17,T2:0.9}},
+ INSTRUMEN:{suhu_K:4.2,gradien_mT_per_m:[20,80],slew_T_per_m_per_s:[100,200],bore_cm:[60,70]},
+ KESELAMATAN:{sar_tubuh_W_per_kg:{normal:2,tingkat1:4},sar_kepala_normal_W_per_kg:3.2,garis_gauss_mT:{standar:0.5,alternatif:0.9}}
+};
+function waktuRelaksasi(j,B0){const s=DATA.SKALA_B0[B0];return{T1:Math.round(j.T1_ms*s.T1),T2:Math.round(j.T2_ms*s.T2)};}
+function jalankanKuis(el,soal){
+ let i=0,skor=0;
+ function tampil(){
+  if(i>=soal.length){el.innerHTML='<div class="kartu"><b>Skor: '+skor+' / '+soal.length+'</b></div>';return;}
+  const s=soal[i];
+  const kartu=document.createElement('div');kartu.className='kartu';
+  const p=document.createElement('p');p.innerHTML='<b>'+(i+1)+'/'+soal.length+'.</b> '+s.pertanyaan;
+  kartu.appendChild(p);
+  s.pilihan.forEach((teks,k)=>{
+   const b=document.createElement('button');b.textContent=teks;b.style.display='block';b.style.margin='6px 0';
+   b.onclick=()=>{
+    kartu.querySelectorAll('button').forEach(x=>x.disabled=true);
+    const benar=(k===s.jawaban);if(benar)skor++;
+    const info=document.createElement('p');info.className=benar?'ok':'no';
+    info.textContent=(benar?'Benar. ':'Belum tepat. ')+s.penjelasan;
+    const n=document.createElement('button');n.textContent='Lanjut';n.onclick=()=>{i++;tampil();};
+    kartu.append(info,n);
+   };
+   kartu.appendChild(b);
+  });
+  el.innerHTML='';el.appendChild(kartu);
+ }
+ tampil();
+}
+/* TETAP: akhir */
+
+/* UTILITAS UMUM */
+const $=id=>document.getElementById(id);
+const fmt=(x,d)=>x.toFixed(d).replace('.',',');
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* pembantu SVG/slider yang dipakai beberapa aktivitas */
+const sv=(id,h)=>{$(id).innerHTML=h;};
+const sl=(ids)=>ids.forEach(i=>$(i).addEventListener('input',()=>$(i+'O').textContent=$(i).value.replace('.',',')));
+
+/* LOGIKA KARTU MATERI BERLAPIS */
+document.querySelectorAll('.bm').forEach(k=>{
+ if(!k.dataset.mode) k.dataset.mode='singkat';
+ const g=k.querySelector('.pilih');
+ if(g){
+  const btns=g.querySelectorAll('button');
+  btns.forEach(b=>{
+   b.onclick=()=>{
+    k.dataset.mode=b.dataset.mode;
+    btns.forEach(x=>x.setAttribute('aria-pressed',x===b));
+   };
+  });
+ }
+});
+
+/* PUSTAKA CITRA SINTETIS (dipakai M08A dan M08C): fantom, DFT 2D, gambar ke canvas */
+const N=96;
+function G(fn){const a=new Float32Array(N*N);for(let y=0;y<N;y++)for(let x=0;x<N;x++)a[y*N+x]=fn((x+.5)/N*2-1,(y+.5)/N*2-1);return a;}
+const el=(u,v,cx,cy,a,b)=>((u-cx)/a)**2+((v-cy)/b)**2<=1;
+function tis(u,v){let t=0;if(el(u,v,0,0,.55,.73))t=.6;if(el(u,v,0,0,.42,.58))t=.45;if(el(u,v,-.12,.05,.07,.18)||el(u,v,.12,.05,.07,.18))t=.12;return t;}
+function lem(u,v){return(el(u,v,0,0,.62,.8)&&!el(u,v,0,0,.55,.73))?.95:0;}
+const dasar=(u,v)=>tis(u,v)+lem(u,v);
+const BASE=G(dasar);
+
+const CW=new Float64Array(N),SW=new Float64Array(N);
+for(let i=0;i<N;i++){CW[i]=Math.cos(2*Math.PI*i/N);SW[i]=Math.sin(2*Math.PI*i/N);}
+function dft2(re,im,sg){
+ const r1=new Float64Array(N*N),i1=new Float64Array(N*N),r2=new Float64Array(N*N),i2=new Float64Array(N*N);
+ for(let y=0;y<N;y++)for(let k=0;k<N;k++){let a=0,b=0;for(let n=0;n<N;n++){const w=(k*n)%N,c=CW[w],s=sg*SW[w],xr=re[y*N+n],xi=im[y*N+n];a+=xr*c-xi*s;b+=xr*s+xi*c;}r1[y*N+k]=a;i1[y*N+k]=b;}
+ for(let x=0;x<N;x++)for(let k=0;k<N;k++){let a=0,b=0;for(let n=0;n<N;n++){const w=(k*n)%N,c=CW[w],s=sg*SW[w],xr=r1[n*N+x],xi=i1[n*N+x];a+=xr*c-xi*s;b+=xr*s+xi*c;}r2[k*N+x]=a;i2[k*N+x]=b;}
+ return[r2,i2];
+}
+let BF=null;
+function gibbs(s){
+ if(!BF)BF=dft2(BASE,new Float64Array(N*N),-1);
+ const K=Math.round(40-30*s),r=new Float64Array(N*N),i=new Float64Array(N*N);
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){const ky=y<N/2?y:y-N,kx=x<N/2?x:x-N;if(Math.abs(kx)<=K&&Math.abs(ky)<=K){r[y*N+x]=BF[0][y*N+x];i[y*N+x]=BF[1][y*N+x];}}
+ const o=dft2(r,i,1);const a=new Float32Array(N*N);for(let q=0;q<N*N;q++)a[q]=o[0][q]/(N*N);return a;
+}
+
+function gambar(cv,arr){
+ const ctx=cv.getContext('2d'),im=ctx.createImageData(N,N);
+ for(let q=0;q<N*N;q++){const g=Math.max(0,Math.min(255,Math.round(arr[q]*235)));im.data[q*4]=g;im.data[q*4+1]=g;im.data[q*4+2]=g;im.data[q*4+3]=255;}
+ ctx.putImageData(im,0,0);
+}
+function gambarWarna(cv,fn){
+ const ctx=cv.getContext('2d'),im=ctx.createImageData(N,N);
+ for(let q=0;q<N*N;q++){const c=fn(q);im.data[q*4]=c[0];im.data[q*4+1]=c[1];im.data[q*4+2]=c[2];im.data[q*4+3]=255;}
+ ctx.putImageData(im,0,0);
+}
+function peta(t){t=Math.max(0,Math.min(1,t));
+ const a=[20,24,32],b=[217,72,15],c=[255,212,59];
+ const m=(p,q,f)=>p.map((x,i)=>Math.round(x+(q[i]-x)*f));
+ return t<.5?m(a,b,t*2):m(b,c,(t-.5)*2);}
+function katSev(v){return v<34?'rendah':v<67?'sedang':'tinggi';}
+
+/* --- A1-lemak-air-te.js --- */
+(function(){
+/* A1 Lemak, air, dan TE (luar-fase) (asal: M08 #6) */
+const OD={b0:1.5,gre:true,timer:null};
+function perO(b0){return 1000/(DATA.FISIKA.geser_kimia_lemak_air_ppm*DATA.FISIKA.larmor_MHz[b0]);}
+function dfO(b0){return DATA.FISIKA.geser_kimia_lemak_air_ppm*DATA.FISIKA.larmor_MHz[b0];}
+function sigO(phi,f){return Math.hypot((1-f)+f*Math.cos(phi),f*Math.sin(phi));}
+[1.5,3].forEach(b=>{const k=String(b).replace('.','');$('dfO'+k).textContent=fmt(dfO(b),0);$('perO'+k).textContent=fmt(perO(b),2);});
+function henti6(){if(OD.timer){clearInterval(OD.timer);OD.timer=null;}$('oPutar').setAttribute('aria-pressed','false');$('oPutar').textContent='Putar TE';}
+function segarO(){
+ const te=+$('oTE').value,f=+$('oF').value/100,T=perO(OD.b0);
+ $('oTEO').textContent=fmt(te,2);$('oFO').textContent=$('oF').value;
+ const phi=OD.gre?2*Math.PI*te/T:0,deg=((phi*180/Math.PI)%360+360)%360;
+ /* vektor */
+ const cx=110,cy=110,R=85,Lw=R*(1-f),Lf=R*f;
+ const ex=cx+Lw+Lf*Math.cos(phi),ey=cy-Lf*Math.sin(phi);
+ let s='<circle cx="110" cy="110" r="85" style="fill:none;stroke:var(--garis);stroke-dasharray:3 3"/>';
+ s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+Lw)+'" y2="'+cy+'" style="stroke:var(--b0);stroke-width:4;stroke-linecap:round"/>';
+ s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+Lf*Math.cos(phi))+'" y2="'+(cy-Lf*Math.sin(phi))+'" style="stroke:var(--t1);stroke-width:4;stroke-linecap:round"/>';
+ s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+ex+'" y2="'+ey+'" style="stroke:var(--teks);stroke-width:2.5;stroke-dasharray:6 3"/><circle cx="'+ex+'" cy="'+ey+'" r="4" style="fill:var(--teks)"/>';
+ s+='<text x="8" y="16" class="sv-b" style="fill:var(--b0)">air</text><text x="8" y="32" class="sv-b" style="fill:var(--t1)">lemak</text><text x="8" y="48" class="sv-t">putus-putus: jumlah</text>';
+ s+='<text x="110" y="230" text-anchor="middle" class="sv-b">selisih fase '+fmt(deg,0)+'°</text>';
+ $('svgO1').innerHTML=s;
+ $('svgO1').setAttribute('aria-label','Vektor air dan lemak dengan selisih fase '+Math.round(deg)+' derajat');
+ /* jam */
+ const t=OD.gre?(te/T)*(12/11):0;
+ const ang=(a,L)=>{const r=a*Math.PI/180;return[110+L*Math.sin(r),110-L*Math.cos(r)];};
+ let c='<circle cx="110" cy="110" r="95" style="fill:var(--latar);stroke:var(--lembut);stroke-width:3"/>';
+ for(let i=0;i<12;i++){const p=ang(i*30,95),q=ang(i*30,i%3?88:82);c+='<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" style="stroke:var(--lembut);stroke-width:2"/>';}
+ [['12',0],['3',90],['6',180],['9',270]].forEach(([n,a])=>{const p=ang(a,68);c+='<text x="'+p[0]+'" y="'+(p[1]+4)+'" text-anchor="middle" class="sv-t">'+n+'</text>';});
+ const hp=ang(30*t,48),mp=ang(360*t,72);
+ c+='<line x1="110" y1="110" x2="'+hp[0]+'" y2="'+hp[1]+'" style="stroke:var(--t1);stroke-width:6;stroke-linecap:round"/>';
+ c+='<line x1="110" y1="110" x2="'+mp[0]+'" y2="'+mp[1]+'" style="stroke:var(--b0);stroke-width:3.5;stroke-linecap:round"/><circle cx="110" cy="110" r="5" style="fill:var(--teks)"/>';
+ const jam=Math.floor(t)%12,mnt=Math.floor((t%1)*60);
+ c+='<text x="110" y="230" text-anchor="middle" class="sv-b">'+(jam===0?12:jam)+'.'+String(mnt).padStart(2,'0')+'</text>';
+ $('svgO2').innerHTML=c;
+ $('svgO2').setAttribute('aria-label','Jam menunjukkan '+(jam===0?12:jam)+' lewat '+mnt+' menit. Jarum jam mewakili lemak, jarum menit mewakili air.');
+ /* grafik */
+ const X=v=>40+v/12*585,Y=v=>15+(1-v)*155;
+ let g='<line x1="40" y1="'+Y(0)+'" x2="625" y2="'+Y(0)+'" style="stroke:var(--garis)"/><line x1="40" y1="15" x2="40" y2="'+Y(0)+'" style="stroke:var(--garis)"/>';
+ for(let k=0;k*T<=12;k++){
+  g+='<line x1="'+X(k*T)+'" y1="15" x2="'+X(k*T)+'" y2="170" style="stroke:var(--benar);stroke-dasharray:3 3;opacity:.7"/>';
+  if((k+.5)*T<=12)g+='<line x1="'+X((k+.5)*T)+'" y1="15" x2="'+X((k+.5)*T)+'" y2="170" style="stroke:var(--salah);stroke-dasharray:3 3;opacity:.7"/>';
+ }
+ let d='';
+ for(let x=0;x<=12.001;x+=.05){const v=OD.gre?sigO(2*Math.PI*x/T,f):1;d+=(d?'L':'M')+X(x).toFixed(1)+','+Y(v).toFixed(1);}
+ g+='<path d="'+d+'" style="fill:none;stroke:var(--aksen);stroke-width:2.5"/>';
+ const cur=OD.gre?sigO(phi,f):1;
+ g+='<circle cx="'+X(te)+'" cy="'+Y(cur)+'" r="6" style="fill:var(--aksen);stroke:var(--latar);stroke-width:2"/>';
+ [0,2,4,6,8,10,12].forEach(v=>{g+='<text x="'+X(v)+'" y="190" text-anchor="middle" class="sv-t">'+v+'</text>';});
+ [0,.5,1].forEach(v=>{g+='<text x="34" y="'+(Y(v)+4)+'" text-anchor="end" class="sv-t">'+Math.round(v*100)+'%</text>';});
+ g+='<text x="625" y="12" text-anchor="end" class="sv-t">hijau: searah, merah: berlawanan, TE dalam ms</text>';
+ $('svgO3').innerHTML=g;
+ $('svgO3').setAttribute('aria-label','Grafik sinyal voksel campuran terhadap TE, saat ini '+Math.round(cur*100)+' persen');
+ const keadaan=!OD.gre?'Spin echo: pulsa 180° mengompensasi selisih fase, jadi fase sama pada echo.':(Math.min(deg,360-deg)<10?'Searah (in-phase).':Math.abs(deg-180)<10?'Berlawanan (out-of-phase): sinyal lemak dan air saling meniadakan.':'Di antara searah dan berlawanan.');
+ $('oInfo').innerHTML='<dt>Keadaan</dt><dd>'+keadaan+'</dd><dt>Sinyal voksel campuran</dt><dd>'+fmt(cur*100,0)+' % dari saat searah</dd><dt>Periodisitas lemak-air pada '+fmt(OD.b0,1)+' T</dt><dd>'+fmt(T,2)+' ms (selisih '+fmt(dfO(OD.b0),0)+' Hz)</dd>';
+ [...$('oB0').children].forEach(b=>b.setAttribute('aria-pressed',Number(b.dataset.b)===OD.b0));
+ [...$('oSek').children].forEach(b=>b.setAttribute('aria-pressed',(b.dataset.s==='gre')===OD.gre));
+}
+[1.5,3].forEach(b=>{const x=document.createElement('button');x.type='button';x.dataset.b=b;x.textContent=fmt(b,1)+' T';x.onclick=()=>{OD.b0=b;segarO();};$('oB0').appendChild(x);});
+[['gre','Gradient echo'],['se','Spin echo']].forEach(([k,t])=>{const x=document.createElement('button');x.type='button';x.dataset.s=k;x.textContent=t;x.onclick=()=>{OD.gre=k==='gre';segarO();};$('oSek').appendChild(x);});
+$('oTE').addEventListener('input',e=>{if(e.isTrusted)henti6();segarO();});
+$('oF').addEventListener('input',segarO);
+$('oPutar').onclick=()=>{
+ if(OD.timer){henti6();return;}
+ $('oPutar').setAttribute('aria-pressed','true');$('oPutar').textContent='Jeda';
+ OD.timer=setInterval(()=>{let v=+$('oTE').value+.06;if(v>12)v=0;$('oTE').value=v.toFixed(2);segarO();},50);
+};
+$('reset6').onclick=()=>{henti6();OD.b0=1.5;OD.gre=true;$('oTE').value=2.2;$('oF').value=50;segarO();};
+segarO();
+})();
+
+
+/* --- A2-sudut-ajaib.js --- */
+(function(){
+/* A2 Sudut ajaib pada tendon (asal: M08 #7) */
+const THM=Math.acos(1/Math.sqrt(3))*180/Math.PI;
+$('sudutM').textContent=fmt(THM,1);
+function sM(th,te){const c=Math.cos(th*Math.PI/180),D=(3*c*c-1)**2;return Math.exp(-(te/100)*(6+6*D));}
+function sFluid(te){return Math.exp(-(te/100)*1.5);}
+let timerM=null;
+function hentiM(){if(timerM){clearInterval(timerM);timerM=null;}$('mPutar').setAttribute('aria-pressed','false');$('mPutar').textContent='Putar sudut';}
+function segarM(){
+ const th=+$('mTh').value,te=+$('mTE').value;
+ $('mThO').textContent=fmt(th,1);$('mTEO').textContent=te;
+ const S=sM(th,te),F=sFluid(te),g=Math.round(35+220*S);
+ const rad=a=>a*Math.PI/180;
+ let s='<polygon points="50,40 44,56 56,56" style="fill:var(--b0)"/><line x1="50" y1="56" x2="50" y2="255" style="stroke:var(--b0);stroke-width:3"/><text x="62" y="52" class="sv-b" style="fill:var(--b0)">B0</text>';
+ const mx=190+120*Math.sin(rad(THM)),my=150-120*Math.cos(rad(THM));
+ s+='<line x1="'+(380-mx)+'" y1="'+(300-my)+'" x2="'+mx+'" y2="'+my+'" style="stroke:var(--aksen);stroke-dasharray:4 4;opacity:.8"/>';
+ s+='<text x="'+(mx+6)+'" y="'+(my+4)+'" class="sv-t">sudut ajaib</text>';
+ s+='<g transform="rotate('+th+' 190 150)"><rect x="175" y="75" width="30" height="150" rx="6" style="fill:rgb('+g+','+g+','+g+');stroke:var(--lembut);stroke-width:2"/>';
+ [181,190,199].forEach(x=>{s+='<line x1="'+x+'" y1="82" x2="'+x+'" y2="218" style="stroke:var(--lembut);stroke-width:1;stroke-dasharray:6 3;opacity:.8"/>';});
+ s+='</g><text x="190" y="262" text-anchor="middle" class="sv-b">serat kolagen, sudut '+fmt(th,1)+'°</text>';
+ /* kurva */
+ const X=a=>350+a/90*270,Y=v=>40+(1-v)*190;
+ s+='<line x1="350" y1="'+Y(0)+'" x2="620" y2="'+Y(0)+'" style="stroke:var(--garis)"/><line x1="350" y1="40" x2="350" y2="'+Y(0)+'" style="stroke:var(--garis)"/>';
+ s+='<line x1="'+X(THM)+'" y1="40" x2="'+X(THM)+'" y2="'+Y(0)+'" style="stroke:var(--aksen);stroke-dasharray:4 4"/>';
+ let d='';for(let a=0;a<=90;a+=1)d+=(d?'L':'M')+X(a).toFixed(1)+','+Y(sM(a,te)).toFixed(1);
+ s+='<path d="'+d+'" style="fill:none;stroke:var(--b0);stroke-width:2.5"/>';
+ s+='<line x1="350" y1="'+Y(F)+'" x2="620" y2="'+Y(F)+'" style="stroke:var(--t1);stroke-width:2;stroke-dasharray:6 4"/>';
+ s+='<text x="616" y="'+(Y(F)-5)+'" text-anchor="end" class="sv-t" style="fill:var(--t1)">cairan</text><text x="356" y="34" class="sv-t" style="fill:var(--b0)">tendon</text>';
+ s+='<circle cx="'+X(th)+'" cy="'+Y(S)+'" r="6" style="fill:var(--b0);stroke:var(--latar);stroke-width:2"/>';
+ [0,30,60,90].forEach(a=>{s+='<text x="'+X(a)+'" y="'+(Y(0)+16)+'" text-anchor="middle" class="sv-t">'+a+'°</text>';});
+ [0,.5,1].forEach(v=>{s+='<text x="344" y="'+(Y(v)+4)+'" text-anchor="end" class="sv-t">'+Math.round(v*100)+'%</text>';});
+ $('svgM').innerHTML=s;
+ $('svgM').setAttribute('aria-label','Tendon pada sudut '+fmt(th,1)+' derajat, sinyal relatif '+Math.round(S*100)+' persen');
+ const dekat=Math.abs(th-THM)<4;
+ $('mInfo').innerHTML='<dt>Sinyal tendon (relatif)</dt><dd>'+fmt(S*100,0)+' %</dd><dt>Sinyal cairan (relatif)</dt><dd>'+fmt(F*100,0)+' %</dd><dt>Keadaan</dt><dd>'+(dekat?'Dekat sudut ajaib ('+fmt(THM,1)+'°): T2 memanjang, tendon tampak terang pada TE pendek.':'Jauh dari sudut ajaib: T2 sangat pendek, tendon tampak gelap.')+(te>=60&&S<F?' Pada TE panjang, tendon meredup sedangkan cairan masih terang. Karena itu sinyal yang tetap tinggi pada TE panjang kemungkinan cairan.':'')+'</dd>';
+}
+$('mTh').addEventListener('input',e=>{if(e.isTrusted)hentiM();segarM();});
+$('mTE').addEventListener('input',segarM);
+$('mKe').onclick=()=>{hentiM();$('mTh').value=THM.toFixed(1);segarM();};
+$('mPutar').onclick=()=>{
+ if(timerM){hentiM();return;}
+ $('mPutar').setAttribute('aria-pressed','true');$('mPutar').textContent='Jeda';
+ timerM=setInterval(()=>{let v=+$('mTh').value+.6;if(v>90)v=0;$('mTh').value=v.toFixed(1);segarM();},50);
+};
+$('reset7').onclick=()=>{hentiM();$('mTh').value=20;$('mTE').value=15;segarM();};
+segarM();
+})();
+
+
+/* --- A3-jarak-hantu.js --- */
+(function(){
+/* A3 Jarak hantu gerak (phase mismapping) (asal: M08 #9) */
+const G9={swap:false,komp:false,pre:false};
+function smp(a,x,y){x=Math.round(x);y=Math.round(y);return(x<0||y<0||x>=N||y>=N)?0:a[y*N+x];}
+function segarG(){
+ const TR=+$('g9TR').value,M=+$('g9M').value,NSA=+$('g9N').value,Tm=+$('g9Tm').value,A=+$('g9A').value/100;
+ [['g9TR','g9TRO'],['g9M','g9MO'],['g9N','g9NO'],['g9Tm','g9TmO']].forEach(p=>{$(p[1]).textContent=$(p[0]).value;});
+ $('g9AO').textContent=katSev(A*100);
+ const scan=TR*M*NSA/1000,Sp=TR*M*NSA/(Tm*1000),off=(TR*NSA/(Tm*1000))*N;
+ const f=A*(G9.komp?.15:1)*(G9.pre?.3:1);
+ const gh=[];for(let k=1;k<=8&&k*off<N;k++)gh.push([k*off,.3*f/k]);
+ let sw=0;gh.forEach(g=>{sw+=2*g[1];});const c=Math.max(.2,1-sw);
+ const arr=new Float32Array(N*N);
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+  let t=c*BASE[y*N+x];
+  gh.forEach(([o,w])=>{t+=G9.swap?w*(smp(BASE,x-o,y)+smp(BASE,x+o,y)):w*(smp(BASE,x,y-o)+smp(BASE,x,y+o));});
+  arr[y*N+x]=t;
+ }
+ gambar($('cvG1'),BASE);gambar($('cvG2'),arr);
+ const jml=off>=1?Math.floor(N/off):0;
+ $('g9Info').innerHTML='<dt>Waktu pemindaian</dt><dd>'+fmt(scan,0)+' detik (TR × matriks fase × NSA)</dd><dt>Jarak antar hantu</dt><dd>'+fmt(Sp,1)+' piksel pada matriks fase '+M+'</dd><dt>Hantu di dalam citra</dt><dd>'+(off<1?'Jarak kurang dari satu piksel: hantu menumpuk dan citra tampak kabur.':jml===0?'Tidak ada: jarak antar hantu melebihi lebar citra.':'Sekitar '+Math.min(jml,8)+' di tiap sisi (digambar paling banyak 8).')+'</dd><dt>Arah hantu</dt><dd>'+(G9.swap?'Kiri-kanan (fase dan frekuensi ditukar)':'Atas-bawah (arah fase default pada contoh ini)')+'</dd>';
+ [...$('g9Tombol').children].forEach(b=>b.setAttribute('aria-pressed',G9[b.dataset.k]));
+}
+[['swap','Tukar fase dan frekuensi'],['komp','Kompensasi napas'],['pre','Presaturasi di sumber gerak']].forEach(([k,t])=>{const b=document.createElement('button');b.type='button';b.dataset.k=k;b.textContent=t;b.onclick=()=>{G9[k]=!G9[k];segarG();};$('g9Tombol').appendChild(b);});
+['g9TR','g9M','g9N','g9Tm','g9A'].forEach(i=>$(i).addEventListener('input',segarG));
+document.querySelectorAll('[data-tm]').forEach(b=>b.onclick=()=>{$('g9Tm').value=b.dataset.tm;segarG();});
+$('reset9').onclick=()=>{G9.swap=G9.komp=G9.pre=false;[['g9TR',500],['g9M',256],['g9N',2],['g9Tm',4],['g9A',60]].forEach(([i,v])=>$(i).value=v);segarG();};
+$('g9Sel').textContent=fmt(1000/32000,3);
+segarG();
+})();
+
+
+/* --- A4-triggering-gating.js --- */
+(function(){
+/* A4 Triggering dan gating napas (asal: M08 #10) */
+const G0={mode:'trig'};
+function respF(phi){const c=.5-.5*Math.cos(2*Math.PI*phi);return c*c*c;}
+function segarG0(){
+ const bpm=+$('g0Bpm').value,gate=+$('g0Gate').value/100,P=60/bpm;
+ $('g0BpmO').textContent=bpm;$('g0GateO').textContent=$('g0Gate').value;
+ const X=t=>40+t/(3*P)*580,Y=v=>20+(1-v)*130;
+ let s='<line x1="40" y1="150" x2="620" y2="150" style="stroke:var(--garis)"/>';
+ const gating=G0.mode==='gate';
+ if(gating){
+  for(let i=0;i<300;i++){const t=i/300*3*P,phi=(t/P)%1;if(respF(phi)>gate)s+='<rect x="'+X(t)+'" y="20" width="'+(580/300+.5)+'" height="130" style="fill:var(--salah);fill-opacity:.2"/>';}
+  s+='<line x1="40" y1="'+Y(gate)+'" x2="620" y2="'+Y(gate)+'" style="stroke:var(--b0);stroke-dasharray:5 4;stroke-width:2"/><text x="44" y="'+(Y(gate)-4)+'" class="sv-t">gerbang</text><text x="620" y="14" text-anchor="end" class="sv-t">merah: data ditolak</text>';
+ }
+ let d='';for(let i=0;i<=300;i++){const t=i/300*3*P;d+=(d?'L':'M')+X(t).toFixed(1)+','+Y(respF((t/P)%1)).toFixed(1);}
+ s+='<path d="'+d+'" style="fill:none;stroke:var(--benar);stroke-width:2.5"/>';
+ if(!gating){
+  for(let k=0;k<3;k++){const t=(k+.85)*P;s+='<line x1="'+X(t)+'" y1="20" x2="'+X(t)+'" y2="170" style="stroke:var(--t1);stroke-width:2"/><text x="'+X(t)+'" y="184" text-anchor="middle" class="sv-t">RF</text>';}
+  s+='<line x1="'+X(.85*P)+'" y1="200" x2="'+X(1.85*P)+'" y2="200" style="stroke:var(--teks)"/><text x="'+((X(.85*P)+X(1.85*P))/2)+'" y="214" text-anchor="middle" class="sv-b">TR = '+fmt(P*1000,0)+' ms</text>';
+ }
+ s+='<text x="40" y="214" class="sv-t">waktu</text>';
+ $('svgG0').innerHTML=s;
+ $('svgG0').setAttribute('aria-label','Gelombang napas, mode '+(gating?'gating':'triggering'));
+ let ok=0;for(let i=0;i<1000;i++)if(respF(i/1000)<=gate)ok++;ok/=1000;
+ $('g0Info').innerHTML=gating?'<dt>Data diterima</dt><dd>'+fmt(ok*100,0)+' % (ditolak '+fmt((1-ok)*100,0)+' %)</dd><dt>Perkiraan waktu pemindaian</dt><dd>sekitar '+fmt(1/ok,1)+' kali waktu tanpa gating (model)</dd><dt>TR</dt><dd>Tidak terpengaruh: parameter biasa tetap bebas diatur.</dd>':'<dt>TR mengikuti napas</dt><dd>'+fmt(P*1000,0)+' ms (60 000 ÷ laju napas). TR hanya bisa kelipatan periode napas.</dd><dt>Kekurangan</dt><dd>Periodisitas napas menentukan kontras. Bila laju napas berubah, kontras bercampur.</dd>';
+ [...$('g0Mode').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===G0.mode));
+}
+[['trig','Triggering'],['gate','Gating']].forEach(([m,t])=>{const b=document.createElement('button');b.type='button';b.dataset.m=m;b.textContent=t;b.onclick=()=>{G0.mode=m;segarG0();};$('g0Mode').appendChild(b);});
+['g0Bpm','g0Gate'].forEach(i=>$(i).addEventListener('input',segarG0));
+$('reset10').onclick=()=>{G0.mode='trig';$('g0Bpm').value=15;$('g0Gate').value=40;segarG0();};
+segarG0();
+})();
+
+
+/* --- A5-aliasing-fase.js --- */
+(function(){
+/* A5 Aliasing fase dan oversampling (asal: M08 #11) */
+const AL={m:'tanpa'};
+function segarAl(){
+ const fov=+$('aFov').value,os=+$('aOS').value;
+ $('aFovO').textContent=fov;$('aOSO').textContent=os;
+ const k=.85*fov/100,kos=AL.m==='tanpa'?k:k*os/100;
+ gambar($('cvAa'),BASE);
+ let arr;
+ if(AL.m==='opsi1')arr=G((u,v)=>{let t=0;for(let m=-3;m<=3;m++)t+=dasar(u*kos,v*kos+2*kos*m);return t;});
+ else arr=G((u,v)=>{let t=0;for(let m=-3;m<=3;m++)t+=dasar(u*k,v*k+2*kos*m);return t;});
+ gambar($('cvAb'),arr);
+ const wrap=kos<.8,faktor=AL.m==='tanpa'?1:os/100;
+ const sk=AL.m==='tanpa'?'1 kali (tanpa tambahan)':AL.m==='opsi1'?fmt(faktor,2)+' kali (NSA tidak diubah)':'1 kali bersih: waktu '+fmt(faktor,2)+' kali, diimbangi NSA dibagi '+fmt(faktor,2);
+ $('aInfo').innerHTML='<dt>Aliasing</dt><dd>'+(wrap?'Ada: anatomi di luar FOV terlipat ke dalam citra.':'Tidak ada: seluruh anatomi berada di dalam FOV yang dipindai.')+'</dd><dt>Waktu pemindaian</dt><dd>'+sk+'</dd><dt>Catatan</dt><dd>'+(AL.m==='opsi2'?'Opsi 2: bagian tambahan FOV dibuang. Hantu gerak bisa lebih terlihat karena NSA yang dipakai lebih sedikit dari yang tampil, tetapi SNR hampir tidak berubah.':AL.m==='opsi1'?'Opsi 1: FOV fase membesar. Ukuran piksel tetap, jumlah garis ruang-k bertambah.':'Perkecil FOV untuk melihat aliasing.')+'</dd>';
+ [...$('aMode').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===AL.m));
+}
+[['tanpa','Tanpa antialiasing'],['opsi1','Oversampling opsi 1 (FOV membesar)'],['opsi2','Oversampling opsi 2 (FOV dipotong)']].forEach(([m,t])=>{const b=document.createElement('button');b.type='button';b.dataset.m=m;b.textContent=t;b.onclick=()=>{AL.m=m;segarAl();};$('aMode').appendChild(b);});
+['aFov','aOS'].forEach(i=>$(i).addEventListener('input',segarAl));
+$('reset11').onclick=()=>{AL.m='tanpa';$('aFov').value=70;$('aOS').value=200;segarAl();};
+segarAl();
+})();
+
+
+/* --- A6-aliasing-frekuensi.js --- */
+(function(){
+/* A6 Aliasing frekuensi dan Nyquist (asal: M08 #12) */
+let nLP=false;
+function segarN(){
+ const bw=+$('nBw').value,ft=+$('nF').value,ny=bw/2;
+ $('nBwO').textContent=bw;$('nFO').textContent=ft;
+ let fp=ft;
+ if(!nLP){while(fp>ny)fp-=2*ny;while(fp<-ny)fp+=2*ny;}
+ const dalam=Math.abs(ft)<=ny;
+ const X=f=>320+f/130*300;
+ let s='<line x1="20" y1="90" x2="620" y2="90" style="stroke:var(--garis);stroke-width:2"/>';
+ s+='<rect x="'+X(-ny)+'" y="60" width="'+(X(ny)-X(-ny))+'" height="60" style="fill:var(--aksen);fill-opacity:.12;stroke:var(--aksen);stroke-opacity:.6"/><text x="320" y="54" text-anchor="middle" class="sv-t">FOV: −'+fmt(ny,0)+' sampai +'+fmt(ny,0)+' kHz (batas Nyquist)</text>';
+ s+='<line x1="'+X(ft)+'" y1="20" x2="'+X(ft)+'" y2="90" style="stroke:var(--t1);stroke-width:3"/><circle cx="'+X(ft)+'" cy="20" r="6" style="fill:var(--t1)"/><text x="'+X(ft)+'" y="14" text-anchor="middle" class="sv-b" style="fill:var(--t1)">sebenarnya '+ft+'</text>';
+ if(!(nLP&&!dalam)){s+='<line x1="'+X(fp)+'" y1="90" x2="'+X(fp)+'" y2="135" style="stroke:var(--benar);stroke-width:3"/><circle cx="'+X(fp)+'" cy="135" r="6" style="fill:var(--benar)"/><text x="'+X(fp)+'" y="150" text-anchor="middle" class="sv-b" style="fill:var(--benar)">terbaca '+fmt(fp,0)+'</text>';}
+ $('svgN').innerHTML=s;
+ $('svgN').setAttribute('aria-label','Frekuensi sebenarnya '+ft+' kHz dan terbaca '+(nLP&&!dalam?'dibuang oleh filter':Math.round(fp)+' kHz'));
+ $('nInfo').innerHTML='<dt>Frekuensi Nyquist</dt><dd>'+fmt(ny,0)+' kHz (setengah bandwidth)</dd><dt>Hasil</dt><dd>'+(dalam?'Frekuensi berada di dalam FOV dan terbaca benar.':nLP?'Frekuensi di luar bandwidth dibuang oleh filter low-pass, sehingga tidak terlipat.':'Frekuensi melewati Nyquist dan terbaca sebagai '+fmt(fp,0)+' kHz, yaitu '+fmt(ft,0)+' − 2 × '+fmt(ny,0)+(ft>ny?'':' (disesuaikan)')+'. Sinyalnya muncul di sisi seberang FOV.')+'</dd>';
+ $('nLP').setAttribute('aria-pressed',nLP);
+}
+['nBw','nF'].forEach(i=>$(i).addEventListener('input',segarN));
+$('nLP').onclick=()=>{nLP=!nLP;segarN();};
+$('reset12').onclick=()=>{nLP=false;$('nBw').value=64;$('nF').value=35;segarN();};
+segarN();
+})();
+
+
+/* --- A7-pergeseran-kimia.js --- */
+(function(){
+/* A7 Pergeseran kimia dalam piksel (tampilan pada citra) (asal: M08 #13 + M06 "Ilustrasi Pergeseran Kimia pada Citra" (tampilan citra sudah ada pada #13)) */
+let kB=1.5;
+function hitungK(){
+ const bw=+$('kBw').value*2000,M=+$('kM').value,fov=+$('kFov').value;
+ const df=DATA.FISIKA.geser_kimia_lemak_air_ppm*DATA.FISIKA.larmor_MHz[kB];
+ const px=bw/M,ps=df/px,mm=fov/M;
+ return{bw,M,fov,df,px,ps,mm,sh:ps*mm};
+}
+function segarK(){
+ $('kBwO').textContent=$('kBw').value;$('kMO').textContent=$('kM').value;$('kFovO').textContent=$('kFov').value;
+ const r=hitungK(),eks=$('kEks').getAttribute('aria-pressed')==='true'?4:1;
+ gambar($('cvK2'),G((u,v)=>tis(u,v)+lem(u-2*r.ps/r.M*eks,v)));
+ const cw=22,x0=20;let s='';
+ for(let i=0;i<16;i++)s+='<rect x="'+(x0+i*cw)+'" y="50" width="'+cw+'" height="50" style="fill:none;stroke:var(--garis)"/>';
+ const air=6,cx=i=>x0+(i+.5)*cw;
+ s+='<circle cx="'+cx(air)+'" cy="75" r="8" style="fill:var(--b0)"/><text x="'+cx(air)+'" y="42" text-anchor="middle" class="sv-b" style="fill:var(--b0)">air</text>';
+ const fx=Math.max(x0+14,Math.min(x0+16*cw-14,cx(air)-r.ps*cw));
+ s+='<circle cx="'+fx+'" cy="75" r="8" style="fill:var(--t1)"/><text x="'+fx+'" y="30" text-anchor="middle" class="sv-b" style="fill:var(--t1)">lemak</text>';
+ s+='<text x="20" y="125" class="sv-t">tiap kotak = 1 piksel; lemak bergeser '+fmt(r.ps,2)+' piksel</text><text x="20" y="143" class="sv-t">arah frekuensi (kiri-kanan)</text>';
+ $('svgK').innerHTML=s;
+ $('svgK').setAttribute('aria-label','Lemak bergeser '+fmt(r.ps,2)+' piksel dari air');
+ $('kInfo').innerHTML='<dt>Selisih frekuensi lemak-air</dt><dd>'+fmt(r.df,0)+' Hz pada '+fmt(kB,1)+' T (3,5 ppm × frekuensi Larmor)</dd><dt>Bandwidth tiap piksel</dt><dd>'+fmt(r.px,1)+' Hz</dd><dt>Pergeseran</dt><dd>'+fmt(r.ps,2)+' piksel, sekitar '+fmt(r.sh,2)+' mm (piksel '+fmt(r.mm,2)+' mm)</dd><dt>Penilaian</dt><dd>'+(r.ps<1?'Kurang dari satu piksel: artefak kecil.':r.ps<2?'Sekitar satu sampai dua piksel: mulai terlihat.':'Lebih dari dua piksel: jelas terlihat. Naikkan bandwidth, perkecil FOV, atau gunakan B0 lebih rendah.')+'</dd>';
+ [...$('kB0').children].forEach(b=>b.setAttribute('aria-pressed',Number(b.dataset.b)===kB));
+}
+[1.5,3].forEach(b=>{const x=document.createElement('button');x.type='button';x.dataset.b=b;x.textContent=fmt(b,1)+' T';x.onclick=()=>{kB=b;segarK();};$('kB0').appendChild(x);});
+['kBw','kM','kFov'].forEach(i=>$(i).addEventListener('input',segarK));
+$('kEks').onclick=()=>{$('kEks').setAttribute('aria-pressed',$('kEks').getAttribute('aria-pressed')!=='true');segarK();};
+$('reset13').onclick=()=>{kB=1.5;$('kBw').value=16;$('kM').value=256;$('kFov').value=240;$('kEks').setAttribute('aria-pressed','false');segarK();};
+(function(){const d15=DATA.FISIKA.geser_kimia_lemak_air_ppm*DATA.FISIKA.larmor_MHz[1.5],d3=DATA.FISIKA.geser_kimia_lemak_air_ppm*DATA.FISIKA.larmor_MHz[3];
+ const px=32000/256,ps=d15/px,mm=240/256;
+ $('kmDf15').textContent=fmt(d15,0);$('kmDf3').textContent=fmt(d3,0);$('kmPx').textContent=fmt(px,0);$('kmPs').textContent=fmt(ps,2);$('kmMm').textContent=fmt(mm,2);$('kmMm2').textContent=fmt(ps*mm,2);})();
+segarK();
+})();
+
+
+/* --- A8-truncation-gibbs.js --- */
+(function(){
+/* A8 Truncation (Gibbs): ubah matriks, lihat ringing (asal: [BARU]) */
+/* A8 Truncation (Gibbs): potong ruang-k, lihat ringing. [BARU] */
+const zero=new Float64Array(N*N);
+const F0=dft2(BASE,zero,-1);               /* ruang-k citra ideal (dihitung sekali) */
+let gBoth=false,gFilt=false;
+/* tampilan ruang-k (log) dihitung sekali */
+const LK=new Float64Array(N*N);let LKmax=0;
+for(let q=0;q<N*N;q++){LK[q]=Math.log(1+Math.hypot(F0[0][q],F0[1][q]));if(LK[q]>LKmax)LKmax=LK[q];}
+function rekon(M,both,filt){
+ const r=new Float64Array(N*N),i=new Float64Array(N*N),h=M/2;
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+  const ky=y<N/2?y:y-N,kx=x<N/2?x:x-N,q=y*N+x;
+  if(ky<-h||ky>=h)continue;
+  if(both&&(kx<-h||kx>=h))continue;
+  let wgt=1;
+  if(filt){wgt=.5+.5*Math.cos(Math.PI*ky/h);if(both)wgt*=.5+.5*Math.cos(Math.PI*kx/h);}
+  r[q]=F0[0][q]*wgt;i[q]=F0[1][q]*wgt;
+ }
+ const o=dft2(r,i,1),a=new Float32Array(N*N);
+ for(let q=0;q<N*N;q++)a[q]=o[0][q]/(N*N);
+ return a;
+}
+function segarG8(){
+ const M=+$('gM').value;$('gMO').textContent=M;
+ const a=rekon(M,gBoth,gFilt);
+ gambar($('gCv'),a);
+ gambarWarna($('gKs'),q=>{const x=q%N,y=(q-x)/N,sx=(x+N/2)%N,sy=(y+N/2)%N;const g=Math.round(255*Math.pow(LK[sy*N+sx]/LKmax,1.6));return[g,g,g];});
+ const kc=$('gKs').getContext('2d'),h=M/2,x0=gBoth?N/2-h:0,wx=gBoth?M:N;
+ kc.strokeStyle=css('--t1');kc.lineWidth=1.5;kc.strokeRect(x0+.5,N/2-h+.5,wx-1,M-1);
+ /* profil */
+ const c=$('gPr').getContext('2d');c.clearRect(0,0,600,150);
+ const px=y=>20+y/(N-1)*560,py=v=>130-v/1.25*115;
+ c.strokeStyle=css('--garis');c.lineWidth=1;c.beginPath();c.moveTo(20,py(0));c.lineTo(580,py(0));c.stroke();
+ const xm=N/2;
+ c.strokeStyle=css('--lembut');c.lineWidth=2;c.beginPath();
+ for(let y=0;y<N;y++){const v=BASE[y*N+xm];y?c.lineTo(px(y),py(v)):c.moveTo(px(y),py(v));}c.stroke();
+ c.strokeStyle=css('--aksen');c.lineWidth=2;c.beginPath();
+ for(let y=0;y<N;y++){const v=a[y*N+xm];y?c.lineTo(px(y),py(v)):c.moveTo(px(y),py(v));}c.stroke();
+ /* amplitudo ringing di latar: ideal = 0, 2 sampai 7 piksel dari tepi (piksel tepat di tepi dilewati agar blur tepi tidak dihitung) */
+ let mx=0;
+ for(let y=0;y<N;y++){
+  if(BASE[y*N+xm]>.001)continue;
+  let dekat=false,tepi=false;
+  for(let d=-7;d<=7;d++){const yy=y+d;if(yy<0||yy>=N)continue;const v=BASE[yy*N+xm];if(Math.abs(d)<=1&&v>.05)tepi=true;if(Math.abs(d)>=2&&v>.3)dekat=true;}
+  if(dekat&&!tepi)mx=Math.max(mx,Math.abs(a[y*N+xm]));
+ }
+ const rel=mx/.95*100;
+ const t=Math.round(M/N*100);
+ $('gInfo').innerHTML='<dt>Garis ruang-k yang diambil</dt><dd>'+M+' dari 96 ('+(gBoth?'dipotong di kedua arah':'dipotong pada arah fase saja')+')</dd>'
+  +'<dt>Waktu pemindaian relatif</dt><dd>sekitar '+t+' % dibanding 96 langkah fase (waktu sebanding dengan jumlah langkah fase)</dd>'
+  +'<dt>Amplitudo ringing di dekat tepi</dt><dd>sekitar '+fmt(rel,0)+' % dari sinyal lemak'+(gFilt?' (dengan filter)':'')+'</dd>'
+  +'<dt>Penjelasan</dt><dd>'+(M>=88?'Data hampir lengkap: ringing kecil.':(gFilt?'Filter menekan ringing, tetapi tepi menjadi lebih kabur (resolusi efektif turun).':'Data frekuensi tinggi terpotong, sehingga tepi tajam berosilasi. Tambah langkah fase atau pakai filter.'))+' Model ini hanya ilustrasi relatif.</dd>';
+ [...$('gMode').children].forEach((b,i)=>b.setAttribute('aria-pressed',(i===1)===gBoth));
+ $('gFilt').setAttribute('aria-pressed',gFilt);$('gFilt').textContent='Filter di ujung jendela: '+(gFilt?'hidup':'mati');
+}
+[['Arah fase saja',false],['Kedua arah',true]].forEach(([t,v])=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.onclick=()=>{gBoth=v;segarG8();};$('gMode').appendChild(b);});
+$('gM').addEventListener('input',segarG8);
+$('gFilt').onclick=()=>{gFilt=!gFilt;segarG8();};
+$('resetG8').onclick=()=>{gBoth=false;gFilt=false;$('gM').value=40;segarG8();};
+if(window.matchMedia)matchMedia('(prefers-color-scheme: dark)').addEventListener('change',segarG8);
+segarG8();
+})();
+
+
+/* === kuis M08A === */
+/* SOAL KUIS M08A. Satu soal per baris: {pertanyaan, pilihan:[...], jawaban:indeks mulai 0, penjelasan, tingkat:1|2|3|4}. Tingkat 4 = capstone lintas artefak. */
+const SOAL=[
+ {pertanyaan:'<i>(Modul 4)</i> Citra menampilkan lipatan: bagian kepala di luar FOV muncul di sisi seberang. Apa penyebab fisiknya?',pilihan:['FOV pada arah fase lebih kecil dari objek','Frekuensi Larmor terlalu tinggi','Ruang berpelindung bocor','Gradient coil terlalu panas'],jawaban:0,penjelasan:'Sinyal dari luar FOV salah diberi posisi pada arah fase, sehingga terlipat. Memperbesar FOV atau oversampling mengurangi aliasing.',tingkat:1},
+ {pertanyaan:'<i>(Modul 4 dan 6)</i> Citra memperlihatkan satu bayangan objek yang bergeser jauh pada arah fase. Artefak apa yang paling sesuai?',pilihan:['Zipper','Gibbs','Ghosting fase','Pergeseran kimia'],jawaban:2,penjelasan:'Kesalahan fase berulang antar garis ruang-k menghasilkan salinan objek yang bergeser. Zipper berupa garis tipis, Gibbs berupa pita di tepi.',tingkat:1},
+ {pertanyaan:'<i>(Modul 6)</i> Bagaimana selisih frekuensi lemak dan air (pergeseran kimia) berubah saat B0 naik?',pilihan:['Selisih dalam Hz mengecil','Selisih dalam Hz membesar','Selisih hilang sama sekali','Selisih tidak ada hubungannya dengan B0'],jawaban:1,penjelasan:'Selisih tetap dalam ppm, tetapi frekuensi Larmor naik bersama B0. Jadi selisih dalam Hz membesar.',tingkat:1},
+ {pertanyaan:'<i>(Aliasing)</i> Mengapa sinyal dari luar FOV bisa muncul di dalam citra?',pilihan:['Frekuensinya melewati batas Nyquist sehingga terbaca sebagai frekuensi yang lebih rendah','Gradien hilang di luar FOV','Pulsa RF tidak mencapai area itu','B0 terlalu tinggi'],jawaban:0,penjelasan:'Anatomi di luar FOV tetap menghasilkan sinyal. Frekuensi di atas Nyquist tidak terdigitalisasi benar dan dipetakan ke frekuensi yang lebih rendah.',tingkat:1},
+ {pertanyaan:'<i>(Phase mismapping)</i> Mengapa hantu gerak hanya muncul pada arah fase?',pilihan:['Titik data antar garis ruang-k diambil tiap TR (lama), sedangkan sepanjang satu garis diambil dalam milidetik','Gradien frekuensi tidak pernah dipakai','B0 hanya bekerja pada arah fase','Arah frekuensi tidak punya ruang-k'],jawaban:0,penjelasan:'Peluang anatomi bergerak jauh lebih besar dalam selang antar garis (ratusan sampai ribuan milidetik) daripada dalam selang antar titik pada satu garis.',tingkat:3},
+ {pertanyaan:'<i>(Phase mismapping)</i> Jika TR, matriks fase, dan NSA dinaikkan, apa yang terjadi pada hantu gerak?',pilihan:['Jarak antar hantu bertambah dan hantu di dalam citra berkurang','Jarak antar hantu menyusut','Hantu pindah ke arah frekuensi','Tidak ada perubahan'],jawaban:0,penjelasan:'Jarak antar hantu sebanding dengan TR × matriks fase × NSA dibagi periode gerak, yaitu waktu pemindaian dibagi periode gerak.',tingkat:2},
+ {pertanyaan:'<i>(Phase mismapping)</i> Apa yang dilakukan strategi menukar arah fase dan frekuensi?',pilihan:['Memindahkan hantu menjauh dari area yang diperiksa, tanpa menghilangkannya','Menghilangkan gerak sepenuhnya','Menaikkan SNR dua kali lipat','Menghapus aliasing'],jawaban:0,penjelasan:'Hantu hanya muncul pada arah fase. Menukar arah memindahkan hantu, tetapi tidak mengurangi gerak itu sendiri.',tingkat:2},
+ {pertanyaan:'<i>(Kompensasi napas)</i> Bagaimana kompensasi napas mengurangi hantu?',pilihan:['Mengurutkan ulang garis ruang-k: garis tengah diisi saat gerak dada minimal, garis tepi saat gerak maksimal','Menutup pintu ruang magnet','Menambah TR tanpa batas','Mengganti B0 selama napas'],jawaban:0,penjelasan:'Garis tengah memberi sinyal dan kontras, sehingga diambil saat gerak kecil. Data ruang-k jadi tidak periodik.',tingkat:3},
+ {pertanyaan:'<i>(Triggering dan gating)</i> Apa kelemahan gating napas dibandingkan triggering?',pilihan:['Banyak data ditolak sehingga waktu pemindaian naik','TR menjadi sama dengan periode napas','Kontras bercampur karena laju napas berubah','Tidak butuh sensor napas'],jawaban:0,penjelasan:'Gating menolak data di luar gerbang (hingga sekitar 60 % menurut buku acuan), tetapi tidak membatasi TR. Kelemahan TR terikat napas ada pada triggering.',tingkat:3},
+ {pertanyaan:'<i>(Aliasing)</i> Apa konsekuensi memakai phase oversampling (antialiasing arah fase)?',pilihan:['Garis ruang-k bertambah sehingga waktu pemindaian naik, kecuali diimbangi, misalnya dengan menurunkan NSA','Ukuran piksel mengecil dua kali','Aliasing pindah ke arah frekuensi','SNR turun drastis tanpa kompensasi apa pun'],jawaban:0,penjelasan:'Oversampling menambah langkah fase. Sebagian produsen mengimbangi dengan membagi dua NSA, dan SNR hampir tidak berubah.',tingkat:2},
+ {pertanyaan:'<i>(Aliasing)</i> Bagaimana aliasing pada arah frekuensi dicegah?',pilihan:['Menaikkan laju sampling digital dan memakai filter low-pass untuk membuang frekuensi di luar bandwidth','Menaikkan TR','Menambah NSA','Menutup pintu ruang magnet'],jawaban:0,penjelasan:'Sampling lebih rapat dengan jendela sampling sama, lalu hanya frekuensi tengah yang ditampilkan.',tingkat:2},
+ {pertanyaan:'<i>(Lanjut)</i> Bandwidth total 64 kHz dan frekuensi sebenarnya anatomi +35 kHz. Frekuensi yang dipersepsikan sistem adalah ...',pilihan:['−29 kHz','+35 kHz','+3 kHz','−35 kHz'],jawaban:0,penjelasan:'f = 35 − 2 × 32 = −29 kHz. Nyquist adalah setengah bandwidth (32 kHz).',tingkat:3},
+ {pertanyaan:'<i>(Pergeseran kimia)</i> Cara mengurangi pergeseran kimia adalah ...',pilihan:['Menaikkan bandwidth penerimaan, memperkecil FOV, atau memakai B0 lebih rendah','Menyempitkan bandwidth penerimaan','Memperbesar FOV','Menambah celah irisan'],jawaban:0,penjelasan:'Bandwidth lebih lebar membuat tiap piksel mencakup lebih banyak Hz, sehingga selisih lemak-air menjadi pergeseran piksel yang kecil.',tingkat:2},
+ {pertanyaan:'<i>(Pergeseran kimia)</i> Mengapa menyempitkan bandwidth penerimaan tidak selalu baik?',pilihan:['SNR naik, tetapi pergeseran kimia membesar','SNR turun dan pergeseran kimia hilang','Ukuran piksel membesar','Aliasing menghilang'],jawaban:0,penjelasan:'Bandwidth sempit menurunkan derau (SNR naik) tetapi membuat bandwidth tiap piksel kecil, sehingga pergeseran dalam piksel membesar.',tingkat:3},
+ {pertanyaan:'<i>(Luar-fase)</i> Apa penyebab pembatalan sinyal luar-fase?',pilihan:['Lemak dan air dalam satu voksel berlawanan fase pada TE tertentu dan saling meniadakan','Sinyal lemak bergeser sepanjang arah frekuensi','RF luar masuk lewat pintu yang terbuka','FOV lebih kecil dari objek'],jawaban:0,penjelasan:'Lemak dan air berpresesi pada frekuensi berbeda, sehingga fasenya berselisih. Pada selisih 180° sinyalnya saling meniadakan.',tingkat:2},
+ {pertanyaan:'<i>(Luar-fase)</i> Apa beda pembatalan luar-fase dengan pergeseran kimia?',pilihan:['Luar-fase tidak menggeser posisi sinyal dan dapat muncul di arah mana pun','Luar-fase selalu menggeser sinyal sepanjang arah fase','Keduanya sama persis','Pergeseran kimia hanya terjadi pada spin echo'],jawaban:0,penjelasan:'Pergeseran kimia memindahkan sinyal lemak sepanjang arah frekuensi. Luar-fase terjadi di piksel yang memuat lemak dan air, tanpa pergeseran posisi.',tingkat:2},
+ {pertanyaan:'<i>(Luar-fase)</i> Cara mengurangi pembatalan luar-fase adalah ...',pilihan:['Memilih TE yang sesuai periodisitas lemak-air atau memakai spin echo','Menutup pintu ruang magnet','Menambah langkah pengodean fase','Memberi celah antar irisan'],jawaban:0,penjelasan:'Pulsa rephasing 180° pada spin echo mengompensasi selisih fase, sedangkan rephasing gradien tidak.',tingkat:2},
+ {pertanyaan:'<i>(Lanjut)</i> Saat B0 naik dari 1,5 T ke 3 T, periodisitas lemak-air ...',pilihan:['Memendek, karena selisih frekuensi dalam Hz membesar','Memanjang, karena selisih frekuensi mengecil','Tetap sama','Menjadi nol'],jawaban:0,penjelasan:'Periode adalah kebalikan selisih frekuensi. Selisih dalam Hz naik bersama B0, jadi periodenya memendek.',tingkat:3},
+ {pertanyaan:'<i>(Sudut ajaib)</i> Mengapa tendon bisa tampak terang pada sudut tertentu terhadap B0?',pilihan:['Pada sudut itu interaksi spin-spin turun, T2 memanjang, sehingga sinyal naik pada TE pendek','Tendon berhenti mengandung kolagen','B0 menjadi nol di sudut itu','Pulsa RF menjadi lebih kuat'],jawaban:0,penjelasan:'Kolagen biasanya bersinyal rendah karena T2 sangat pendek. Pada sudut sekitar 55° T2 memanjang, dan sinyal tampak pada TE pendek.',tingkat:2},
+ {pertanyaan:'<i>(Sudut ajaib)</i> Cara mengurangi artefak sudut ajaib adalah ...',pilihan:['Mengubah sudut anatomi terhadap B0 atau memperpanjang TE','Menutup pintu ruang magnet','Menambah celah antar irisan','Memperkecil FOV'],jawaban:0,penjelasan:'Dengan sudut berbeda atau TE lebih panjang, sinyal tendon turun. Jika tetap terang, kemungkinan itu cairan.',tingkat:2},
+ {pertanyaan:'<i>(Lanjut)</i> Dari 3cos²θ − 1 = 0, sudut ajaib kira-kira ...',pilihan:['55°','0°','90°','30°'],jawaban:0,penjelasan:'cos²θ = 1/3, jadi θ sekitar 54,7°. Buku acuan membulatkannya menjadi 55°.',tingkat:3},
+ {pertanyaan:'<i>(Truncation)</i> Cara yang tepat untuk mengurangi artefak truncation adalah ...',pilihan:['Menambah langkah pengodean fase sehingga data ruang-k lebih lengkap','Mengurangi jumlah langkah fase','Memakai partial Fourier sebanyak mungkin','Membuka pintu ruang magnet'],jawaban:0,penjelasan:'Artefak ini muncul karena data kurang. Lebih banyak langkah fase mengisi ruang-k lebih lengkap.',tingkat:2},
+{pertanyaan:'<i>(Truncation)</i> Pada simulasi A8, matriks fase diturunkan dari 96 ke 24 garis. Apa yang terjadi?',pilihan:['Ringing di dekat tepi tajam membesar dan waktu pemindaian turun','Ringing hilang dan waktu pemindaian naik','Citra bergeser pada arah frekuensi','Aliasing muncul pada arah frekuensi'],jawaban:0,penjelasan:'Data frekuensi tinggi yang terpotong membuat tepi berosilasi. Langkah fase lebih sedikit memendekkan waktu pemindaian.',tingkat:2},
+{pertanyaan:'<i>(Lanjut)</i> Apa harga memakai filter di ujung jendela sampling untuk menekan ringing Gibbs?',pilihan:['Tepi menjadi lebih kabur, resolusi efektif turun','Waktu pemindaian naik dua kali lipat','Aliasing arah fase muncul','SAR naik'],jawaban:0,penjelasan:'Filter melemahkan data frekuensi tinggi di tepi ruang-k. Osilasi mengecil, tetapi tepi tajam ikut melunak.',tingkat:3}
+];
+
+function jalankanKuisToggle(el,soal){
+ let i=0;const st=soal.map(()=>({salah:new Set(),benar:-1}));
+ const skor=()=>st.filter(x=>x.benar>=0&&x.salah.size===0).length;
+ function tampil(){
+  el.innerHTML='';
+  const kartu=document.createElement('div');kartu.className='kartu';el.appendChild(kartu);
+  if(i>=soal.length){
+   if(soal.length===0){kartu.innerHTML='<b>Belum ada soal kuis yang ditambahkan.</b>';return;}
+   kartu.innerHTML='<b>Skor: '+skor()+' / '+soal.length+'</b><p class="lembut">Dihitung dari soal yang benar pada percobaan pertama.</p>';
+   const n=document.createElement('div');n.className='navkuis';
+   const b1=document.createElement('button');b1.type='button';b1.innerHTML='&larr; Kembali ke soal';b1.onclick=()=>{i=soal.length-1;tampil();};
+   const b2=document.createElement('button');b2.type='button';b2.textContent='Ulangi kuis';b2.onclick=()=>{st.forEach(x=>{x.salah.clear();x.benar=-1;});i=0;tampil();};
+   n.append(b1,b2);kartu.appendChild(n);return;
+  }
+  const s=soal[i],t=st[i];
+  const p=document.createElement('p');p.innerHTML='<b>'+(i+1)+'/'+soal.length+'.</b> '+s.pertanyaan;kartu.appendChild(p);
+  const info=document.createElement('p');info.setAttribute('role','status');info.setAttribute('aria-live','polite');
+  if(t.benar>=0){info.className='ok';info.textContent='Benar. '+s.penjelasan;}
+  else if(t.salah.size){info.className='no';info.textContent='Belum tepat. Coba pilihan lain.';}
+  s.pilihan.forEach((teks,k)=>{
+   const b=document.createElement('button');b.className='opsi';b.type='button';
+   if(t.benar===k){b.classList.add('benar');b.textContent='✓ '+teks;}else b.textContent=teks;
+   b.onclick=()=>{
+    if(t.benar>=0)return;
+    if(k===s.jawaban){t.benar=k;tampil();return;}
+    t.salah.add(k);info.className='no';info.textContent='Belum tepat. Coba pilihan lain.';
+    b.classList.add('salah');b.textContent='✗ '+teks;
+    clearTimeout(b._w);b._w=setTimeout(()=>{b.classList.remove('salah');b.textContent=teks;},700);
+   };
+   kartu.appendChild(b);
+  });
+  kartu.appendChild(info);
+  const n=document.createElement('div');n.className='navkuis';
+  const bk=document.createElement('button');bk.type='button';bk.innerHTML='&larr; Kembali';bk.disabled=i===0;bk.onclick=()=>{i--;tampil();};
+  const bl=document.createElement('button');bl.type='button';bl.innerHTML=i===soal.length-1?'Selesai':'Lanjut &rarr;';bl.onclick=()=>{i++;tampil();};
+  n.append(bk,bl);kartu.appendChild(n);
+ }
+ tampil();
+}
+
+const KUIS_PIL=$('kuis-pilih');
+const NAMA_TKT={1:'Tingkat 1',2:'Tingkat 2',3:'Tingkat 3 (lanjut)',4:'Capstone lintas artefak'};
+const TKT=[[0,'Semua soal']].concat([1,2,3,4].filter(t=>SOAL.some(q=>q.tingkat===t)).map(t=>[t,NAMA_TKT[t]]));
+function mulaiKuis(t){
+ const daftar=t===0?SOAL:SOAL.filter(q=>q.tingkat===t);
+ KUIS_PIL.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',Number(b.dataset.tingkat)===t));
+ $('kuis-info').textContent=daftar.length+' soal ditampilkan. Skor dihitung ulang tiap kali tingkat diganti.';
+ jalankanKuisToggle($('kuis'),daftar);
+}
+TKT.forEach(([t,teks])=>{
+ const n=t===0?SOAL.length:SOAL.filter(q=>q.tingkat===t).length;
+ const b=document.createElement('button');b.type='button';b.dataset.tingkat=t;
+ b.textContent=teks+' ('+n+')';b.setAttribute('aria-pressed',t===0);
+ b.onclick=()=>mulaiKuis(t);KUIS_PIL.appendChild(b);
+});
+mulaiKuis(0);
+
+/* LOGIKA KEMAJUAN AKTIVITAS: kartu aktivitas dikenali dari id 'akt-...' dan judul "A1.", "A2.", ... */
+const AKT=[...document.querySelectorAll('.kartu[id^=akt-]')].filter(k=>{const t=k.querySelector('h3');return t&&/^A\d+\./.test(t.textContent);});
+const dicoba=new Set();
+function kemajuan(){
+ const n=dicoba.size,t=AKT.length||1,l=$('mtrL');
+ $('mtr').style.width=(n/t*100)+'%';
+ $('mtrBar').setAttribute('aria-valuemax',t);$('mtrBar').setAttribute('aria-valuenow',n);
+ $('mtrT').textContent=AKT.length?'Aktivitas dicoba: '+n+' dari '+AKT.length+'. Geser slider atau tekan tombol di tiap aktivitas untuk menandainya.':'Belum ada aktivitas.';
+ l.textContent=n===AKT.length&&AKT.length>0?'Semua dicoba':'Berlangsung';l.classList.toggle('ok',n===AKT.length&&AKT.length>0);
+}
+AKT.forEach((k,i)=>['input','click'].forEach(e=>k.addEventListener(e,ev=>{
+ if(ev.target.closest&&ev.target.closest('button[id^=reset],button[id^=m6-r]'))return;
+ if(!dicoba.has(i)){dicoba.add(i);kemajuan();}})));
+if($('resetMtr')){$('resetMtr').onclick=()=>{dicoba.clear();kemajuan();};}
+kemajuan();
+</script>
+</body>
+</html>

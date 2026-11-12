@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modul 2: Relaksasi T1 dan T2 — Fisika Dasar MRI</title>
+  <style>
+    :root {
+      --latar: #0f172a;
+      --permukaan: #1e293b;
+      --permukaan-2: #273549;
+      --batas: #334155;
+      --teks: #f1f5f9;
+      --teks-redup: #94a3b8;
+      --aksen: #38bdf8;
+      --t1: #22c55e;
+      --t2: #f59e0b;
+      --benar: #16a34a;
+      --benar-latar: rgba(22, 163, 74, 0.18);
+      --salah: #dc2626;
+      --salah-latar: rgba(220, 38, 38, 0.18);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--latar);
+      color: var(--teks);
+      line-height: 1.65;
+      padding: 24px 16px 64px;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* Navigasi & Header Atas */
+    .atas {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--batas);
+    }
+
+    .lencana {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--aksen);
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 4px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      margin: 32px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--aksen);
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+      color: var(--teks);
+    }
+
+    /* Kontrol Mode Global */
+    .kontrol-mode {
+      display: flex;
+      gap: 6px;
+      background: var(--permukaan);
+      padding: 5px;
+      border-radius: 10px;
+      border: 1px solid var(--batas);
+    }
+
+    .pilih {
+      background: transparent;
+      color: var(--teks-redup);
+      border: none;
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pilih:hover {
+      color: var(--teks);
+    }
+
+    .pilih.aktif {
+      background: var(--aksen);
+      color: #0f172a;
+    }
+
+    /* Kartu Materi & Blok Mode (.bm) */
+    .kartu {
+      background: var(--permukaan);
+      border: 1px solid var(--batas);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .kepala-kartu {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .tag.t1 {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--t1);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+
+    .tag.t2 {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--t2);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .tag.info {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--aksen);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .bm .isi-mode {
+      display: none;
+      color: var(--teks);
+      font-size: 0.96rem;
+    }
+
+    .bm[data-mode="singkat"] .isi-mode[data-tipe="singkat"],
+    .bm[data-mode="lengkap"] .isi-mode[data-tipe="lengkap"],
+    .bm[data-mode="analogi"] .isi-mode[data-tipe="analogi"] {
+      display: block;
+    }
+
+    .isi-mode p + p {
+      margin-top: 10px;
+    }
+
+    .isi-mode ul {
+      margin: 10px 0 10px 20px;
+    }
+
+    .isi-mode li {
+      margin-bottom: 6px;
+    }
+
+    .rumus {
+      background: var(--permukaan-2);
+      border-left: 4px solid var(--aksen);
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-family: "Courier New", Courier, monospace;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .kotak-analogi {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px dashed var(--aksen);
+      padding: 14px;
+      border-radius: 10px;
+    }
+
+    /* Tabel Perbandingan Jaringan */
+    .tabel-bungkus {
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--batas);
+      text-align: left;
+    }
+
+    th {
+      background: var(--permukaan-2);
+      color: var(--aksen);
+      font-weight: 700;
+    }
+
+    /* Area Simulasi Canvas */
+    .grid-simulasi {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .grid-simulasi {
+        grid-template-columns: 1.4fr 1fr;
+      }
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      background: #090d16;
+      border: 1px solid var(--batas);
+      border-radius: 10px;
+      display: block;
+    }
+
+    .panel-kontrol {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: var(--permukaan-2);
+      padding: 16px;
+      border-radius: 10px;
+    }
+
+    .grup-slider label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--aksen);
+      cursor: pointer;
+    }
+
+    .baris-tombol {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      background: var(--permukaan);
+      color: var(--teks);
+      border: 1px solid var(--batas);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .btn:hover {
+      border-color: var(--aksen);
+      color: var(--aksen);
+    }
+
+    .btn.utama {
+      background: var(--aksen);
+      color: #0f172a;
+      border-color: var(--aksen);
+    }
+
+    .indikator-sinyal {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .kotak-sinyal {
+      background: var(--permukaan);
+      border: 1px solid var(--batas);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+
+    .kotak-sinyal strong {
+      display: block;
+      font-size: 1.05rem;
+      margin-top: 2px;
+    }
+
+    /* Sistem Kuis Dinamis */
+    .header-kuis {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .daftar-opsi {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .opsi {
+      text-align: left;
+      background: var(--permukaan-2);
+      color: var(--teks);
+      border: 1px solid var(--batas);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .opsi:hover:not(:disabled) {
+      border-color: var(--aksen);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .opsi.benar {
+      background: var(--benar-latar);
+      border-color: var(--benar);
+      color: #86efac;
+      font-weight: 600;
+    }
+
+    .opsi.salah {
+      background: var(--salah-latar);
+      border-color: var(--salah);
+      color: #fca5a5;
+    }
+
+    .penjelasan {
+      display: none;
+      background: var(--permukaan-2);
+      border-left: 4px solid var(--aksen);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+
+    .penjelasan.tampil {
+      display: block;
+    }
+
+    .navkuis {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--batas);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- HEADER & MODE SWITCHER -->
+    <header class="atas">
+      <div>
+        <span class="lencana">Modul 2 • Fisika MRI</span>
+        <h1>Relaksasi T1 dan T2</h1>
+      </div>
+      <div class="kontrol-mode" aria-label="Pilih Mode Materi">
+        <button class="pilih" onclick="ubahModeMateri('singkat', this)">Singkat</button>
+        <button class="pilih aktif" onclick="ubahModeMateri('lengkap', this)">Lengkap</button>
+        <button class="pilih" onclick="ubahModeMateri('analogi', this)">Analogi</button>
+      </div>
+    </header>
+
+    <!-- BAGIAN 1: MATERI BERTINGKAT -->
+    <section aria-labelledby="judul-materi">
+      <h2 id="judul-materi">1. Konsep & Mekanisme Fisik Relaksasi</h2>
+
+      <!-- Kartu 1: Mekanisme Dasar -->
+      <article class="kartu bm" data-mode="lengkap">
+        <div class="kepala-kartu">
+          <h3>1.1 Mekanisme Dasar Relaksasi Pasca-Pulsa RF</h3>
+          <span class="tag info">Konsep Dasar</span>
+        </div>
+
+        <div class="isi-mode" data-tipe="singkat">
+          <p><strong>Relaksasi</strong> adalah proses kembalinya Net Magnetization Vector (NMV) ke keadaan kesetimbangan termal (sejajar $B_0$) setelah pulsa Radiofrekuensi (RF) dimatikan. Proses ini terdiri dari dua mekanisme independen yang berjalan simultan: <strong>pemulihan longitudinal (T1)</strong> dan <strong>peluruhan transversal (T2)</strong>.</p>
+        </div>
+
+        <div class="isi-mode" data-tipe="lengkap">
+          <p>Ketika pulsa RF $90^\circ$ diberikan pada frekuensi Larmor, proton menyerap energi sehingga populasi spin berpindah ke tingkat energi tinggi (*anti-parallel*) dan seluruh spin berpresesi secara sefase (*in-phase*). Akibatnya, vektor magnetisasi longitudinal ($M_z$) turun menjadi nol dan muncul magnetisasi transversal maksimum ($M_{xy}$).</p>
+          <p>Segera setelah pulsa RF dimatikan, sistem spin melepaskan energi dan kembali menuju kesetimbangan awal melalui dua proses yang terjadi secara bersamaan tetapi memiliki laju yang berbeda:</p>
+          <ul>
+            <li><strong>Pemulihan Longitudinal ($M_z$):</strong> Tumbuhnya kembali komponen magnetisasi вдоль sumbu Z menuju $M_0$ (Relaksasi T1).</li>
+            <li><strong>Peluruhan Transversal ($M_{xy}$):</strong> Hilangnya komponen magnetisasi pada bidang XY akibat hilangnya koherensi fase antar-spin (Relaksasi T2).</li>
+          </ul>
+        </div>
+
+        <div class="isi-mode" data-tipe="analogi">
+          <div class="kotak-analogi">
+            <p><strong>Analogi Pegas & Penari Sinkron:</strong> Bayangkan sekelompok penari yang awalnya berdiri tegak (sejajar $B_0$). Pulsa RF adalah aba-aba musik yang membuat mereka kompak membungkuk $90^\circ$ dan berputar serempak (*in-phase*).</p>
+            <p>Saat musik berhenti (RF mati), para penari perlahan kembali berdiri tegak karena melepaskan lelah ke lantai (<strong>Relaksasi T1</strong>), sembari putaran mereka mulai tidak kompak satu sama lain karena saling bersenggolan (<strong>Relaksasi T2</strong>).</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Kartu 2: Relaksasi T1 -->
+      <article class="kartu bm" data-mode="lengkap">
+        <div class="kepala-kartu">
+          <h3>1.2 Relaksasi T1 (Spin-Lattice / Longitudinal Relaxation)</h3>
+          <span class="tag t1">Relaksasi T1</span>
+        </div>
+
+        <div class="isi-mode" data-tipe="singkat">
+          <p><strong>Relaksasi T1</strong> adalah waktu yang dibutuhkan magnetisasi longitudinal ($M_z$) untuk pulih kembali sebesar <strong>63%</strong> dari nilai kesetimbangan awalnya ($M_0$) melalui pelepasan energi termal dari spin proton ke lingkungan molekuler sekitar (*lattice*).</p>
+        </div>
+
+        <div class="isi-mode" data-tipe="lengkap">
+          <p>Disebut <em>spin-lattice relaxation</em> karena energi yang diserap oleh spin selama eksitasi RF dilepaskan kembali ke kisi molekuler di sekitarnya (*lattice*). Saat energi dilepaskan, proton kembali ke tingkat energi rendah (*parallel*) dan vektor $M_z$ tumbuh secara eksponensial mendekati $M_0$.</p>
+          <div class="rumus">Mz(t) = M0 · (1 - e^(-t / T1))</div>
+          <ul>
+            <li><strong>Definisi Konstanta T1:</strong> Waktu yang diperlukan agar $M_z$ pulih mencapai <strong>63%</strong> dari nilai magnetisasi maksimum $M_0$ setelah pulsa RF $90^\circ$.</li>
+            <li>Pada waktu $3 \times \text{T1}$, $M_z$ telah pulih sekitar 95%; pada $5 \times \text{T1}$, $M_z$ dianggap pulih sempurna (~99,3%).</li>
+            <li>Efisiensi T1 bergantung pada kesesuaian frekuensi gerak molekul (*tumbling rate*) dengan frekuensi Larmor.</li>
+          </ul>
+        </div>
+
+        <div class="isi-mode" data-tipe="analogi">
+          <div class="kotak-analogi">
+            <p><strong>Analogi Kopi Panas di Ruangan:</strong> Spin yang tereksitasi seperti secangkir kopi panas, sedangkan *lattice* (lingkungan molekul) adalah udara kamar. Kopi melepaskan panas ke udara sekitar hingga suhunya kembali seimbang. Jika udara sekitar menyerap panas dengan efisien (seperti molekul lemak), kopi cepat dingin (<strong>T1 pendek</strong>). Jika wadahnya terisolasi (seperti air murni/CSF), kopi lama dinginnya (<strong>T1 panjang</strong>).</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Kartu 3: Relaksasi T2 dan T2* -->
+      <article class="kartu bm" data-mode="lengkap">
+        <div class="kepala-kartu">
+          <h3>1.3 Relaksasi T2 & T2* (Spin-Spin / Transverse Relaxation)</h3>
+          <span class="tag t2">Relaksasi T2</span>
+        </div>
+
+        <div class="isi-mode" data-tipe="singkat">
+          <p><strong>Relaksasi T2</strong> adalah waktu yang dibutuhkan magnetisasi transversal ($M_{xy}$) untuk meluruh hingga tersisa <strong>37%</strong> dari nilai awalnya akibat interaksi medan magnet mikro antar-spin (*dephasing*).</p>
+        </div>
+
+        <div class="isi-mode" data-tipe="lengkap">
+          <p>Setelah pulsa RF dimatikan, spin-spin yang tadinya berpresesi sefase (*in-phase*) mulai mengalami perbedaan kecepatan presesi sesaat karena adanya fluktuasi medan magnet lokal dari spin tetangganya (interaksi <em>spin-spin</em>). Akibatnya terjadi kehilangan koherensi fase (*dephasing*) dan $M_{xy}$ meluruh secara eksponensial:</p>
+          <div class="rumus">Mxy(t) = Mxy0 · e^(-t / T2)</div>
+          <ul>
+            <li><strong>Definisi Konstanta T2:</strong> Waktu yang diperlukan hingga $M_{xy}$ berkurang sebanyak 63%, atau menyisakan <strong>37%</strong> dari nilai awalnya ($M_{xy0}$).</li>
+            <li><strong>Perbedaan T2 vs T2*:</strong> Peluruhan <strong>T2 murni</strong> hanya disebabkan oleh interaksi acak molekuler antar-spin (tidak dapat dibalikkan). Sedangkan <strong>T2* (T2-star)</strong> adalah peluruhan yang jauh lebih cepat karena gabungan efek T2 murni ditambah <em>inhomogenitas medan magnet statis $B_0$</em>: $\frac{1}{T2^*} = \frac{1}{T2} + \gamma \Delta B_0$. Efek inhomogenitas $B_0$ ini dapat dikompensasi dengan pulsa 180° pada sekuens <em>Spin Echo</em>.</li>
+            <li>Pada setiap jaringan biologis, nilai <strong>T2 selalu lebih pendek atau sama dengan T1 ($\text{T2} \le \text{T1}$)</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="isi-mode" data-tipe="analogi">
+          <div class="kotak-analogi">
+            <p><strong>Analogi Pelari di Lintasan:</strong> Saat aba-aba mulai (pulsa RF), 10 pelari mulai berlari sejajar (*in-phase*). Seiring waktu, karena perbedaan kecepatan kecil saat saling berdekatan (interaksi <em>spin-spin</em>), jarak antar-pelari mulai menyebar (*dephasing*). Waktu hingga barisan pelari menyebar dan kehilangan kekompakan hingga tinggal 37% itulah <strong>T2</strong>. Jika lintasan larinya juga naik-turun tidak rata (inhomogenitas $B_0$), mereka menyebar jauh lebih cepat lagi—itulah <strong>T2*</strong>.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Kartu 4: Pengaruh Lingkungan Molekuler -->
+      <article class="kartu bm" data-mode="lengkap">
+        <div class="kepala-kartu">
+          <h3>1.4 Pengaruh Lingkungan Molekuler (Lemak vs Air/CSF)</h3>
+          <span class="tag info">Karakteristik Jaringan</span>
+        </div>
+
+        <div class="isi-mode" data-tipe="singkat">
+          <p>Kecepatan gerak molekul (*tumbling rate*) menentukan efisiensi relaksasi: <strong>Lemak</strong> memiliki T1 pendek dan T2 pendek, sedangkan <strong>Air bebas (CSF)</strong> memiliki T1 panjang dan T2 panjang.</p>
+        </div>
+
+        <div class="isi-mode" data-tipe="lengkap">
+          <p>Molekul di dalam tubuh bergerak, berotasi, dan bertumbukan dengan frekuensi tertentu yang disebut <strong>frekuensi *tumbling*</strong> ($\omega_c$):</p>
+          <ul>
+            <li><strong>Lemak (Molekul Sedang-Besar):</strong> Memiliki laju *tumbling* lambat-sedang yang dekat dengan frekuensi Larmor proton. Transfer energi ke *lattice* sangat efisien (<strong>T1 pendek</strong>) dan interaksi medan lokal antar-spin kuat (<strong>T2 pendek</strong>).</li>
+            <li><strong>Air Bebas / CSF (Molekul Kecil):</strong> Bergerak sangat cepat (*high tumbling rate* $\gg$ frekuensi Larmor). Transfer energi ke *lattice* tidak efisien (<strong>T1 panjang</strong>) dan fluktuasi medan magnet antar-spin saling meniadakan (*motional averaging*) sehingga fase bertahan lama (<strong>T2 panjang</strong>).</li>
+          </ul>
+          <div class="tabel-bungkus">
+            <table>
+              <thead>
+                <tr>
+                  <th>Jaringan (pada 1.5 Tesla)</th>
+                  <th>Perkiraan T1 (ms)</th>
+                  <th>Perkiraan T2 (ms)</th>
+                  <th>Sinyal pada T1W</th>
+                  <th>Sinyal pada T2W</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Lemak (Adiposa)</strong></td>
+                  <td>~250 – 260 ms (Pendek)</td>
+                  <td>~60 – 80 ms (Pendek-Sedang)</td>
+                  <td>Terang (Hiperintens)</td>
+                  <td>Sedang-Terang</td>
+                </tr>
+                <tr>
+                  <td><strong>Substansia Alba (WM)</strong></td>
+                  <td>~600 – 780 ms (Sedang)</td>
+                  <td>~70 – 90 ms (Sedang)</td>
+                  <td>Agak Terang</td>
+                  <td>Agak Gelap</td>
+                </tr>
+                <tr>
+                  <td><strong>Substansia Grisea (GM)</strong></td>
+                  <td>~900 – 1100 ms (Agak Panjang)</td>
+                  <td>~90 – 100 ms (Sedang)</td>
+                  <td>Agak Gelap</td>
+                  <td>Agak Terang</td>
+                </tr>
+                <tr>
+                  <td><strong>Cairan Serebrospinal (CSF / Air)</strong></td>
+                  <td>~2400 – 4000 ms (Panjang)</td>
+                  <td>~1600 – 2000 ms (Panjang)</td>
+                  <td>Gelap (Hipointens)</td>
+                  <td>Sangat Terang (Hiperintens)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="isi-mode" data-tipe="analogi">
+          <div class="kotak-analogi">
+            <p><strong>Analogi Oper Bola di Kereta:</strong> Menyerahkan barang (energi T1) ke orang di kereta sebelah paling mudah jika kecepatan kereta sebelah sama dengan kecepatan kita (seperti molekul <strong>lemak</strong> yang kecepatannya pas dengan frekuensi Larmor $\rightarrow$ T1 cepat/pendek). Jika kereta sebelah melaju super cepat (seperti molekul <strong>air/CSF</strong>), kita sulit menyerahkan barang $\rightarrow$ T1 sangat lama/panjang.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- BAGIAN 2: SIMULASI INTERAKTIF CANVAS -->
+    <section aria-labelledby="judul-simulasi">
+      <h2 id="judul-simulasi">2. Laboratorium Visual: Kurva Relaksasi, Koherensi Spin & Parameter TR/TE</h2>
+
+      <div class="kartu">
+        <div class="grid-simulasi">
+          <div>
+            <canvas id="kanvasRelaksasi" width="560" height="360"></canvas>
+            <div class="indikator-sinyal">
+              <div class="kotak-sinyal">
+                <span>Pemulihan Mz (T1)</span>
+                <strong id="nilaiMz" style="color: var(--t1);">0%</strong>
+              </div>
+              <div class="kotak-sinyal">
+                <span>Peluruhan Mxy (T2)</span>
+                <strong id="nilaiMxy" style="color: var(--t2);">100%</strong>
+              </div>
+              <div class="kotak-sinyal">
+                <span>Pembobotan Citra</span>
+                <strong id="labelBobot" style="color: var(--aksen);">T1-Weighted</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-kontrol">
+            <div>
+              <strong>Pilih Jaringan Biologis (1.5T):</strong>
+              <div class="baris-tombol" style="margin-top: 6px;">
+                <button class="btn utama" onclick="pilihJaringan('lemak', this)">Lemak (T1=260, T2=80)</button>
+                <button class="btn" onclick="pilihJaringan('otak', this)">Otak GM (T1=950, T2=100)</button>
+                <button class="btn" onclick="pilihJaringan('csf', this)">Air/CSF (T1=2500, T2=1600)</button>
+              </div>
+            </div>
+
+            <div class="grup-slider">
+              <label for="sliderWaktu">
+                <span>Waktu Pasca-Pulsa RF ($t$):</span>
+                <span id="teksWaktu">260 ms</span>
+              </label>
+              <input type="range" id="sliderWaktu" min="0" max="3000" step="10" value="260" oninput="perbaruiSimulasi()" />
+            </div>
+
+            <div class="grup-slider">
+              <label for="sliderTR">
+                <span>Parameter TR (Time Repetition):</span>
+                <span id="teksTR">500 ms</span>
+              </label>
+              <input type="range" id="sliderTR" min="200" max="3000" step="50" value="500" oninput="perbaruiSimulasi()" />
+            </div>
+
+            <div class="grup-slider">
+              <label for="sliderTE">
+                <span>Parameter TE (Time Echo):</span>
+                <span id="teksTE">20 ms</span>
+              </label>
+              <input type="range" id="sliderTE" min="10" max="250" step="5" value="20" oninput="perbaruiSimulasi()" />
+            </div>
+
+            <div class="baris-tombol">
+              <button class="btn utama" id="btnAnimasi" onclick="toggleAnimasi()">▶ Putar Animasi Relaksasi</button>
+              <button class="btn" onclick="resetPulsa90()">⚡ Beri Pulsa RF 90° (t = 0)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BAGIAN 3: EVALUASI PEMAHAMAN (KUIS DINAMIS) -->
+    <section aria-labelledby="judul-kuis">
+      <h2 id="judul-kuis">3. Evaluasi Pemahaman Modul 2</h2>
+
+      <div class="kartu">
+        <div class="header-kuis">
+          <div>
+            <span class="tag info" id="nomorSoal">Soal 1 / 5</span>
+            <span class="tag t1" id="tingkatSoal" style="margin-left: 6px;">Dasar</span>
+          </div>
+          <div style="font-size: 0.9rem; font-weight: 700;">
+            Skor: <span id="skorKuis" style="color: var(--aksen);">0</span> / <span id="totalSoal">5</span>
+          </div>
+        </div>
+
+        <h3 id="teksPertanyaan">Memuat pertanyaan...</h3>
+        <div id="wadahOpsi" class="daftar-opsi"></div>
+        <div id="kotakPenjelasan" class="penjelasan"></div>
+
+        <div class="navkuis">
+          <button class="btn" id="btnSebelumnya" onclick="navigasiSoal(-1)">← Sebelumnya</button>
+          <button class="btn" onclick="ulangiKuis()">↻ Ulangi Kuis</button>
+          <button class="btn utama" id="btnSelanjutnya" onclick="navigasiSoal(1)">Selanjutnya →</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /* ==========================================================
+       1. LOGIKA MODE MATERI (.bm: singkat, lengkap, analogi)
+       ========================================================== */
+    function ubahModeMateri(mode, tombolAktif) {
+      document.querySelectorAll('.bm').forEach((kartu) => {
+        kartu.setAttribute('data-mode', mode);
+      });
+      document.querySelectorAll('.kontrol-mode .pilih').forEach((btn) => {
+        btn.classList.remove('aktif');
+      });
+      if (tombolAktif) tombolAktif.classList.add('aktif');
+    }
+
+    /* ==========================================================
+       2. LOGIKA SIMULASI CANVAS RELAKSASI T1, T2 & PARAMETER TR/TE
+       ========================================================== */
+    const DATA_JARINGAN = {
+      lemak: { nama: 'Lemak', t1: 260, t2: 80 },
+      otak: { nama: 'Substansia Grisea (GM)', t1: 950, t2: 100 },
+      csf: { nama: 'Air / CSF', t1: 2500, t2: 1600 }
+    };
+
+    let jaringanAktif = DATA_JARINGAN.lemak;
+    let idAnimasi = null;
+    let sedangBerputar = false;
+
+    const kanvas = document.getElementById('kanvasRelaksasi');
+    const ctx = kanvas.getContext('2d');
+
+    function pilihJaringan(kunci, tombol) {
+      jaringanAktif = DATA_JARINGAN[kunci];
+      document.querySelectorAll('.panel-kontrol .baris-tombol:first-of-type .btn').forEach((b) => {
+        b.classList.remove('utama');
+      });
+      if (tombol) tombol.classList.add('utama');
+      perbaruiSimulasi();
+    }
+
+    function resetPulsa90() {
+      document.getElementById('sliderWaktu').value = 0;
+      perbaruiSimulasi();
+    }
+
+    function toggleAnimasi() {
+      const btn = document.getElementById('btnAnimasi');
+      if (sedangBerputar) {
+        cancelAnimationFrame(idAnimasi);
+        sedangBerputar = false;
+        btn.textContent = '▶ Putar Animasi Relaksasi';
+      } else {
+        sedangBerputar = true;
+        btn.textContent = '⏸ Jeda Animasi';
+        langkahAnimasi();
+      }
+    }
+
+    function langkahAnimasi() {
+      if (!sedangBerputar) return;
+      const slider = document.getElementById('sliderWaktu');
+      let t = parseFloat(slider.value) + 15;
+      if (t > 3000) t = 0;
+      slider.value = t;
+      perbaruiSimulasi();
+      idAnimasi = requestAnimationFrame(langkahAnimasi);
+    }
+
+    function perbaruiSimulasi() {
+      const t = parseFloat(document.getElementById('sliderWaktu').value);
+      const tr = parseFloat(document.getElementById('sliderTR').value);
+      const te = parseFloat(document.getElementById('sliderTE').value);
+
+      document.getElementById('teksWaktu').textContent = `${Math.round(t)} ms`;
+      document.getElementById('teksTR').textContent = `${Math.round(tr)} ms`;
+      document.getElementById('teksTE').textContent = `${Math.round(te)} ms`;
+
+      const { t1, t2, nama } = jaringanAktif;
+      const mz = 1 - Math.exp(-t / t1);
+      const mxy = Math.exp(-t / t2);
+
+      document.getElementById('nilaiMz').textContent = `${(mz * 100).toFixed(1)}%`;
+      document.getElementById('nilaiMxy').textContent = `${(mxy * 100).toFixed(1)}%`;
+
+      // Tentukan Pembobotan Citra berdasarkan TR & TE
+      const elBobot = document.getElementById('labelBobot');
+      if (tr <= 700 && te <= 30) {
+        elBobot.textContent = 'T1-Weighted';
+      } else if (tr >= 1800 && te >= 80) {
+        elBobot.textContent = 'T2-Weighted';
+      } else if (tr >= 1800 && te <= 30) {
+        elBobot.textContent = 'PD-Weighted';
+      } else {
+        elBobot.textContent = 'Campuran (Mixed)';
+      }
+
+      gambarKanvas(t, tr, te, t1, t2, mz, mxy, nama);
+    }
+
+    function gambarKanvas(t, tr, te, t1, t2, mz, mxy, nama) {
+      const W = kanvas.width;
+      const H = kanvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      // Area Grafik Kurva (Kiri)
+      const gx = 45, gy = 30, gw = 330, gh = 280;
+
+      // Grid & Sumbu
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = gy + (gh / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(gx, y);
+        ctx.lineTo(gx + gw, y);
+        ctx.stroke();
+      }
+
+      // Garis 63% (T1) dan 37% (T2)
+      const y63 = gy + gh * (1 - 0.63);
+      const y37 = gy + gh * (1 - 0.37);
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(34, 197, 94, 0.35)';
+      ctx.beginPath(); ctx.moveTo(gx, y63); ctx.lineTo(gx + gw, y63); ctx.stroke();
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
+      ctx.beginPath(); ctx.moveTo(gx, y37); ctx.lineTo(gx + gw, y37); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Kurva T1: Mz(t) = 1 - exp(-t/T1)
+      ctx.strokeStyle = '#22c55e';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let px = 0; px <= gw; px++) {
+        const waktu = (px / gw) * 3000;
+        const val = 1 - Math.exp(-waktu / t1);
+        const py = gy + gh * (1 - val);
+        if (px === 0) ctx.moveTo(gx + px, py);
+        else ctx.lineTo(gx + px, py);
+      }
+      ctx.stroke();
+
+      // Kurva T2: Mxy(t) = exp(-t/T2)
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let px = 0; px <= gw; px++) {
+        const waktu = (px / gw) * 3000;
+        const val = Math.exp(-waktu / t2);
+        const py = gy + gh * (1 - val);
+        if (px === 0) ctx.moveTo(gx + px, py);
+        else ctx.lineTo(gx + px, py);
+      }
+      ctx.stroke();
+
+      // Penanda Garis TR dan TE
+      const xTR = gx + (tr / 3000) * gw;
+      const xTE = gx + (te / 3000) * gw;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(xTR, gy); ctx.lineTo(xTR, gy + gh); ctx.stroke();
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '11px sans-serif';
+      ctx.fillText('TR', xTR + 3, gy + 12);
+
+      // Penanda Waktu Aktif (t)
+      const xt = gx + (t / 3000) * gw;
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(xt, gy); ctx.lineTo(xt, gy + gh); ctx.stroke();
+
+      // Titik pada kurva
+      ctx.fillStyle = '#22c55e';
+      ctx.beginPath(); ctx.arc(xt, gy + gh * (1 - mz), 5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath(); ctx.arc(xt, gy + gh * (1 - mxy), 5, 0, Math.PI * 2); ctx.fill();
+
+      // Label Sumbu
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '11px sans-serif';
+      ctx.fillText('100%', 8, gy + 4);
+      ctx.fillText('63%', 12, y63 + 4);
+      ctx.fillText('37%', 12, y37 + 4);
+      ctx.fillText('0%', 18, gy + gh + 4);
+      ctx.fillText('0 ms', gx, gy + gh + 18);
+      ctx.fillText('3000 ms', gx + gw - 45, gy + gh + 18);
+      ctx.fillStyle = '#f1f5f9';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillText(`Kurva Relaksasi: ${nama}`, gx, 18);
+
+      // Diagram Vektor NMV & Fase Spin (Kanan)
+      const cx = 468, cy = 135, r = 68;
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+
+      // Sumbu Z (Vertikal) & XY (Horizontal)
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - r - 10); ctx.lineTo(cx, cy + r + 10);
+      ctx.moveTo(cx - r - 10, cy); ctx.lineTo(cx + r + 10, cy);
+      ctx.stroke();
+
+      // Vektor Mz (Hijau) & Mxy (Kuning)
+      ctx.strokeStyle = '#22c55e';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx, cy - mz * r);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + mxy * r, cy);
+      ctx.stroke();
+
+      ctx.fillStyle = '#f1f5f9';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('Vektor Mz & Mxy', cx - 44, 35);
+
+      // Lingkaran Koherensi Fase Spin (Bawah Kanan)
+      const cy2 = 280, r2 = 42;
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(cx, cy2, r2, 0, Math.PI * 2); ctx.stroke();
+
+      const jumlahSpin = 8;
+      const sebaranFase = (1 - mxy) * Math.PI * 1.8;
+      for (let i = 0; i < jumlahSpin; i++) {
+        const sudutDasar = (t * 0.015) + ((i - jumlahSpin / 2) / jumlahSpin) * sebaranFase;
+        const sx = cx + Math.cos(sudutDasar) * (r2 - 4);
+        const sy = cy2 + Math.sin(sudutDasar) * (r2 - 4);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy2);
+        ctx.lineTo(sx, sy);
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '11px sans-serif';
+      ctx.fillText('Koherensi Fase (XY)', cx - 50, cy2 + r2 + 16);
+    }
+
+    /* ==========================================================
+       3. MESIN KUIS DINAMIS (SOAL & jalankanKuisToggle)
+       ========================================================== */
+    const SOAL = [
+      {
+        tingkat: 'Dasar',
+        pertanyaan: 'Apa definisi fisik dari konstanta waktu relaksasi T1 setelah pemberian pulsa RF 90°?',
+        pilihan: [
+          'Waktu yang dibutuhkan magnetisasi transversal (Mxy) untuk meluruh hingga 37% dari nilai awalnya',
+          'Waktu yang dibutuhkan magnetisasi longitudinal (Mz) untuk pulih mencapai 63% dari nilai kesetimbangan (M0)',
+          'Waktu antara pemberian pulsa RF 90° dengan puncak sinyal echo yang terdeteksi',
+          'Waktu yang diperlukan seluruh spin proton untuk kembali ke fase presesi yang sama'
+        ],
+        jawaban: 1,
+        penjelasan: 'Konstanta T1 (spin-lattice relaxation time) adalah waktu yang diperlukan komponen magnetisasi longitudinal (Mz) untuk pulih sebesar 63% dari nilai magnetisasi maksimum awalnya (M0).'
+      },
+      {
+        tingkat: 'Dasar',
+        pertanyaan: 'Mengapa proses relaksasi T2 disebut juga sebagai relaksasi spin-spin?',
+        pilihan: [
+          'Karena terjadi pelepasan energi panas dari spin proton menuju kisi molekuler di sekitarnya',
+          'Karena peluruhan Mxy dipicu oleh pertukaran energi dan interaksi medan magnet mikro antar-spin yang berdekatan sehingga kehilangan koherensi fase',
+          'Karena hanya terjadi pada jaringan yang memiliki kerapatan proton sangat tinggi',
+          'Karena membutuhkan dua pulsa RF berturut-turut untuk membalikkan arah spin'
+        ],
+        jawaban: 1,
+        penjelasan: 'Relaksasi T2 disebabkan oleh interaksi medan magnetik lokal antar-spin tetangga yang menyebabkan kecepatan presesi tiap spin sedikit berbeda, memicu dephasing (kehilangan koherensi fase) pada bidang transversal.'
+      },
+      {
+        tingkat: 'Menengah',
+        pertanyaan: 'Bagaimana karakteristik waktu relaksasi T1 dan T2 pada cairan serebrospinal (CSF / air bebas) dibandingkan dengan jaringan lemak?',
+        pilihan: [
+          'CSF memiliki T1 pendek dan T2 pendek karena molekulnya bergerak sangat cepat',
+          'CSF memiliki T1 panjang dan T2 pendek karena frekuensi tumbling-nya mendekati frekuensi Larmor',
+          'CSF memiliki T1 panjang dan T2 panjang karena molekul air berukuran kecil dan memiliki tumbling rate sangat cepat',
+          'CSF dan lemak memiliki nilai T1 yang sama tetapi berbeda pada nilai T2'
+        ],
+        jawaban: 2,
+        penjelasan: 'Molekul air bebas pada CSF berukuran kecil dan bergerak sangat cepat (high tumbling rate >> frekuensi Larmor), sehingga transfer energi ke lattice tidak efisien (T1 panjang) dan dephasing antar-spin berjalan lambat (T2 panjang).'
+      },
+      {
+        tingkat: 'Menengah',
+        pertanyaan: 'Faktor apakah yang membedakan peluruhan T2* (T2-star) dengan peluruhan T2 murni?',
+        pilihan: [
+          'T2* memperhitungkan percepatan dephasing akibat ketidakhomogenan (inhomogenitas) medan magnet statis B0 dan efek suseptibilitas magnetik',
+          'T2* hanya terjadi pada cairan bergerak seperti aliran darah arteri',
+          'T2* selalu memiliki waktu relaksasi yang lebih panjang daripada T2 murni',
+          'T2* berkaitan dengan pemulihan vektor magnetisasi pada sumbu longitudinal Z'
+        ],
+        jawaban: 0,
+        penjelasan: 'Peluruhan T2* merupakan kombinasi dari interaksi spin-spin murni (T2) ditambah efek dephasing akibat inhomogenitas medan magnet utama B0, sehingga T2* selalu lebih pendek daripada T2.'
+      },
+      {
+        tingkat: 'Klinis / Parameter',
+        pertanyaan: 'Kombinasi parameter TR (Time Repetition) dan TE (Time Echo) manakah yang digunakan untuk menghasilkan citra T1-Weighted (T1W) di mana lemak tampak terang dan CSF tampak gelap?',
+        pilihan: [
+          'TR panjang (≥ 2000 ms) dan TE panjang (≥ 80 ms)',
+          'TR panjang (≥ 2000 ms) dan TE pendek (≤ 25 ms)',
+          'TR pendek (400–700 ms) dan TE pendek (10–25 ms)',
+          'TR pendek (400–700 ms) dan TE panjang (≥ 100 ms)'
+        ],
+        jawaban: 2,
+        penjelasan: 'Untuk memaksimalkan kontras T1 (T1-Weighted), digunakan TR pendek (agar jaringan dengan T1 pendek seperti lemak sudah pulih tinggi sementara CSF masih rendah) dan TE pendek (untuk meminimalkan kontribusi peluruhan T2).'
+      }
+    ];
+
+    let indeksSoalAktif = 0;
+    let jawabanPengguna = new Array(SOAL.length).fill(null);
+
+    function muatSoal() {
+      const data = SOAL[indeksSoalAktif];
+      document.getElementById('nomorSoal').textContent = `Soal ${indeksSoalAktif + 1} / ${SOAL.length}`;
+      document.getElementById('tingkatSoal').textContent = data.tingkat;
+      document.getElementById('totalSoal').textContent = SOAL.length;
+      document.getElementById('teksPertanyaan').textContent = data.pertanyaan;
+
+      const wadah = document.getElementById('wadahOpsi');
+      wadah.innerHTML = '';
+
+      const sudahDijawab = jawabanPengguna[indeksSoalAktif] !== null;
+
+      data.pilihan.forEach((teksOpsi, idx) => {
+        const tombol = document.createElement('button');
+        tombol.className = 'opsi';
+        tombol.textContent = `${String.fromCharCode(65 + idx)}. ${teksOpsi}`;
+
+        if (sudahDijawab) {
+          tombol.disabled = true;
+          if (idx === data.jawaban) {
+            tombol.classList.add('benar');
+          } else if (idx === jawabanPengguna[indeksSoalAktif]) {
+            tombol.classList.add('salah');
+          }
+        } else {
+          tombol.onclick = () => jalankanKuisToggle(idx);
+        }
+
+        wadah.appendChild(tombol);
+      });
+
+      const kotakPenjelasan = document.getElementById('kotakPenjelasan');
+      if (sudahDijawab) {
+        const statusBenar = jawabanPengguna[indeksSoalAktif] === data.jawaban;
+        kotakPenjelasan.innerHTML = `<strong>${statusBenar ? '✓ Jawaban Tepat!' : '✗ Kurang Tepat.'}</strong> ${data.penjelasan}`;
+        kotakPenjelasan.classList.add('tampil');
+      } else {
+        kotakPenjelasan.classList.remove('tampil');
+        kotakPenjelasan.innerHTML = '';
+      }
+
+      document.getElementById('btnSebelumnya').disabled = indeksSoalAktif === 0;
+      document.getElementById('btnSelanjutnya').disabled = indeksSoalAktif === SOAL.length - 1;
+      hitungSkor();
+    }
+
+    function jalankanKuisToggle(pilihanIdx) {
+      jawabanPengguna[indeksSoalAktif] = pilihanIdx;
+      muatSoal();
+    }
+
+    function navigasiSoal(arah) {
+      const target = indeksSoalAktif + arah;
+      if (target >= 0 && target < SOAL.length) {
+        indeksSoalAktif = target;
+        muatSoal();
+      }
+    }
+
+    function hitungSkor() {
+      const benar = jawabanPengguna.reduce((total, jwb, idx) => {
+        return jwb === SOAL[idx].jawaban ? total + 1 : total;
+      }, 0);
+      document.getElementById('skorKuis').textContent = benar;
+    }
+
+    function ulangiKuis() {
+      jawabanPengguna = new Array(SOAL.length).fill(null);
+      indeksSoalAktif = 0;
+      muatSoal();
+    }
+
+    // Inisialisasi awal saat halaman selesai dimuat
+    window.addEventListener('DOMContentLoaded', () => {
+      perbaruiSimulasi();
+      muatSoal();
+    });
+  </script>
+</body>
+</html>

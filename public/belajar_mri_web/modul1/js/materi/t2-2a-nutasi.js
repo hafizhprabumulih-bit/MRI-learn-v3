@@ -1,0 +1,12 @@
+// T2.2 Efek eksitasi: nutasi
+// Edit teks di dalam HTML. Kelas: .s = materi singkat, .l = lengkap, .a = analogi.
+MODUL.materi.push({kode:'t2-2a-nutasi',tingkat:2,html:`<div class='kartu bm'>
+<span class='tag'>T2.2 Efek eksitasi: nutasi</span>
+<p class='s'>(Penjelasan kuantum rinci: T3.3.) Klasik: B1 membuat NMV berpresesi dalam spiral turun dari sumbu z ke bidang transversal (nutasi), dan momen magnetik menjadi sefase. </p>
+<p class='l'><b>Teori klasik.</b> B1 bekerja pada bidang transversal (sumbu x&ndash;y), sehingga momen magnetik berpresesi mengelilingi sumbu itu, bukan sumbu z. Karena B1 jauh lebih lemah daripada B0, presesi mengelilingi B1 jauh lebih lambat. NMV bergerak spiral dari bidang longitudinal ke bidang transversal. Gerak spiral ini disebut <b>nutasi</b>, hasil dua presesi serentak: yang cepat mengelilingi B0 dan yang lambat mengelilingi B1. Selain itu, momen magnetik spin atas dan bawah bergerak menjadi sefase (koheren).</p>
+<p class='l'>(Sudut flip 90&deg; dan 180&deg; dirinci di kartu berikut.) Jika energi yang diserap tepat, NMV berada di bidang transversal, tegak lurus B0. NMV telah berpindah sejauh <b>sudut flip</b> (tip angle) 90&deg;. Energi dan frekuensi radiasi saling berkaitan. Frekuensi resonansi terkait dengan beda energi kedua populasi, jadi dengan kekuatan B0. Makin besar B0, makin besar frekuensi yang diperlukan.</p>
+<p class='l'>Pulsa RF ditandai oleh amplitudo (B1) dan frekuensinya. Agar resonansi terjadi, frekuensinya harus sama dengan frekuensi Larmor hidrogen. Sebelum resonansi, momen magnetik berpresesi cepat dan tidak sefase, sehingga tidak ada komponen transversal neto. Saat B1 diberikan, momen magnetik menyelaraskan diri dan memperoleh koherensi fase. Magnetisasi transversal pun naik. Gabungan koherensi fase dan nutasi menghasilkan magnetisasi koheren yang berpresesi di bidang transversal.</p>
+<p class='a'><b>Analogi 1, sekrup:</b> sekrup berputar cepat mengelilingi porosnya sambil maju pelan sepanjang poros. Nutasi mirip: putaran cepat mengelilingi B0 digabung putaran lambat mengelilingi B1, sehingga lintasan NMV berupa spiral.</p>
+<p class='a'><b>Analogi 2, rak buku:</b> spin rendah ada di rak bawah, spin tinggi di rak atas. Pulsa RF memberi "tenaga" untuk naik rak. Karena rak bawah lebih penuh, lebih banyak yang naik daripada yang turun. Hasil bersihnya: tenaga diserap.</p>
+<p class='a'><b>Analogi 3, aba-aba baris-berbaris:</b> sebelum aba-aba, pasukan melangkah sembarang. Setelah aba-aba (pulsa RF), semuanya serempak. Itulah koherensi fase.</p>
+</div>`});

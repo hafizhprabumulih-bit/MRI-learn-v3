@@ -1,0 +1,62 @@
+/* Gaya khusus Modul 1 */
+
+canvas{height:auto;display:block}
+.baris{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+label{display:block;margin-top:8px;font-weight:600}
+input[type=number]{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--garis);background:var(--latar);color:var(--teks);width:9em}
+.lencana{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid currentColor;font-weight:600}
+.meter{height:10px;border-radius:99px;background:var(--garis);overflow:hidden;margin:6px 0}
+.meter i{display:block;height:100%;width:0;background:var(--b0);transition:width .6s ease}
+button[hidden]{display:none}
+button:active{transform:scale(.96)}
+.denyut{border-color:var(--b0);animation:denyut 1.6s infinite}
+.muncul{animation:muncul .45s ease}
+.lencana.ok{animation:hijau 1.8s infinite}
+canvas.klik{cursor:pointer}
+@keyframes denyut{0%,100%{box-shadow:0 0 0 0 rgba(47,107,255,.55)}50%{box-shadow:0 0 0 9px rgba(47,107,255,0)}}
+@keyframes hijau{0%,100%{box-shadow:0 0 0 0 rgba(43,138,62,.5)}50%{box-shadow:0 0 0 7px rgba(43,138,62,0)}}
+@keyframes muncul{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.denyut,.muncul,.lencana.ok{animation:none}.meter i{transition:none}}
+.pilih{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.pilih button[aria-pressed=true]{background:var(--aksen);color:var(--latar);border-color:var(--aksen);font-weight:600}
+.bm[data-mode=singkat] .l,.bm[data-mode=lengkap] .s{display:none}
+.bm .l,.bm .s{animation:masuk .4s ease}
+.opsi{display:block;width:100%;text-align:left;margin:6px 0}
+.opsi.benar{background:var(--benar);border-color:var(--benar);color:#fff;font-weight:600}
+.opsi.salah{background:var(--salah);border-color:var(--salah);color:#fff}
+.navkuis{display:flex;gap:8px;justify-content:space-between;margin-top:10px}
+button:disabled{opacity:.55;cursor:not-allowed}
+.sumber{font-size:.85rem}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--garis);background:var(--latar);color:var(--teks)}
+@keyframes masuk{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.bm .l,.bm .s{animation:none}}
+.tag{font-size:.8rem;font-weight:700;color:var(--aksen);text-transform:uppercase;letter-spacing:.04em}
+.bm .a{display:none;border-left:3px solid var(--t2);padding-left:10px}
+.bm[data-mode=analogi] .a{display:block;animation:masuk .4s ease}
+.bm[data-mode=analogi] .l{display:none}
+.tabel{border-collapse:collapse;width:100%;font-size:.92rem}
+.tabel th,.tabel td{border:1px solid var(--garis);padding:4px 8px;text-align:left}
+.gulir{overflow-x:auto}
+
+
+/* Kartu aktivitas yang disisipkan di bawah materi pendukungnya */
+.kartu.akt{border-left:4px solid var(--t2)}
+.kartu.akt>b:first-child::before{content:'Aktivitas \00b7  ';color:var(--t2);font-weight:700}
+
+/* Kanvas dan baris tombol di tengah; tombol ikon; kanvas yang bisa diseret */
+canvas{margin-left:auto;margin-right:auto}
+.baris{justify-content:center;align-items:center}
+button.ik{width:42px;height:42px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+button.ik[aria-pressed=true]{background:var(--aksen);color:var(--latar);border-color:var(--aksen)}
+canvas.seret{cursor:grab;touch-action:none}
+
+/* A5 Bola Bloch dan A6 TR berulang */
+.gdua{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:12px}
+.gdua2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media(max-width:640px){.gdua,.gdua2{grid-template-columns:1fr}}
+.bl canvas,.ul canvas{width:100%}
+.ul canvas{max-width:640px;margin:8px auto}
+.bl .baris label,.ul .baris label{margin-top:0}
+.bl canvas:focus-visible{outline:2px solid var(--aksen);outline-offset:2px}
+.ang{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-variant-numeric:tabular-nums}
+.ul th:not(:first-child),.ul td:not(:first-child){text-align:right}

@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MODUL 9: Optimasi Protokol dan Membaca Layar Konsol</title>
+<style>
+/* DASAR: warna, font, tombol, kartu (css/dasar.css) */
+:root{--latar:#fff;--permukaan:#f4f6f8;--teks:#1b1f24;--lembut:#5a6572;--aksen:#1f6feb;--t1:#d9480f;--t2:#0b7285;--b0:#2f6bff;--benar:#2b8a3e;--salah:#c92a2a;--garis:#d5dbe3;--radius:10px;--font:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+@media(prefers-color-scheme:dark){:root{--latar:#14171a;--permukaan:#1e2328;--teks:#e8ecef;--lembut:#9aa5b1;--aksen:#5aa2ff;--t1:#ff922b;--t2:#3bc9db;--b0:#6f9bff;--garis:#2e353d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--latar);color:var(--teks);font:16px/1.6 var(--font)}
+main{max-width:860px;margin:0 auto;padding:16px}
+a{color:var(--aksen)}
+.atas{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
+h1{font-size:1.6rem;margin:.6em 0 .2em}
+h2{font-size:1.25rem;margin-top:1.6em}
+.lembut{color:var(--lembut)}
+.kartu{background:var(--permukaan);border:1px solid var(--garis);border-radius:var(--radius);padding:14px;margin:12px 0}
+.lanjut{border-left:4px solid var(--aksen)}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--garis);background:var(--permukaan);color:var(--teks);cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--aksen);outline-offset:2px}
+canvas{max-width:100%;background:var(--permukaan);border-radius:var(--radius)}
+input[type=range]{width:100%}
+.ok{color:var(--benar)}
+.no{color:var(--salah)}
+
+/* KOMPONEN UI: tab materi, kuis, meter, tabel (css/komponen.css) */
+canvas{height:auto;display:block}
+.baris{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+label{display:block;margin-top:8px;font-weight:600}
+input[type=number]{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--garis);background:var(--latar);color:var(--teks);width:9em}
+.lencana{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid currentColor;font-weight:600}
+.meter{height:10px;border-radius:99px;background:var(--garis);overflow:hidden;margin:6px 0}
+.meter i{display:block;height:100%;width:0;background:var(--b0);transition:width .6s ease}
+button[hidden]{display:none}
+button:active{transform:scale(.96)}
+.denyut{border-color:var(--b0);animation:denyut 1.6s infinite}
+.muncul{animation:muncul .45s ease}
+.lencana.ok{animation:hijau 1.8s infinite}
+canvas.klik{cursor:pointer}
+@keyframes denyut{0%,100%{box-shadow:0 0 0 0 rgba(47,107,255,.55)}50%{box-shadow:0 0 0 9px rgba(47,107,255,0)}}
+@keyframes hijau{0%,100%{box-shadow:0 0 0 0 rgba(43,138,62,.5)}50%{box-shadow:0 0 0 7px rgba(43,138,62,0)}}
+@keyframes muncul{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.denyut,.muncul,.lencana.ok{animation:none}.meter i{transition:none}}
+.pilih{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.pilih button[aria-pressed=true]{background:var(--aksen);color:var(--latar);border-color:var(--aksen);font-weight:600}
+.bm[data-mode=singkat] .l,.bm[data-mode=lengkap] .s{display:none}
+.bm .l,.bm .s{animation:masuk .4s ease}
+.opsi{display:block;width:100%;text-align:left;margin:6px 0}
+.opsi.benar{background:var(--benar);border-color:var(--benar);color:#fff;font-weight:600}
+.opsi.salah{background:var(--salah);border-color:var(--salah);color:#fff}
+.navkuis{display:flex;gap:8px;justify-content:space-between;margin-top:10px}
+button:disabled{opacity:.55;cursor:not-allowed}
+.sumber{font-size:.85rem}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--garis);background:var(--latar);color:var(--teks)}
+@keyframes masuk{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.bm .l,.bm .s{animation:none}}
+.tag{font-size:.8rem;font-weight:700;color:var(--aksen);text-transform:uppercase;letter-spacing:.04em}
+.bm .a{display:none;border-left:3px solid var(--t2);padding-left:10px}
+.bm[data-mode=analogi] .a{display:block;animation:masuk .4s ease}
+.bm[data-mode=analogi] .l,.bm[data-mode=analogi] .s{display:none}
+.tabel{border-collapse:collapse;width:100%;font-size:.92rem}
+.tabel th,.tabel td{border:1px solid var(--garis);padding:4px 8px;text-align:left}
+.gulir{overflow-x:auto}
+
+/* TAMBAHAN: daftar isi, kode simpul, kalkulator, chip (css/tambahan.css) */
+.daftar a{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border:1px solid var(--garis);border-radius:999px;text-decoration:none;font-size:.85rem}
+.daftar a.akt{border-color:var(--t2);color:var(--t2)}
+.judul-tingkat{border-bottom:2px solid var(--garis);padding-bottom:4px}
+.kode{display:inline-block;font-weight:700;padding:1px 8px;border-radius:6px;background:var(--aksen);color:var(--latar);margin-right:6px;font-size:.8rem}
+.kode.akt{background:var(--t2)}
+.meta{font-size:.85rem;color:var(--lembut);margin:4px 0}
+.kartu.akt{border-left:4px solid var(--t2)}
+.tautan{font-size:.88rem;color:var(--lembut);margin:2px 0}
+.m5-stage.uji .m5-lbl{display:none}
+h3{font-size:1.05rem;margin:.2em 0 .5em}
+.sl{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
+@media(max-width:600px){.sl{grid-template-columns:1fr}}
+.sl label{display:flex;justify-content:space-between;font-size:.9rem;margin-top:4px;font-weight:400}.sl b{color:var(--aksen)}
+.rumus{font-family:ui-monospace,Consolas,monospace;background:var(--latar);border:1px solid var(--garis);border-radius:8px;padding:6px 10px;font-size:.9rem;overflow-x:auto}
+.hasil{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.hasil div{background:var(--latar);border:1px solid var(--garis);border-radius:8px;padding:6px 10px;font-size:.9rem}.hasil strong{display:block;font-size:1.15rem}
+.chip{display:inline-block;font-size:.78rem;border:1px solid var(--garis);border-radius:99px;padding:1px 9px;margin:2px 4px 2px 0;background:var(--latar)}
+.chip.ta{border-color:var(--t1);color:var(--t1)}.chip.snr{border-color:var(--t2);color:var(--t2)}.chip.res{border-color:var(--aksen);color:var(--aksen)}.chip.kon{border-color:var(--benar);color:var(--benar)}
+.konsol li{margin:4px 0}
+
+/* Gaya Kalkulator S1 */
+.s1w{--s1-tombol-w:124px;--s1-tombol-h:38px}
+.s1w .s1-kartu{border:1px solid var(--garis,#334);border-radius:12px;padding:10px;background:var(--kartu,rgba(127,127,127,.07));box-sizing:border-box}
+.s1w .s1-atas{display:grid;grid-template-columns:minmax(0,1fr) 168px;gap:10px;align-items:stretch;margin:0}
+.s1w .s1-kv{position:relative;min-width:0}
+.s1w #s1-kanvas{width:100%;height:auto;display:block;border-radius:8px;background:#000;margin:0}
+.s1w #s1-ganti{position:absolute;display:grid;grid-template-columns:15% 1fr 15%;grid-template-rows:1fr;gap:4px;margin:0;padding:0;box-sizing:border-box}
+.s1w #s1-ganti button,.s1w #s1-ganti .s1-nama{height:100%;min-width:0;margin:0;padding:0 4px;box-sizing:border-box;font-size:13px;line-height:1.1;text-align:center;display:flex;align-items:center;justify-content:center;border-radius:6px;background:#1f2937;color:#9ca3af;border:1px solid #374151}
+.s1w #s1-ganti button{width:100%;cursor:pointer;font-size:17px;font-weight:700}
+.s1w #s1-ganti button:hover,.s1w #s1-ganti button:focus-visible{background:var(--aksen,#3b82f6);color:#fff;border-color:var(--aksen,#3b82f6)}
+.s1w #s1-ganti .s1-nama{color:#e5e7eb;font-weight:600}
+.s1w #s1-hasil{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;background:none;border:0}
+.s1w #s1-hasil>div{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:10px 12px;border-radius:8px;border:1px solid var(--garis,#334);font-size:12.5px;line-height:1.25;box-sizing:border-box;width:100%;min-height:0}
+.s1w #s1-hasil>div strong{display:block;font-size:17px;white-space:nowrap}
+.s1w .s1-bawah{display:grid;grid-template-columns:minmax(0,1fr) var(--s1-tombol-w);gap:14px;align-items:start;margin-top:10px}
+.s1w #s1-sl{display:grid;grid-template-columns:1fr 1fr;gap:8px 22px;margin:0}
+.s1w #s1-sl>div{min-width:0}
+.s1w #s1-sl label{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.s1w #s1-sl input[type=range]{width:100%;margin:4px 0 0;box-sizing:border-box}
+.s1w #s1-pre{display:grid;grid-auto-rows:var(--s1-tombol-h);gap:6px;margin:0;padding:0}
+.s1w #s1-pre button{width:100%;height:100%;min-width:0;margin:0;padding:0 4px;box-sizing:border-box;font-size:12.5px;line-height:1.15;white-space:normal;text-align:center;display:flex;align-items:center;justify-content:center}
+.s1w .lembut{margin:0 0 6px}
+@media (max-width:760px){
+ .s1w .s1-atas{grid-template-columns:1fr}
+ .s1w #s1-hasil{display:grid;grid-template-columns:1fr 1fr}
+ .s1w .s1-bawah{grid-template-columns:1fr}
+ .s1w #s1-pre{grid-template-columns:repeat(3,1fr)}
+ .s1w #s1-sl{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main>
+<h1>MODUL 9: Optimasi Protokol dan Membaca Layar Konsol</h1>
+<p class="lembut">Media belajar, bukan untuk keputusan klinis. Prasyarat: M04B. Disarankan: M03A (TSE), M08A (kompromi artefak).</p>
+<ul>
+<li>Menjelaskan arti parameter di layar konsol.</li>
+<li>Menghitung waktu pindai (TA) 2D dan mengoreksinya untuk TSE dan 3D.</li>
+<li>Memperkirakan perubahan SNR.</li>
+<li>Menilai kompromi (trade-off) parameter.</li>
+<li>Menunjukkan fungsi tab konsol dan sistem komputer.</li>
+</ul>
+
+<div id="daftar-isi" class="daftar">
+  <a href="#T1.1">T1.1 Parameter yang tampil di konsol</a>
+  <a href="#T1.2">T1.2 Waktu pindai (TA)</a>
+  <a href="#T1.3">T1.3 Contoh protokol sederhana</a>
+  <a href="#T1.4">T1.4 Manajemen pasien (pilih koil, minimalkan TA)</a>
+  <a class="akt" href="#S1">S1 Kalkulator TA, voksel, dan SNR</a>
+  <a href="#T2.1">T2.1 SNR dan voksel</a>
+  <a href="#T2.2">T2.2 Resolusi naik tanpa tambah TA (FoV asimetris)</a>
+  <a href="#T2.3">T2.3 Kompromi (trade-off)</a>
+  <a href="#T2.4">T2.4 Tab konsol (contoh antarmuka)</a>
+  <a class="akt" href="#S2">S2 Peta tab konsol</a>
+  <a href="#T2.5">T2.5 Sistem komputer</a>
+  <a href="#T3.1">T3.1 Koreksi rumus TA untuk TSE dan 3D</a>
+  <a href="#T3.2">T3.2 Parallel imaging: dampak pada TA dan SNR</a>
+  <a href="#T3.3">T3.3 Nama tab dan parameter antar-vendor</a>
+</div>
+
+<div id="isi">
+<h2 class="judul-tingkat">Tingkat 1 (Dasar)</h2>
+
+<div class="kartu bm" id="T1.1" data-mode="singkat">
+  <span class="tag"><span class="kode">T1.1</span>Parameter yang tampil di konsol</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p><b>Tujuan belajar:</b> menjelaskan arti parameter yang tampil di layar konsol.</p>
+  <div class="s"><p>Hampir semua protokol dapat dibaca dari enam angka: TR, TE, flip angle, FoV, matriks, dan ketebalan irisan.</p><p>TR/TE mengatur kontras dan waktu; flip angle mengatur besar tip magnetisasi; FoV dan matriks menentukan ukuran piksel; ketebalan melengkapi volume voksel.</p></div>
+  <div class="l"><p>TR (waktu ulang) menentukan seberapa pulih magnetisasi longitudinal antar pulsa dan ikut menentukan jumlah irisan serta TA. TE menentukan bobot T2: TE panjang menambah kontras T2 tetapi menurunkan SNR. Flip angle mengatur besar tip magnetisasi. FoV dan matriks menentukan ukuran piksel (FoV/matriks), sedangkan ketebalan irisan melengkapi volume voksel. Perlu diingat: matriks fase mengubah TA, matriks frekuensi tidak.</p></div>
+  <p class="a"><b>Analogi:</b> Layar konsol seperti dasbor mobil: TR/TE adalah gigi yang mengubah karakter gambar, FoV/matriks adalah kerapatan jendela mozaik, dan TA adalah argo yang terus berjalan.</p>
+  <p class="tautan">&rarr; definisi: M01 T2.4</p>
+  <p class="tautan">&rarr; efek: M02</p>
+  <p class="meta">Aktivitas terkait: <a href="#S1">S1</a></p>
+</div>
+
+<div class="kartu bm" id="T1.2" data-mode="singkat">
+  <span class="tag"><span class="kode">T1.2</span>Waktu pindai (TA)</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p class="meta">&#9873; Prasyarat: M04B</p>
+  <p><b>Tujuan belajar:</b> menghitung waktu pindai (TA) 2D.</p>
+  <div class="s"><p>TA 2D = TR &times; N<sub>fase</sub> &times; NEX.</p><p>Tiga faktor ini menentukan TA. Matriks frekuensi tidak ikut menaikkan TA.</p></div>
+  <div class="l"><p>Setiap langkah pengodean fase membutuhkan satu TR, dan seluruh baris diulang sebanyak NEX. Karena itu menaikkan matriks fase menaikkan TA, sedangkan menaikkan matriks frekuensi tidak (data frekuensi dibaca sekaligus dalam satu pembacaan). Rumus ini berlaku untuk 2D konvensional; koreksi untuk TSE dan 3D ada di T3.1.</p></div>
+  <p class="a"><b>Analogi:</b> Setiap baris fase seperti satu ketukan pintu: TR adalah jeda antar ketukan, NEX berapa kali diulang. Menambah kolom frekuensi tidak menambah ketukan, hanya menambah lubang pada kertas.</p>
+  <p class="tautan">&rarr; TA = waktu mengisi ruang-k: M04B T2.10 (Fakta 4)</p>
+  <p class="meta">Aktivitas terkait: <a href="#S1">S1</a></p>
+</div>
+
+<div class="kartu bm" id="T1.3" data-mode="singkat">
+  <span class="tag"><span class="kode">T1.3</span>Contoh protokol sederhana</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p><b>Tujuan belajar:</b> menggambarkan protokol sebagai urutan pemindaian yang saling melengkapi.</p>
+  <div class="s"><p>Protokol adalah daftar urutan pemindaian dalam satu pemeriksaan. Protokol menggabungkan beberapa pembobotan agar saling melengkapi.</p></div>
+  <div class="l"><p>Gambaran untuk otak: pemindaian pengenal lokasi, lalu citra berbobot T1, berbobot T2, dan satu citra inversion recovery yang menekan sinyal cairan. Tiap citra menjawab pertanyaan kontras yang berbeda.</p>
+<p class="lembut">Ini ilustrasi belajar. Protokol nyata ditentukan fasilitas dan tim klinisnya.</p>
+<p>Contoh angka untuk satu citra (preset "Awal" di S1): TR 500 ms, FoV 240 mm, matriks 256 &times; 192, irisan 5 mm, NEX 2 memberi TA = 0,5 s &times; 192 &times; 2 = 192 s dan voksel sekitar 5,9 mm&sup3;. Bila NEX menjadi 1, TA menjadi 96 s dan SNR sekitar 0,71&times;. Angka ini ilustrasi, bukan protokol klinis.</p></div>
+  <p class="a"><b>Analogi:</b> Seperti memotret satu objek dengan beberapa filter. Tiap filter memperlihatkan hal yang berbeda.</p>
+  <p class="tautan">&rarr; Teks asli dipindahkan dari M08 (kartu contoh protokol sederhana).</p>
+  <p class="meta">Aktivitas terkait: <a href="#S1">S1</a></p>
+</div>
+
+<div class="kartu bm" id="T1.4" data-mode="singkat">
+  <span class="tag"><span class="kode">T1.4</span>Manajemen pasien (pilih koil, minimalkan TA)</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p><b>Tujuan belajar:</b> memilih koil dan menekan TA demi kenyamanan pasien.</p>
+  <div class="s"><p>Pilih koil yang benar, buat pasien nyaman, jaga TA sependek mungkin.</p><p>Semakin lama pasien di meja, semakin besar peluang bergerak (bukan hanya pasien gelisah).</p></div>
+  <div class="l"><p>Pasien yang tidak nyaman bergerak. Protokol pabrik tidak otomatis optimal; tinjau secara berkala dan konfirmasi protokol dengan radiolog sebelum pindai. Koil yang pas ukurannya menaikkan SNR sehingga TA bisa dipendekkan. Latih pada studi kasus di Simulasi 1.</p></div>
+  <p class="a"><b>Analogi:</b> Seperti memotret anak kecil: makin lama menunggu, makin besar peluang ia bergerak, jadi siapkan posisi nyaman dulu lalu ambil gambar secepat yang masih memadai.</p>
+  <p class="meta">Aktivitas terkait: <a href="#S1">S1</a></p>
+</div>
+
+<div class="kartu m5x akt" id="S1">
+<b><span class="kode akt">S1</span>Kalkulator TA, voksel, dan SNR</b>
+<p class="meta">Menjelaskan: T1.1, T1.2, T1.3, T1.4, T2.1, T2.2, T2.3, T3.1, T3.2</p>
+<div class="s1w">
+<p class="lembut">Geser parameter. Gambar fantom (ilustrasi; ganti potongan dengan tombol &lt; &gt; di bawah citra) berbintik bila SNR turun; batang membandingkan dengan protokol awal (garis putus = 1&times;). Slider ETL dan partisi (T3.1) serta R (T3.2) adalah materi Tingkat 3.</p>
+<div class="s1-kartu">
+ <div class="s1-atas">
+  <div class="s1-kv">
+   <canvas id="s1-kanvas" width="800" height="492" role="img" aria-label="Fantom kepala sagital, kisi voksel, dan batang perbandingan SNR, resolusi, dan waktu"></canvas>
+   <div id="s1-ganti" role="group" aria-label="Ganti citra fantom"></div>
+  </div>
+  <div class="hasil" role="status" aria-live="polite" id="s1-hasil"></div>
+ </div>
+ <div class="s1-bawah">
+  <div class="sl" id="s1-sl"></div>
+  <div id="s1-pre" role="group" aria-label="Preset protokol"></div>
+ </div>
+</div>
+<div class="rumus">TA = TR &times; N<sub>fase</sub> &times; NEX &times; N<sub>partisi</sub> &divide; (ETL &times; R) | voksel = (FoV/N<sub>frek</sub>) &times; (FoV/N<sub>fase</sub>) &times; tebal | SNR &prop; voksel &times; &radic;(NEX&middot;N<sub>fase</sub>&middot;N<sub>partisi</sub>/BW/R)</div>
+<p id="s1-misi" class="lembut"></p>
+<div class="kartu lanjut"><h3>Studi kasus S1 (terkait T1.4)</h3>
+<p>Pasien gelisah, protokol awal berjalan lebih dari 3 menit. Pilih preset "Kasus: pasien gelisah", lalu cari kombinasi dengan TA &le; 2 menit tanpa SNR turun di bawah 0,6&times;. Angka bersifat ilustrasi, bukan dari laporan pasien.</p></div>
+<div class="kartu lanjut"><h3>Mode irisan (dipindah dari M04 Lab #3)</h3>
+<p class="lembut">Tebal irisan &Delta;z = BW pulsa RF &divide; (&gamma; &times; Gz). Nilai Gz dibatasi rentang dari data.js.</p>
+<label for="s1-bwrf">BW pulsa RF (kHz)</label><input type="number" id="s1-bwrf" min="0.5" max="5" step="0.1" value="1">
+<label for="s1-gz">Gradien Gz: <span id="s1-gzv"></span> mT/m</label><input type="range" id="s1-gz">
+<p class="hasil" id="s1-dz" aria-live="polite"></p></div>
+</div>
+</div>
+
+<h2 class="judul-tingkat">Tingkat 2 (Menengah)</h2>
+
+<div class="kartu bm" id="T2.1" data-mode="singkat">
+  <span class="tag"><span class="kode">T2.1</span>SNR dan voksel</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p><b>Tujuan belajar:</b> memperkirakan perubahan SNR dari voksel, NEX, dan bandwidth.</p>
+  <div class="s"><p>SNR &prop; volume voksel &times; &radic;(NEX &middot; N<sub>fase</sub> / BW).</p><p>Voksel besar, NEX banyak, bandwidth sempit = SNR tinggi. FoV adalah pengendali SNR terkuat.</p></div>
+  <div class="l"><p>Pada MRI, SNR adalah faktor kualitas paling penting; resolusi bagus tidak berguna bila SNR buruk. Saat FoV mengecil (matriks tetap), piksel mengecil pada kedua sumbu, maka FoV menjadi pengendali SNR paling kuat (contoh: FoV 160 mm vs 80 mm). Area dengan sinyal bawaan baik (otak) memungkinkan matriks halus dan NEX kecil; area sinyal rendah (paru) butuh NEX lebih banyak dan matriks lebih kasar. Voksel = FoV/matriks; interpolasi (zero-fill) memperhalus tampilan tetapi tidak menambah resolusi sejati.</p></div>
+  <p class="a"><b>Analogi:</b> Voksel seperti ember hujan: ember lebar menampung banyak air (sinyal) tetapi kurang rinci menunjukkan di mana hujan jatuh. Noise adalah percikan acak; mengulang pengukuran meratakannya.</p>
+  <p class="tautan">&rarr; SNR tingkat lanjut: M04C T3.8</p>
+  <p class="meta">Aktivitas terkait: <a href="#S1">S1</a></p>
+</div>
+
+<div class="kartu bm" id="T2.2" data-mode="singkat">
+  <span class="tag"><span class="kode">T2.2</span>Resolusi naik tanpa tambah TA (FoV asimetris)</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p><b>Tujuan belajar:</b> menaikkan resolusi tanpa menambah TA.</p>
+  <div class="s"><p>Dua cara menaikkan resolusi tanpa menambah TA.</p><p>(1) Naikkan matriks frekuensi saja. (2) Pakai FoV asimetris: FoV fase diperkecil, TA turun sebanding, resolusi tetap.</p></div>
+  <div class="l"><p>Resolusi biasanya naik dengan menaikkan matriks fase, dan itu menambah TA. Cara lain: menaikkan matriks frekuensi saja, atau memakai FoV asimetris (rectangular FoV) yang memperkecil FoV arah fase sehingga langkah fase berkurang sebanding, selagi ukuran piksel tetap. Cocok untuk anatomi yang muat dalam persegi panjang.</p></div>
+  <p class="a"><b>Analogi:</b> Seperti memotret dengan lebar bingkai yang lebih sempit: detail sama, tetapi frame yang perlu diisi lebih sedikit sehingga lebih cepat.</p>
+  <p class="meta">Aktivitas terkait: <a href="#S1">S1</a></p>
+</div>
+
+<div class="kartu bm" id="T2.3" data-mode="singkat">
+  <span class="tag"><span class="kode">T2.3</span>Kompromi (trade-off)</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p class="meta">&#9873; Prasyarat: T2.1</p>
+  <p><b>Tujuan belajar:</b> menilai kompromi antar parameter protokol.</p>
+  <div class="s"><p>Ideal: SNR tinggi, resolusi baik, waktu singkat. Mengubah satu parameter selalu memengaruhi yang lain.</p><p>Tidak ada pengaturan yang menang di semua sisi; pilih sesuai tujuan pemeriksaan (prinsip selimut sempit).</p></div>
+  <div class="l"><p>Ideal: SNR tinggi, resolusi baik, waktu singkat. Mengubah satu parameter selalu memengaruhi yang lain:</p>
+<ul>
+<li>NEX naik: SNR naik, TA naik.</li>
+<li>Ketebalan irisan naik: SNR naik, resolusi irisan turun, partial voluming naik.</li>
+<li>Bandwidth turun: SNR naik, tetapi pergeseran kimia dan TE minimum naik.</li>
+<li>TR naik: SNR dan jumlah irisan naik (sampai pemulihan penuh), kontras T1 turun, TA naik.</li>
+<li>TE naik: kontras T2 naik, SNR turun.</li>
+<li>Koil besar: area sinyal luas tetapi SNR lebih rendah; koil kecil: SNR tinggi, area terbatas.</li>
+</ul>
+<p class="lembut">Sumber: Westbrook, Tabel 7.6. Dari M04: menaikkan SNR lewat NEX memperpanjang TA dan hasilnya hanya naik sebesar akar. Parallel imaging dan partial Fourier memangkas waktu dengan harga SNR (lihat T3.2).</p></div>
+  <p class="a"><b>Analogi:</b> Seperti selimut sempit: ditarik menutupi kaki (SNR), terbuka bahu (resolusi). Tugas radiografer memilih bagian mana yang harus tertutup.</p>
+  <p class="tautan">&rarr; menurunkan SAR: M07C A1 mode 3</p>
+  <p class="tautan">&rarr; perbaikan artefak ada harganya: M08C T3.3</p>
+  <p class="meta">Aktivitas terkait: <a href="#S1">S1</a></p>
+</div>
+
+<div class="kartu bm" id="T2.4" data-mode="singkat">
+  <span class="tag"><span class="kode">T2.4</span>Tab konsol (contoh antarmuka)</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p><b>Tujuan belajar:</b> menunjukkan fungsi tiap tab konsol.</p>
+  <div class="s"><p>Parameter dikelompokkan dalam tab menurut fungsinya.</p><p>Routine, Contrast, Resolution, Geometry, System, Physio, Inline, Sequence. Susunan ini contoh antarmuka, bukan aturan universal.</p></div>
+  <div class="l"><p>Peta di Simulasi 2 mengikuti antarmuka bergaya Siemens. Pada unit lain nama dan letak tab berbeda; pemetaan nama antar-vendor ada di T3.3.</p></div>
+  <p class="a"><b>Analogi:</b> Seperti laci perkakas berlabel: semua alat sama, hanya dikelompokkan agar mudah dicari.</p>
+  <p class="meta">Aktivitas terkait: <a href="#S2">S2</a></p>
+</div>
+
+<div class="kartu m5x akt" id="S2">
+<b><span class="kode akt">S2</span>Peta tab konsol</b>
+<p class="meta">Menjelaskan: T2.4, T3.3</p>
+<p class="lembut">Pilih tab untuk melihat parameter yang biasanya ada di sana. Nama dan susunan tab berbeda antar vendor; peta ini contoh antarmuka.</p>
+<div class="pilih" id="s2-tabs" role="group" aria-label="Tab konsol"></div>
+<div id="s2-isi" role="status" aria-live="polite"></div>
+<p class="lembut">Warna chip: <span class="chip ta">waktu</span><span class="chip snr">SNR</span><span class="chip res">resolusi</span><span class="chip kon">kontras</span></p>
+<h3>T3.3: Pemetaan nama antar-vendor</h3>
+<div class="gulir" id="s2-vendor"></div>
+<p class="lembut">Nama dapat berubah antar versi perangkat lunak; cocokkan dengan manual unit Anda.</p>
+</div>
+
+<div class="kartu bm" id="T2.5" data-mode="singkat">
+  <span class="tag"><span class="kode">T2.5</span>Sistem komputer</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p><b>Tujuan belajar:</b> menyebut peran host computer dan PGM.</p>
+  <div class="s"><p>Opsional di modul ini; materi lengkapnya dipindah ke M05 T3.2.</p><p>Host computer = sutradara (GUI, identitas, PACS). Pulse generator module (PGM) = asisten yang mengendalikan RF dan gradien.</p></div>
+  <div class="l"><p>Host computer (GUI) menghubungkan identitas pasien lewat jaringan ke RIS, menyimpan umur, berat, jenis kelamin, dan orientasi untuk menghitung amplitudo RF dan label gambar. PGM mengirim instruksi waktu, amplitudo, bentuk RF, jendela sampling, serta mengendalikan gradien dan sensor fisiologis. Modul pemroses gambar mempercepat rekonstruksi. Gambar disimpan dalam format DICOM pada server berarray redundan dan diakses lewat PACS.</p></div>
+  <p class="a"><b>Analogi:</b> Host computer adalah sutradara; PGM adalah asisten panggung yang menghitung detik demi detik kapan lampu (RF) dan efek (gradien) menyala.</p>
+  <p class="tautan">&rarr; Ringkasan singkat ada di M05 T3.2. Rincian lengkap tetap di sini.</p>
+</div>
+
+<h2 class="judul-tingkat">Tingkat 3 (Lanjut)</h2>
+
+<div class="kartu bm" id="T3.1" data-mode="singkat">
+  <span class="tag"><span class="kode">T3.1</span>Koreksi rumus TA untuk TSE dan 3D</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p class="meta">&#9873; Prasyarat: T1.2</p>
+  <p><b>Tujuan belajar:</b> mengoreksi rumus TA untuk TSE dan 3D.</p>
+  <div class="s"><p>TA umum = TR &times; N<sub>fase</sub> &times; NEX &times; N<sub>partisi</sub> &divide; ETL.</p><p>TSE: TA dibagi turbo factor (ETL). 3D: TA dikali jumlah partisi. 2D konvensional: ETL = 1 dan partisi = 1.</p></div>
+  <div class="l"><p>Contoh TSE: TR 4000 ms, 256 langkah fase, NEX 1, ETL 16 memberi TA = 4 &times; 256 &divide; 16 = 64 s. Contoh 3D: TR 20 ms, 128 fase, 64 partisi, NEX 1 memberi TA = 0,02 &times; 128 &times; 64 &approx; 164 s. Pada 3D, SNR juga ikut naik dengan akar jumlah partisi. Slider ETL dan partisi ada di Simulasi 1.</p></div>
+  <p class="a"><b>Analogi:</b> Seperti memindahkan banyak barang dengan satu perjalanan membawa beberapa kardus (ETL), sementara 3D seperti menambah jumlah lantai yang harus dikerjakan.</p>
+  <p class="meta">Aktivitas terkait: <a href="#S1">S1</a></p>
+</div>
+
+<div class="kartu bm" id="T3.2" data-mode="singkat">
+  <span class="tag"><span class="kode">T3.2</span>Parallel imaging: dampak pada TA dan SNR</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p class="meta">&#9873; Prasyarat: T3.1</p>
+  <p><b>Tujuan belajar:</b> menilai dampak parallel imaging pada TA dan SNR.</p>
+  <div class="s"><p>iPAT, SENSE, dan ASSET memakai banyak elemen koil untuk melewati sebagian langkah fase.</p><p>Faktor akselerasi R membagi TA dengan R, tetapi SNR turun minimal &radic;R.</p></div>
+  <div class="l"><p>Ideal: TA &divide; R dan SNR &divide; &radic;R. Di praktik ada penalti tambahan (g-factor, g &ge; 1) sehingga SNR turun lebih banyak, dan R terlalu besar menimbulkan artefak aliasing sisa. Simulasi 1 memakai g = 1 (kasus terbaik), jadi hasilnya batas optimis.</p></div>
+  <p class="a"><b>Analogi:</b> Seperti beberapa orang membaca bagian buku berbeda lalu digabung: lebih cepat, tetapi sambungannya tidak selalu mulus (g-factor).</p>
+  <p class="tautan">&rarr; M04C T3.6</p>
+  <p class="meta">Aktivitas terkait: <a href="#S1">S1</a></p>
+</div>
+
+<div class="kartu bm" id="T3.3" data-mode="singkat">
+  <span class="tag"><span class="kode">T3.3</span>Nama tab dan parameter antar-vendor</span>
+  <div class="pilih" role="group" aria-label="Kedalaman materi kartu ini">
+    <button type="button" data-mode="singkat" aria-pressed="true">Materi singkat</button>
+    <button type="button" data-mode="lengkap" aria-pressed="false">Materi lengkap</button>
+    <button type="button" data-mode="analogi" aria-pressed="false">Analogi</button>
+  </div>
+  <p><b>Tujuan belajar:</b> memetakan nama tab dan parameter antar-vendor.</p>
+  <div class="s"><p>Fungsi sama, nama berbeda.</p><p>Tabel pemetaan Siemens, GE, dan Philips ada di Simulasi 2.</p></div>
+  <div class="l"><p>Satu fungsi (misalnya akselerasi paralel) dapat bernama iPAT, ASSET, atau SENSE. Nama juga dapat berubah antar versi perangkat lunak, jadi selalu cocokkan dengan manual unit yang dipakai di tempat praktik.</p></div>
+  <p class="a"><b>Analogi:</b> Seperti satu perintah dengan nama berbeda di tiap bahasa: fungsinya sama, kata kuncinya lain.</p>
+  <p class="meta">Aktivitas terkait: <a href="#S2">S2</a></p>
+</div>
+</div>
+
+<h2 id="kuis-judul">Cek pemahaman</h2>
+<div id="kuis"></div>
+
+<h2>Tautan silang</h2>
+<ul class="lembut">
+<li>Mengapa TA = waktu mengisi ruang-k: M04B T2.10 (Fakta 4)</li>
+<li>SNR dan kompromi tingkat lanjut: M04C T3.8 (hanya tautan ke sini)</li>
+<li>Menurunkan SAR sebagai kompromi: M07C A1 mode 3</li>
+<li>Perbaikan artefak ada harganya: M08C T3.3</li>
+</ul>
+<p class="sumber lembut" id="sumber">Sumber isi: Modul 9 kiriman pengguna, Westbrook MRI in Practice (Bab 7 dan 9), serta materi yang dipindah dari M04 dan M08. Ditata ke pola T1/T2/T3.</p>
+</main>
+
+<script>
+const DATA={
+ FISIKA:{gamma_MHz_per_T:42.58},
+ INSTRUMEN:{gradien_mT_per_m:[20,80]}
+};
+
+const $=(id)=>document.getElementById(id);
+const koma=(n,d)=>(+n).toFixed(d===undefined?0:d).replace('.',',');
+function acak(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* Interaksi tombol mode kartu materi (Singkat / Lengkap / Analogi) */
+document.querySelectorAll('.kartu.bm').forEach(k=>{
+ const btns=k.querySelectorAll('.pilih button[data-mode]');
+ btns.forEach(b=>{
+  b.onclick=()=>{
+   k.dataset.mode=b.dataset.mode;
+   btns.forEach(x=>x.setAttribute('aria-pressed',x===b));
+  };
+ });
+});
+
+/* Simulasi S1: Kalkulator TA, voksel, dan SNR */
+(function mulaiS1(){
+  const B0={TR:500,FOV:240,NF:256,NP:192,TK:5,NEX:2,BW:200,ETL:1,NS:1,R:1};
+  const B=B0,P={...B};
+  const SL=[['TR','TR (ms)',10,3000,10],['FOV','FoV (mm)',100,450,10],['NF','Matriks frekuensi',64,512,32],['NP','Matriks fase',64,512,16],['TK','Tebal irisan (mm)',1,10,0.5],['NEX','NEX',1,6,1],['BW','Bandwidth (Hz/piksel)',100,500,10],
+   ['ETL','Turbo factor / ETL (T3.1)',1,32,1],['NS','Jumlah partisi 3D, 1 = 2D (T3.1)',1,64,1],['R','Faktor iPAT/SENSE R (T3.2)',1,4,1]];
+  const MISI_NAMA='Kasus: pasien gelisah';
+  const PRE=[['Awal',B],['Maks SNR',{...B,NEX:4,TK:8,BW:100,NF:192,NP:160}],['Maks resolusi',{...B,NF:512,NP:384,TK:3}],['Tercepat',{...B,TR:300,NP:128,NEX:1}],
+   ['Turbo (TSE)',{...B,TR:4000,NP:256,NEX:1,ETL:16}],[MISI_NAMA,{...B,TR:700,NP:256,NEX:3,TK:4}]];
+  const CW=800,CH=492,S=400,X=12,Y=26,TT=456,TH=30,BX=440,BW=348,BH=40,NMAKS=128;
+  function ukur(p){const px=p.FOV/p.NF,py=p.FOV/p.NP,vol=px*py*p.TK;
+   return{px,py,vol,ta:p.TR/1000*p.NP*p.NEX*p.NS/(p.ETL*p.R),snr:vol*Math.sqrt(p.NEX*p.NP*p.NS/p.BW/p.R)};}
+  const sl=document.getElementById('s1-sl'),inp={},val={};
+  SL.forEach(([k,n,mn,mx,st])=>{
+   const l=document.createElement('label');l.innerHTML='<span>'+n+'</span><b id="v'+k+'"></b>';
+   const r=document.createElement('input');r.type='range';r.min=mn;r.max=mx;r.step=st;r.value=P[k];r.setAttribute('aria-label',n);
+   r.oninput=()=>{P[k]=+r.value;hitung();};
+   const w=document.createElement('div');w.append(l,r);sl.appendChild(w);inp[k]=r;val[k]=l.querySelector('b');
+  });
+  const pre=document.getElementById('s1-pre');
+  PRE.forEach(([n,v])=>{const b=document.createElement('button');b.type='button';b.textContent=n;
+   b.onclick=()=>{Object.assign(P,v);SL.forEach(([k])=>inp[k].value=P[k]);pre.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));misi=n===MISI_NAMA;hitung();};
+   pre.appendChild(b);});
+  let misi=false,R={},D={snr:1,res:1,ta:1};
+  const U0=ukur(B);
+  function hitung(){
+   const u=ukur(P);
+   R={...u,rs:u.snr/U0.snr,rr:Math.sqrt(U0.px*U0.py/(u.px*u.py)),rt:u.ta/U0.ta};
+   SL.forEach(([k])=>val[k].textContent=P[k]);
+   const m=Math.floor(u.ta/60),s=Math.round(u.ta%60);
+   document.getElementById('s1-hasil').innerHTML=
+    '<div>TA<strong>'+m+' mnt '+s+' dtk</strong></div><div>Piksel (frek × fase)<strong>'+u.px.toFixed(2)+' × '+u.py.toFixed(2)+' mm</strong></div>'+
+    '<div>Volume voksel<strong>'+u.vol.toFixed(2)+' mm³</strong></div><div>SNR relatif<strong>'+R.rs.toFixed(2)+'×</strong></div>';
+   const ms=document.getElementById('s1-misi');
+   ms.textContent=(u.ta>300?'Peringatan: TA di atas 5 menit meningkatkan risiko gerakan pasien. ':'')+(misi?(u.ta<=120&&R.rs>=0.6?'Misi tercapai: TA ≤ 2 menit dan SNR ≥ 0,6×.':'Misi: capai TA ≤ 2 menit dan SNR ≥ 0,6×.'):'');
+  }
+  function fSagKepala(c,T){const{g,el}=T;
+   c.fillStyle=g(.38);c.beginPath();c.moveTo(100,170);c.lineTo(176,160);c.lineTo(192,256);c.lineTo(112,256);c.closePath();c.fill();
+   for(let i=0;i<5;i++){c.fillStyle=g(.7);c.fillRect(160+i*5,174+i*16,17,12);}
+   c.fillStyle=g(.1);c.fillRect(178,150,3,106);
+   c.fillStyle=g(.4);c.beginPath();c.moveTo(60,70);c.quadraticCurveTo(44,110,50,128);c.lineTo(30,148);c.quadraticCurveTo(32,156,48,158);
+   c.lineTo(50,172);c.lineTo(46,184);c.quadraticCurveTo(52,204,78,206);c.lineTo(110,190);c.lineTo(110,100);c.closePath();c.fill();
+   el(130,100,84,92,.45);el(130,100,78,86,.1);el(130,100,72,80,.5);el(130,100,64,72,.72);
+   el(58,110,4,10,.02);el(72,150,16,4,.03,-.25);el(82,183,13,5,.04);
+   c.strokeStyle=g(.95);c.lineWidth=6;c.beginPath();c.ellipse(122,92,44,22,0,Math.PI*1.08,Math.PI*1.95);c.stroke();
+   el(122,101,30,6,.08);el(126,118,14,10,.62);
+   c.save();c.translate(130,128);c.rotate(.28);c.fillStyle=g(.68);c.fillRect(-9,0,19,64);c.restore();
+   el(168,142,32,22,.62,-.2);
+   c.strokeStyle=g(.42);c.lineWidth=1.5;
+   for(let i=1;i<=4;i++){c.beginPath();c.ellipse(168,142,32-i*6,22-i*4,-.2,0,6.2832);c.stroke();}
+   el(149,140,4,7,.05);
+  }
+  function fAxKepala(c,T){const{g,el,rc}=T;
+   el(128,28,9,10,.55);el(128,132,90,106,.82);el(128,132,84,100,.1);el(128,132,80,96,.14);el(128,132,77,93,.5);el(128,132,68,83,.72);
+   rc(127,44,2,176,.14);el(113,116,8,26,.08,.18);el(143,116,8,26,.08,-.18);el(128,138,2.5,10,.08);el(111,140,10,13,.56);el(145,140,10,13,.56);
+   c.strokeStyle=g(.3);c.lineWidth=1.2;
+   for(let i=0;i<7;i++){const a=i*0.9+.3;c.beginPath();c.moveTo(128+Math.cos(a)*70,132+Math.sin(a)*86);c.lineTo(128+Math.cos(a)*58,132+Math.sin(a)*72);c.stroke();}
+  }
+  function fSagKnee(c,T){const{g,el,rc,poli}=T;
+   rc(44,0,168,256,.45);rc(44,0,8,256,.85);rc(204,0,8,256,.85);el(176,60,24,52,.5);el(178,222,24,44,.52);
+   rc(98,0,56,104,.12);rc(104,0,44,104,.75);el(130,112,46,40,.12);el(130,112,41,35,.75);
+   rc(100,178,58,78,.12);rc(106,178,46,78,.75);el(130,176,38,14,.12);el(130,176,33,10,.75);
+   rc(92,148,76,4,.5);rc(96,162,68,4,.5);rc(92,152,76,10,.15);el(100,142,11,14,.85);el(92,74,6,20,.2);
+   el(74,108,12,24,.12);el(74,108,8,19,.75);
+   poli([[66,48],[80,48],[84,86],[68,86]],.1);poli([[68,130],[82,130],[96,190],[84,190]],.1);el(92,190,6,9,.12);
+   poli([[94,152],[116,152],[106,164]],.08);poli([[146,152],[170,152],[160,164]],.08);
+   c.strokeStyle=g(.1);c.lineWidth=4;c.beginPath();c.moveTo(134,146);c.lineTo(152,166);c.moveTo(150,148);c.lineTo(136,168);c.stroke();
+   el(170,138,5,5,.06);
+  }
+  function fCorKnee(c,T){const{g,el,rc,poli}=T;
+   rc(60,0,136,256,.45);rc(60,0,8,256,.85);rc(188,0,8,256,.85);
+   rc(104,0,50,100,.12);rc(109,0,40,100,.75);el(150,112,28,32,.12);el(106,112,28,32,.12);el(150,112,23,27,.75);el(106,112,23,27,.75);
+   rc(86,156,84,22,.12);rc(90,160,76,14,.75);rc(104,176,48,80,.12);rc(109,176,38,80,.75);rc(70,178,20,78,.12);rc(74,178,12,78,.7);el(80,172,12,10,.12);el(80,172,8,6,.7);
+   poli([[122,156],[128,142],[134,156]],.12);rc(88,146,80,10,.15);rc(88,142,80,3,.5);rc(88,156,80,2,.5);
+   poli([[92,148],[116,148],[112,157],[94,157]],.08);poli([[140,148],[164,148],[162,157],[144,157]],.08);
+   c.strokeStyle=g(.1);c.lineWidth=4;c.beginPath();c.moveTo(122,114);c.lineTo(132,146);c.moveTo(134,114);c.lineTo(124,146);c.stroke();
+   rc(178,116,5,52,.1);rc(74,116,4,50,.1);
+  }
+  const FAN=[
+   ['kepala_sagital','Kepala Sagital','Fantom kepala sagital',240,fSagKepala],
+   ['kepala_axial','Kepala Axial','Fantom kepala axial',220,fAxKepala],
+   ['knee_sagital','Knee Sagital','Fantom knee sagital',200,fSagKnee],
+   ['knee_coronal','Knee Coronal','Fantom knee coronal',200,fCorKnee]];
+  let aktif=0;
+  function gambarFantom(c,s,f){
+   const g=v=>{const k=Math.round(v*255);return 'rgb('+k+','+k+','+k+')';};
+   const T={g,
+    el:(x,y,rx,ry,v,rot)=>{c.fillStyle=g(v);c.beginPath();c.ellipse(x,y,rx,ry,rot||0,0,6.2832);c.fill();},
+    rc:(x,y,w,h,v)=>{c.fillStyle=g(v);c.fillRect(x,y,w,h);},
+    poli:(pts,v)=>{c.fillStyle=g(v);c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();c.fill();}};
+   c.setTransform(1,0,0,1,0,0);c.fillStyle='#000';c.fillRect(0,0,256,256);
+   c.save();c.translate(128,128);c.scale(s,s);c.translate(-128,-128);f(c,T);c.restore();
+  }
+  const base=document.createElement('canvas');base.width=base.height=256;const bc=base.getContext('2d');
+  const kecil=document.createElement('canvas'),kc=kecil.getContext('2d');
+  let kunci='',dasar=null,nxC=0,nyC=0;
+  function siapkan(){
+   const f=FAN[aktif];
+   const s=Math.min(1.5,Math.max(.55,f[3]/P.FOV));
+   const nx=Math.min(NMAKS,Math.max(32,Math.round(P.NF/4))),ny=Math.min(NMAKS,Math.max(32,Math.round(P.NP/4)));
+   const k=aktif+'|'+s.toFixed(3)+'|'+nx+'|'+ny;
+   if(k===kunci)return;
+   kunci=k;gambarFantom(bc,s,f[4]);
+   kecil.width=nx;kecil.height=ny;kc.imageSmoothingEnabled=true;kc.drawImage(base,0,0,nx,ny);
+   dasar=kc.getImageData(0,0,nx,ny);nxC=nx;nyC=ny;
+  }
+  const ganti=document.getElementById('s1-ganti');
+  ganti.style.left=(X/CW*100)+'%';ganti.style.width=(S/CW*100)+'%';
+  ganti.style.top=(TT/CH*100)+'%';ganti.style.height=(TH/CH*100)+'%';
+  const bSblm=document.createElement('button'),bNama=document.createElement('div'),bSsdh=document.createElement('button');
+  bSblm.type=bSsdh.type='button';bSblm.textContent='<';bSsdh.textContent='>';
+  bSblm.setAttribute('aria-label','Citra sebelumnya');bSsdh.setAttribute('aria-label','Citra berikutnya');
+  bNama.className='s1-nama';bNama.setAttribute('aria-live','polite');
+  function pilih(i){
+   aktif=(i+FAN.length)%FAN.length;kunci='';
+   bNama.textContent=FAN[aktif][1]+'  ('+(aktif+1)+'/'+FAN.length+')';
+   document.getElementById('s1-kanvas').setAttribute('aria-label',FAN[aktif][2]+', kisi voksel, dan batang perbandingan SNR, resolusi, dan waktu');
+  }
+  bSblm.onclick=()=>pilih(aktif-1);bSsdh.onclick=()=>pilih(aktif+1);
+  ganti.append(bSblm,bNama,bSsdh);pilih(0);
+  hitung();pre.firstChild.setAttribute('aria-pressed',true);
+  const cv=document.getElementById('s1-kanvas'),cx=cv.getContext('2d');
+  const warna=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  let tl=0;
+  function gambar(t){
+   requestAnimationFrame(gambar);
+   if(t-tl<80)return;tl=t;
+   D.snr+=(R.rs-D.snr)*.25;D.res+=(R.rr-D.res)*.25;D.ta+=(R.rt-D.ta)*.25;
+   cx.clearRect(0,0,CW,CH);
+   siapkan();
+   const amp=Math.min(1.1,0.3/Math.max(D.snr,.05));
+   const im=kc.createImageData(nxC,nyC),src=dasar.data,dst=im.data;
+   for(let i=0;i<src.length;i+=4){
+    let v=src[i]/255+(Math.random()-.5)*amp;
+    v=Math.max(0,Math.min(1,v));const gr=Math.round(v*255);
+    dst[i]=dst[i+1]=dst[i+2]=gr;dst[i+3]=255;}
+   kc.putImageData(im,0,0);
+   cx.imageSmoothingEnabled=false;
+   cx.drawImage(kecil,0,0,nxC,nyC,X,Y,S,S);
+   cx.strokeStyle=warna('--aksen');cx.lineWidth=2;cx.strokeRect(X,Y,S,S);
+   cx.fillStyle=warna('--lembut');cx.font='12px system-ui';
+   cx.fillText(FAN[aktif][2]+' (FoV '+P.FOV+' mm), '+nxC+'×'+nyC+' sel ilustrasi',X,20);
+   cx.fillText('Tebal irisan: '+P.TK+' mm',X,Y+S+18);
+   cx.fillStyle=warna('--t2');cx.fillRect(X+S-P.TK*8-4,Y+S+8,P.TK*8,6);
+   const bars=[['SNR',D.snr,warna('--t2')],['Resolusi',D.res,warna('--aksen')],['Waktu (TA)',D.ta,warna('--t1')]];
+   const jarak=(S-3*BH-34)/2+BH;
+   bars.forEach(([n,v,c],i)=>{const y=Y+34+i*jarak;
+    cx.fillStyle=warna('--teks');cx.font='16px system-ui';cx.fillText(n+'  '+v.toFixed(2)+'×',BX,y-12);
+    cx.fillStyle=warna('--garis');cx.fillRect(BX,y,BW,BH);
+    cx.fillStyle=c;cx.fillRect(BX,y,Math.min(v,3)/3*BW,BH);
+    cx.strokeStyle=warna('--teks');cx.setLineDash([4,3]);cx.lineWidth=1;cx.beginPath();cx.moveTo(BX+BW/3,y-4);cx.lineTo(BX+BW/3,y+BH+4);cx.stroke();cx.setLineDash([]);});
+   cx.fillStyle=warna('--lembut');cx.font='11px system-ui';cx.fillText('garis putus = protokol awal (1×); skala maks 3×',BX,Y+S+18);
+  }
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){D.snr=R.rs;D.res=R.rr;D.ta=R.rt;}
+  requestAnimationFrame(gambar);
+  const G=DATA.INSTRUMEN.gradien_mT_per_m, gz=$('s1-gz'), bwr=$('s1-bwrf');
+  gz.min=G[0];gz.max=G[1];gz.value=G[0];
+  function irisan(){$('s1-gzv').textContent=gz.value;
+   const dz=(+bwr.value*1000)/(DATA.FISIKA.gamma_MHz_per_T*1e6*gz.value/1000)*1000;
+   $('s1-dz').textContent='Tebal irisan \u0394z = '+dz.toFixed(2)+' mm';}
+  gz.oninput=irisan;bwr.oninput=irisan;irisan();
+})();
+
+/* Simulasi S2: Peta tab konsol & Pemetaan nama antar-vendor */
+const TAB=[
+ ['Routine','Parameter utama yang paling sering diubah.',[['TR','ta snr kon'],['TE','snr kon'],['Flip angle','snr kon'],['FoV','res snr'],['Jumlah irisan &amp; tebal','snr res'],['NEX / averages','ta snr'],['Waktu pindai (TA)','ta']]],
+ ['Contrast','Pembobotan gambar.',[['TR','kon ta'],['TE','kon snr'],['Flip angle','kon'],['Saturasi lemak, MTC','kon'],['Inversion time (TI)','kon ta']]],
+ ['Resolution','Ukuran matriks dan akselerasi.',[['Matriks dasar (frekuensi)','res'],['Resolusi fase (%)','res ta'],['Interpolasi','res'],['Partial Fourier','ta snr'],['Paralel imaging (iPAT)','ta snr'],['Bandwidth','snr']]],
+ ['Geometry','Posisi, orientasi, dan cakupan.',[['FoV &amp; FoV fase (%)','res ta'],['Orientasi, arah fase','res'],['Gap irisan','snr'],['Saturation band','res']]],
+ ['System','Koil dan perangkat keras.',[['Pemilihan elemen koil','snr'],['Posisi meja / isocenter','res'],['Shim / penyetelan','kon']]],
+ ['Physio','Sinkronisasi fisiologis via PGM.',[['Gating EKG / pulse','res ta'],['Trigger napas','res ta'],['Trigger delay','ta']]],
+ ['Inline','Pascapemrosesan otomatis.',[['Subtraksi','kon'],['MIP','kon'],['Peta (mis. ADC)','kon']]],
+ ['Sequence','Tipe dan detail sekuens.',[['Tipe sekuens','kon ta'],['Turbo factor / ETL','ta snr'],['Bandwidth &amp; echo spacing','snr res'],['Fase encoding order','res']]]
+];
+const NM={ta:'waktu',snr:'SNR',res:'resolusi',kon:'kontras'};
+const VENDOR_KOL=["Fungsi","Siemens","GE","Philips"];
+const VENDOR=[
+ ["Rata-rata sinyal","Averages","NEX","NSA"],
+ ["Akselerasi paralel","iPAT (mis. GRAPPA)","ASSET / ARC","SENSE"],
+ ["Jumlah echo per TR (turbo)","Turbo factor","Echo train length (ETL)","TSE factor"],
+ ["Bandwidth","Bandwidth (Hz/piksel)","Receive bandwidth (kHz)","Water-fat shift (piksel)"],
+ ["FoV arah fase","FoV phase (%)","Phase FOV","Rectangular FOV (%)"],
+ ["Pengurangan langkah fase","Phase partial Fourier","Fractional NEX","Half scan"]
+];
+(function mulaiS2(){
+  const tb=document.getElementById('s2-tabs'),ti=document.getElementById('s2-isi');
+  function pilihTab(j){
+   tb.querySelectorAll('button').forEach((x,i)=>x.setAttribute('aria-pressed',i===j));
+   const [n,d,ps]=TAB[j];
+   ti.innerHTML='<div class="kartu konsol" style="animation:masuk .3s ease"><b>'+n+'</b> &mdash; '+d+'<ul>'+ps.map(([p,c])=>'<li>'+p+' '+c.split(' ').map(x=>'<span class="chip '+x+'">'+NM[x]+'</span>').join('')+'</li>').join('')+'</ul></div>';
+  }
+  TAB.forEach((t,j)=>{const b=document.createElement('button');b.type='button';b.textContent=t[0];b.onclick=()=>pilihTab(j);tb.appendChild(b);});
+  pilihTab(0);
+  $('s2-vendor').innerHTML='<table class="tabel"><thead><tr>'+VENDOR_KOL.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+VENDOR.map(r=>'<tr>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+})();
+
+/* Bank Soal & Mesin Kuis */
+const SOAL=[
+ {tingkat:1,simpul:'T1.1',pertanyaan:"Menaikkan TE akan...",pilihan:["Menaikkan SNR dan kontras T2","Menaikkan kontras T2 dan menurunkan SNR","Menurunkan TA","Menurunkan kontras T2 dan SNR"],jawaban:1,penjelasan:"TE panjang menambah bobot T2 tetapi lebih banyak sinyal meluruh sehingga SNR turun."},
+ {tingkat:1,simpul:'T1.1',pertanyaan:"FoV 240 mm dengan matriks frekuensi 256, ukuran piksel arah frekuensi sekitar...",pilihan:["0,5 mm","0,94 mm","1,5 mm","2,4 mm"],jawaban:1,penjelasan:"240/256 ≈ 0,94 mm."},
+ {tingkat:1,simpul:'T1.2',pertanyaan:"Rumus waktu pindai 2D adalah...",pilihan:["TR &times; N fase &times; NEX","TR &times; N frekuensi &times; NEX","TE &times; N fase &times; NEX","FoV &times; N fase &times; NEX"],jawaban:0,penjelasan:"TA 2D = TR × matriks fase × NEX. Matriks frekuensi tidak memengaruhi TA."},
+ {tingkat:1,simpul:'T1.2',pertanyaan:"Cara menaikkan resolusi tanpa menambah waktu pindai adalah...",pilihan:["Menaikkan matriks fase","Menaikkan NEX","Menaikkan matriks frekuensi saja","Menaikkan TR"],jawaban:2,penjelasan:"Matriks frekuensi tidak memengaruhi TA, tetapi menaikkannya menaikkan resolusi."},
+ {tingkat:1,simpul:'T1.2',pertanyaan:"TR 500 ms, 128 langkah fase, NEX 2. TA adalah...",pilihan:["64 detik","128 detik","256 detik","500 detik"],jawaban:1,penjelasan:"0,5 s × 128 × 2 = 128 s (2 menit 8 detik)."},
+ {tingkat:2,simpul:'T2.1',pertanyaan:"Menurut buku, faktor kualitas gambar MRI yang paling penting adalah...",pilihan:["Resolusi spasial","SNR","Jumlah irisan","Ukuran FoV"],jawaban:1,penjelasan:"Tidak ada gunanya resolusi baik bila SNR buruk."},
+ {tingkat:2,simpul:'T2.2',pertanyaan:"FoV asimetris (persegi panjang) bermanfaat karena...",pilihan:["Menaikkan SNR tanpa batas","Memperkecil FoV arah fase sehingga TA turun dengan resolusi tetap","Menambah matriks frekuensi","Menghilangkan artefak gerak sepenuhnya"],jawaban:1,penjelasan:"Langkah fase berkurang sebanding pengecilan FoV fase, sementara ukuran piksel tetap."},
+ {tingkat:2,simpul:'T2.3',pertanyaan:"Bandwidth penerima diturunkan. Dampak yang benar adalah...",pilihan:["SNR naik, pergeseran kimia dan TE minimum naik","SNR turun, pergeseran kimia turun","SNR naik, TE minimum turun","TA turun, resolusi naik"],jawaban:0,penjelasan:"BW sempit mengurangi noise (SNR naik) tetapi menambah pergeseran kimia dan TE minimum."},
+ {tingkat:2,simpul:'T2.3',pertanyaan:"NEX dinaikkan dari 1 menjadi 4. Perubahan SNR dan waktu pindai?",pilihan:["SNR naik 2 kali, waktu naik 4 kali","SNR naik 4 kali, waktu naik 4 kali","SNR naik 4 kali, waktu tetap","SNR naik 2 kali, waktu tetap"],jawaban:0,penjelasan:"SNR sebanding dengan √NEX, sedangkan waktu pindai sebanding dengan NEX."},
+ {tingkat:2,simpul:'T2.5',pertanyaan:"Modul yang mengirim instruksi waktu, amplitudo, dan bentuk pulsa RF serta mengendalikan gradien adalah...",pilihan:["PACS","Server DICOM","Pulse generator module (PGM)","Headset pasien"],jawaban:2,penjelasan:"PGM adalah komputer independen yang menjalankan urutan pulsa; ia juga terhubung ke sensor fisiologis."},
+ {tingkat:3,simpul:'T3.1',pertanyaan:"TSE: TR 4000 ms, 256 langkah fase, NEX 1, ETL 16. TA adalah...",pilihan:["64 detik","1024 detik","16 detik","256 detik"],jawaban:0,penjelasan:"4 s × 256 × 1 ÷ 16 = 64 s."},
+ {tingkat:3,simpul:'T3.1',pertanyaan:"3D: TR 20 ms, 128 fase, 64 partisi, NEX 1. TA mendekati...",pilihan:["2,6 detik","164 detik","10 detik","328 detik"],jawaban:1,penjelasan:"0,02 s × 128 × 64 ≈ 164 s."},
+ {tingkat:3,simpul:'T3.2',pertanyaan:"Parallel imaging R = 2 (kasus ideal). Dampaknya...",pilihan:["TA turun setengah, SNR turun sekitar 0,71×","TA tetap, SNR naik 2×","TA turun setengah, SNR naik","TA naik 2×, SNR tetap"],jawaban:0,penjelasan:"TA ÷ R dan SNR ÷ √R (minimal; g-factor menambah penurunan)."},
+ {tingkat:3,simpul:'T3.3',pertanyaan:"Turbo factor pada antarmuka Siemens setara dengan istilah GE...",pilihan:["NEX","Echo train length (ETL)","Receive bandwidth","Fractional NEX"],jawaban:1,penjelasan:"Keduanya menyatakan jumlah echo per TR pada sekuens turbo/fast spin echo."}
+];
+
+function mulaiKuis(wadah,semua){
+ let filter=0, daftar=[], i=0, st=[];
+ function siap(){
+  daftar=semua.filter(s=>!filter||s.tingkat===filter).map(s=>{
+   const urut=acak(s.pilihan.map((t,k)=>k)); return {s, urut, benarPos:urut.indexOf(s.jawaban)};
+  });
+  st=daftar.map(()=>({salah:new Set(),benar:-1})); i=0;
+ }
+ const skor=()=>st.filter(x=>x.benar>=0&&x.salah.size===0).length;
+ function tampil(){
+  wadah.innerHTML='';
+  const bar=document.createElement('div'); bar.className='pilih'; bar.setAttribute('role','group'); bar.setAttribute('aria-label','Pilih tingkat kuis');
+  [[0,'Semua tingkat'],[1,'Tingkat 1'],[2,'Tingkat 2'],[3,'Tingkat 3']].forEach(([n,t])=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.setAttribute('aria-pressed',filter===n);b.onclick=()=>{filter=n;siap();tampil();};bar.appendChild(b);});
+  wadah.appendChild(bar);
+  const kartu=document.createElement('div'); kartu.className='kartu'; wadah.appendChild(kartu);
+  if(i>=daftar.length){
+   kartu.innerHTML='<b>Skor: '+skor()+' / '+daftar.length+'</b><p class="lembut">Dihitung dari soal yang benar pada percobaan pertama.</p>';
+   const n=document.createElement('div'); n.className='navkuis';
+   const b1=document.createElement('button'); b1.textContent='\u2190 Kembali ke soal'; b1.onclick=()=>{i=daftar.length-1;tampil();};
+   const b2=document.createElement('button'); b2.textContent='Ulangi kuis'; b2.onclick=()=>{siap();tampil();};
+   n.append(b1,b2); kartu.appendChild(n); return;
+  }
+  const d=daftar[i], s=d.s, t=st[i];
+  const p=document.createElement('p'); p.innerHTML='<b>'+(i+1)+'/'+daftar.length+'.</b> <span class="meta">['+s.simpul+']</span> '+s.pertanyaan; kartu.appendChild(p);
+  d.urut.forEach((asli,k)=>{
+   const teks=s.pilihan[asli], b=document.createElement('button'); b.className='opsi'; b.type='button';
+   if(t.benar===k){b.classList.add('benar');b.textContent='\u2713 '+teks;}
+   else if(t.salah.has(k)){b.classList.add('salah');b.textContent='\u2717 '+teks;}
+   else b.textContent=teks;
+   b.disabled=(t.benar>=0&&t.benar!==k)||t.salah.has(k);
+   b.onclick=()=>{if(t.benar>=0)return;if(k===d.benarPos)t.benar=k;else t.salah.add(k);tampil();};
+   kartu.appendChild(b);
+  });
+  const info=document.createElement('p'); info.setAttribute('role','status'); info.setAttribute('aria-live','polite');
+  if(t.benar>=0){info.className='ok';info.textContent='Benar. '+s.penjelasan;}
+  else if(t.salah.size){info.className='no';info.textContent='Belum tepat. Coba pilihan lain.';}
+  kartu.appendChild(info);
+  const n=document.createElement('div'); n.className='navkuis';
+  const bk=document.createElement('button'); bk.textContent='\u2190 Kembali'; bk.disabled=i===0; bk.onclick=()=>{i--;tampil();};
+  const bl=document.createElement('button'); bl.textContent=i===daftar.length-1?'Selesai':'Lanjut \u2192'; bl.onclick=()=>{i++;tampil();};
+  n.append(bk,bl); kartu.appendChild(n);
+ }
+ siap(); tampil();
+}
+
+mulaiKuis($('kuis'), SOAL);
+</script>
+</body>
+</html>
