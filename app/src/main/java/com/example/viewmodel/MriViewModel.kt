@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.GlossaryItem
 import com.example.data.CharacterCustomizationState
 import com.example.data.LegacyNodeCodes
+import com.example.data.MriFlashcard
 import com.example.data.MriModule
 import com.example.data.MriNode
 import com.example.data.MriRepository
@@ -155,6 +156,17 @@ data class MriUiState(
     val completedCount: Int by lazy(LazyThreadSafetyMode.NONE) {
         completedNodeCodes.count { it in validNodeCodes }
     }
+
+    val isFlashcardMode: Boolean
+        get() = if (selectedModule != null) isModuleFlashcardMode else isGlossaryFlashcardMode
+
+    fun isFlashcardBookmarked(card: MriFlashcard): Boolean =
+        if (card.isGlossaryCard) {
+            bookmarkedGlossaryTerms.contains(card.glossaryTermKey) ||
+                bookmarkedGlossaryTerms.contains(card.frontTitle)
+        } else {
+            bookmarkedNodeCodes.contains(card.nodeCode)
+        }
 
     val lastVisitedNode: MriNode
         get() = ResumeNodeResolver.findNode(modulesList, lastVisitedNodeCode)
@@ -901,6 +913,14 @@ class MriViewModel(
         }
     }
 
+    fun toggleFlashcardBookmark(card: MriFlashcard) {
+        if (card.isGlossaryCard) {
+            toggleGlossaryBookmark(card.glossaryTermKey)
+        } else {
+            toggleNodeBookmark(card.nodeCode)
+        }
+    }
+
     fun setOnlyBookmarkedNodes(onlyBookmarked: Boolean) {
         _uiState.update {
             it.copy(
@@ -926,6 +946,14 @@ class MriViewModel(
     }
 
     // --- Flashcards Hafalan Cepat 🗂️ (B-13: State terpisah untuk Modul vs Glosarium) ---
+    fun setFlashcardMode(enabled: Boolean) {
+        if (_uiState.value.selectedModule != null) {
+            setModuleFlashcardMode(enabled)
+        } else {
+            setGlossaryFlashcardMode(enabled)
+        }
+    }
+
     fun setModuleFlashcardMode(enabled: Boolean) {
         _uiState.update {
             it.copy(
@@ -953,13 +981,14 @@ class MriViewModel(
 
     fun flipFlashcard() {
         _uiState.update { state ->
-            val newFlipped = !state.isFlashcardFlipped
             if (isModuleDeckActive(state)) {
+                val newFlipped = !state.isModuleFlashcardFlipped
                 state.copy(
                     isModuleFlashcardFlipped = newFlipped,
                     isFlashcardFlipped = newFlipped
                 )
             } else {
+                val newFlipped = !state.isGlossaryFlashcardFlipped
                 state.copy(
                     isGlossaryFlashcardFlipped = newFlipped,
                     isFlashcardFlipped = newFlipped

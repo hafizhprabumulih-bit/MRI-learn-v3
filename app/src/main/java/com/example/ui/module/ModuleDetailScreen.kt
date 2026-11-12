@@ -218,15 +218,17 @@ fun ModuleDetailScreen(
             }
         }
 
+        Spacer(modifier = Modifier.height(12.dp))
+
         // Mode Toggle Bar: Materi Modul vs Flashcards Hafalan
         StudyModeToggleBar(
             primaryLabel = "Materi Modul (${module.nodes.size})",
             flashcardLabel = "Flashcards Hafalan",
-                isFlashcardMode = state.isModuleFlashcardMode,
-                onSelectMode = { viewModel.setModuleFlashcardMode(it) }
-            )
+            isFlashcardMode = state.isModuleFlashcardMode,
+            onSelectMode = { viewModel.setModuleFlashcardMode(it) }
+        )
 
-            Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
 
 
@@ -283,7 +285,7 @@ fun ModuleDetailScreen(
                 val rawNodeLevel = module.nodes.find { it.code == card.nodeCode }?.level ?: 1
                 val nodeLevel = if (rawNodeLevel == 0) 1 else rawNodeLevel
                 val matchesLevel = state.nodeLevelFilter == 0 || nodeLevel == state.nodeLevelFilter
-                val matchesBookmark = !state.onlyBookmarkedNodes || state.bookmarkedNodeCodes.contains(card.nodeCode)
+                val matchesBookmark = !state.onlyBookmarkedNodes || state.isFlashcardBookmarked(card)
                 matchesModule && matchesLevel && matchesBookmark
             }
 
@@ -293,8 +295,8 @@ fun ModuleDetailScreen(
                 isFlipped = state.isModuleFlashcardFlipped,
                 shuffleSeed = state.moduleFlashcardShuffleSeed,
                 masteredCardIds = state.masteredFlashcardIds,
-                isCardBookmarked = { card -> state.bookmarkedNodeCodes.contains(card.nodeCode) },
-                onToggleBookmark = { card -> viewModel.toggleNodeBookmark(card.nodeCode) },
+                isCardBookmarked = { card -> state.isFlashcardBookmarked(card) },
+                onToggleBookmark = { card -> viewModel.toggleFlashcardBookmark(card) },
                 onFlip = { viewModel.flipFlashcard() },
                 onPrev = { size -> viewModel.prevFlashcard(size) },
                 onNext = { size -> viewModel.nextFlashcard(size) },

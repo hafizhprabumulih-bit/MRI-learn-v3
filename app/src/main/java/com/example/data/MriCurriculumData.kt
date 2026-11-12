@@ -23,7 +23,18 @@ data class MriFlashcard(
     val frontSubtitle: String,
     val backContent: String,
     val clinicalAnalogyOrTip: String
-)
+) {
+    val isGlossaryCard: Boolean
+        get() = id.startsWith("GLOSS_") ||
+            id.startsWith("fc_gloss_") ||
+            category.contains("GLOSARIUM", ignoreCase = true)
+
+    val glossaryTermKey: String
+        get() = when {
+            id.startsWith("GLOSS_") -> id.removePrefix("GLOSS_")
+            else -> frontTitle.substringBefore(" (").trim()
+        }
+}
 
 data class TissueProperties(
     val id: String,

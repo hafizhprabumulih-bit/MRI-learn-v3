@@ -164,6 +164,11 @@ fun GlossaryScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
         // Bookmark + Module Filter Pills
+        val savedBadgeCount = if (state.isGlossaryFlashcardMode) {
+            MriRepository.flashcards.count { state.isFlashcardBookmarked(it) }
+        } else {
+            state.bookmarkedGlossaryTerms.size
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -176,7 +181,7 @@ fun GlossaryScreen(
                 modifier = Modifier.testTag("glossary_bookmark_filter_chip"),
                 label = {
                     Text(
-                        text = "★ Tersimpan (${state.bookmarkedGlossaryTerms.size})",
+                        text = "★ Tersimpan ($savedBadgeCount)",
                         fontSize = 11.sp,
                         fontWeight = if (state.onlyBookmarkedGlossary) FontWeight.Bold else FontWeight.Normal
                     )
@@ -231,15 +236,16 @@ fun GlossaryScreen(
                 val matchesQuery = query.isEmpty() ||
                     card.frontTitle.lowercase().contains(query) ||
                     card.frontSubtitle.lowercase().contains(query) ||
-                    card.backContent.lowercase().contains(query)
+                    card.backContent.lowercase().contains(query) ||
+                    card.nodeCode.lowercase().contains(query) ||
+                    card.clinicalAnalogyOrTip.lowercase().contains(query)
                 val filter = state.glossaryModuleFilter
                 val matchesMod = filter == "SEMUA" ||
                     card.moduleId == filter ||
                     (filter.length <= 3 && card.moduleId.startsWith(filter)) ||
                     (filter.length <= 3 && card.nodeCode.startsWith(filter)) ||
                     card.nodeCode.startsWith(filter)
-                val isBookmarked = state.bookmarkedGlossaryTerms.contains(card.frontTitle) ||
-                    state.bookmarkedNodeCodes.contains(card.nodeCode)
+                val isBookmarked = state.isFlashcardBookmarked(card)
                 val matchesBookmark = !state.onlyBookmarkedGlossary || isBookmarked
                 matchesQuery && matchesMod && matchesBookmark
             }
@@ -250,17 +256,8 @@ fun GlossaryScreen(
                 isFlipped = state.isGlossaryFlashcardFlipped,
                 shuffleSeed = state.glossaryFlashcardShuffleSeed,
                 masteredCardIds = state.masteredFlashcardIds,
-                isCardBookmarked = { card ->
-                    state.bookmarkedGlossaryTerms.contains(card.frontTitle) ||
-                        state.bookmarkedNodeCodes.contains(card.nodeCode)
-                },
-                onToggleBookmark = { card ->
-                    if (card.id.startsWith("fc_gloss_")) {
-                        viewModel.toggleGlossaryBookmark(card.frontTitle)
-                    } else {
-                        viewModel.toggleNodeBookmark(card.nodeCode)
-                    }
-                },
+                isCardBookmarked = { card -> state.isFlashcardBookmarked(card) },
+                onToggleBookmark = { card -> viewModel.toggleFlashcardBookmark(card) },
                 onFlip = { viewModel.flipFlashcard() },
                 onPrev = { size -> viewModel.prevFlashcard(size) },
                 onNext = { size -> viewModel.nextFlashcard(size) },

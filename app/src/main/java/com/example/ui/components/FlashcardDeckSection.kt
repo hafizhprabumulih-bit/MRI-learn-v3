@@ -171,7 +171,7 @@ fun FlashcardDeckSection(
                             color = TextPrimary
                         )
                         Text(
-                            text = "$masteredInDeck dari ${deck.size} kartu dikuasai • Kartu ${safeIndex + 1}/${deck.size}",
+                            text = "Sudah Hafal $masteredInDeck dari ${deck.size} kartu • Kartu ${safeIndex + 1}/${deck.size}",
                             fontSize = 11.sp,
                             color = CyanBright
                         )

@@ -110,5 +110,28 @@ class ExampleUnitTest {
         assertEquals("Kelipatan 14 hari harus menyalakan seluruh 7 hari", 7, activeDaysInWeek(14))
         assertEquals("Kelipatan 21 hari harus menyalakan seluruh 7 hari", 7, activeDaysInWeek(21))
     }
+
+    @Test
+    fun testFlashcardsAndBookmarkStateMatching() {
+        val allCards = MriRepository.flashcards
+        assertTrue("Flashcards deck should not be empty", allCards.isNotEmpty())
+
+        val sampleNodeCard = allCards.first { !it.isGlossaryCard }
+        val sampleGlossaryCard = allCards.first { it.isGlossaryCard }
+
+        val stateWithBookmarks = MriUiState(
+            bookmarkedNodeCodes = setOf(sampleNodeCard.nodeCode),
+            bookmarkedGlossaryTerms = setOf(sampleGlossaryCard.glossaryTermKey)
+        )
+
+        assertTrue(
+            "Node flashcard should be recognized as bookmarked when its nodeCode is in bookmarkedNodeCodes",
+            stateWithBookmarks.isFlashcardBookmarked(sampleNodeCard)
+        )
+        assertTrue(
+            "Glossary flashcard should be recognized as bookmarked when its term is in bookmarkedGlossaryTerms",
+            stateWithBookmarks.isFlashcardBookmarked(sampleGlossaryCard)
+        )
+    }
 }
 
