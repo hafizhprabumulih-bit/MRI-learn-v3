@@ -68,6 +68,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.data.StudyNote
+import com.example.ui.character.AvatarView
+import com.example.ui.character.Expression
 import com.example.ui.theme.AmberAccent
 import com.example.ui.theme.AmberDark
 import com.example.ui.theme.CardSlate
@@ -275,11 +277,11 @@ fun NotesScreen(
                             modifier = Modifier.padding(24.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.NoteAlt,
-                                contentDescription = null,
-                                tint = TextMuted,
-                                modifier = Modifier.size(40.dp)
+                            AvatarView(
+                                role = state.characterCustomization.avatarId,
+                                equipped = state.characterCustomization,
+                                expression = Expression.BERPIKIR,
+                                modifier = Modifier.size(84.dp)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(

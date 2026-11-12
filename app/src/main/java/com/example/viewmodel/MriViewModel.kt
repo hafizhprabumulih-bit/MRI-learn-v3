@@ -913,11 +913,18 @@ class MriViewModel(
     /**
      * Menandai simpul selesai secara satu-arah / idempoten untuk auto-complete simulator (NB-01).
      * Tidak pernah membatalkan simpul yang sudah selesai meskipun dipanggil berulang kali.
+     *
+     * PERF: Banyak simulator memanggil fungsi ini dari Slider.onValueChange (puluhan kali per detik).
+     * pendingNodeCompletions mencegah peluncuran coroutine IO / transaksi DB berulang untuk simpul yang
+     * sama selama penulisan pertama belum selesai dan completedNodeCodes belum diperbarui.
      */
+    private val pendingNodeCompletions = java.util.Collections.synchronizedSet(HashSet<String>())
+
     fun markNodeCompleted(nodeCode: String) {
         val normalizedCode = LegacyNodeCodes.normalize(nodeCode.trim())
         if (normalizedCode.isBlank()) return
         if (_uiState.value.completedNodeCodes.contains(normalizedCode)) return
+        if (!pendingNodeCompletions.add(normalizedCode)) return
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val newlyMarked = repository.markNodeCompletedIfNotYet(normalizedCode)
@@ -928,6 +935,8 @@ class MriViewModel(
                 throw e
             } catch (e: Exception) {
                 Log.e("MriViewModel", "gagal menandai simpul selesai: $normalizedCode", e)
+            } finally {
+                pendingNodeCompletions.remove(normalizedCode)
             }
         }
     }

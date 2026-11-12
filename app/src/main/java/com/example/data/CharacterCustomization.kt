@@ -33,7 +33,7 @@ data class CharacterItem(
 
 enum class CharacterCategory(val title: String, val subtitle: String) {
     KARAKTER("Karakter", "Pilih spesialis medis & radiologi"),
-    RAMBUT("Kepala & Visor", "Pelindung kepala, antena & layar HUD"),
+    RAMBUT("Kepala", "Pelindung kepala, antena & layar HUD"),
     SERAGAM("Seragam", "Jas lab, scrub klinis & rompi Zona IV"),
     HEADSET("Headset", "Peredam bising gradien & interkom konsol"),
     AKSESORIS("Alat Klinis", "Instrumen keselamatan & QA MRI"),
@@ -157,7 +157,7 @@ object CharacterCatalog {
             greetings = listOf(
                 "Gunakan sadapan EKG berbahan karbon non-feromagnetik untuk memicu akuisisi tepat pada fase R-R.",
                 "Sekuens bSSFP (TrueFISP/FIESTA) memberikan kontras darah-miokardium tertinggi dengan TR sangat pendek!",
-                "Teknik Late Gadolinium Enhancement (LGE) memilih TI untuk me-null-kan sinyal miokardium normal.",
+                "Teknik Late Gadolinium Enhancement (LGE) mengatur waktu inversi (TI) agar otot jantung sehat tampak gelap, sehingga jaringan parut terlihat terang.",
                 "Latih aba-aba tahan napas ekspirasi yang konsisten untuk mencegah artefak gerak respirasi."
             )
         ),
@@ -180,7 +180,7 @@ object CharacterCatalog {
             favoriteSequence = "3D T1 MPRAGE Isotropik & Real-Time Fluoroskopi",
             greetings = listOf(
                 "Seluruh instrumen bedah di ruang iMRI terbuat dari titanium atau keramik non-feromagnetik!",
-                "Akuisisi 3D voksels isotropik memungkinkan rekonstruksi multiplanar (MPR) tanpa distorsi tangga.",
+                "Akuisisi 3D voksel isotropik (ukuran kubus sama di semua sisi) menghasilkan irisan gambar yang halus dari segala arah tanpa efek bergerigi.",
                 "Pencitraan intraoperatif memastikan batas reseksi tumor otak sudah bersih sebelum operasi selesai.",
                 "Koordinasi erat antara tim bedah dan radiografer menjaga sterilitas sekaligus keselamatan magnet."
             )
@@ -213,6 +213,7 @@ object CharacterCatalog {
             badgeLabel = "Standar",
             previewColorHex = 0xFF1FB6E8,
             secondaryColorHex = 0xFF7FDCD6,
+            drawableRes = R.drawable.nano_head_larmor,
             unlockRequirement = UnlockRequirement(null, null, 0, "Terbuka sejak awal")
         ),
         CharacterItem(
@@ -224,6 +225,7 @@ object CharacterCatalog {
             badgeLabel = "HUD Optik",
             previewColorHex = 0xFF7FDCD6,
             secondaryColorHex = 0xFF1FB6E8,
+            drawableRes = R.drawable.nano_head_visor,
             unlockRequirement = UnlockRequirement("m01", "MO1: Fisika Dasar MRI", 5, "Syarat rencana: 5 simpul MO1")
         ),
         CharacterItem(
@@ -235,6 +237,7 @@ object CharacterCatalog {
             badgeLabel = "Steril",
             previewColorHex = 0xFF3CC4A3,
             secondaryColorHex = 0xFFE6F2FB,
+            drawableRes = R.drawable.nano_head_cap,
             unlockRequirement = UnlockRequirement("m02", "MO2: Relaksasi & Kontras", 5, "Syarat rencana: Selesaikan MO2")
         ),
         CharacterItem(
@@ -246,6 +249,7 @@ object CharacterCatalog {
             badgeLabel = "Non-Mag",
             previewColorHex = 0xFFFF8A1F,
             secondaryColorHex = 0xFFFFC93C,
+            drawableRes = R.drawable.nano_head_goggles,
             unlockRequirement = UnlockRequirement("m03a", "MO3A: Sekuens Spin Echo", 6, "Syarat rencana: 6 simpul MO3A")
         ),
         CharacterItem(
@@ -257,6 +261,7 @@ object CharacterCatalog {
             badgeLabel = "Ultra 7T",
             previewColorHex = 0xFF55BBDC,
             secondaryColorHex = 0xFF1F4FB5,
+            drawableRes = R.drawable.nano_head_cyber,
             unlockRequirement = UnlockRequirement("m05", "MO5: Komponen Pesawat MRI", 8, "Syarat rencana: 8 simpul MO5")
         ),
         CharacterItem(
@@ -268,6 +273,7 @@ object CharacterCatalog {
             badgeLabel = "64-Channel",
             previewColorHex = 0xFFE6F2FB,
             secondaryColorHex = 0xFF1FB6E8,
+            drawableRes = R.drawable.nano_head_coil64,
             unlockRequirement = UnlockRequirement("m07", "MO7: Koil RF & Parallel Imaging", 8, "Syarat rencana: 8 simpul MO7")
         )
     )
@@ -282,6 +288,7 @@ object CharacterCatalog {
             badgeLabel = "Zona IV Safe",
             previewColorHex = 0xFF3CC4A3,
             secondaryColorHex = 0xFF7FDCD6,
+            drawableRes = R.drawable.nano_uniform_scrub_mint,
             unlockRequirement = UnlockRequirement(null, null, 0, "Terbuka sejak awal")
         ),
         CharacterItem(
@@ -293,6 +300,7 @@ object CharacterCatalog {
             badgeLabel = "Klinis",
             previewColorHex = 0xFFE6F2FB,
             secondaryColorHex = 0xFF1FB6E8,
+            drawableRes = R.drawable.nano_uniform_labcoat,
             unlockRequirement = UnlockRequirement("m01", "MO1: Fisika Dasar MRI", 10, "Syarat rencana: 10 simpul MO1")
         ),
         CharacterItem(
@@ -304,6 +312,7 @@ object CharacterCatalog {
             badgeLabel = "Bedah iMRI",
             previewColorHex = 0xFF1F4FB5,
             secondaryColorHex = 0xFF55BBDC,
+            drawableRes = R.drawable.nano_uniform_scrub_blue,
             unlockRequirement = UnlockRequirement("m03b", "MO3B: Gradient Echo", 6, "Syarat rencana: 6 simpul MO3B")
         ),
         CharacterItem(
@@ -315,6 +324,7 @@ object CharacterCatalog {
             badgeLabel = "Intensif",
             previewColorHex = 0xFF7FDCD6,
             secondaryColorHex = 0xFF3CC4A3,
+            drawableRes = R.drawable.nano_uniform_scrub_teal,
             unlockRequirement = UnlockRequirement("m04", "MO4: Pengkodean Spasial & K-Space", 8, "Syarat rencana: 8 simpul MO4")
         ),
         CharacterItem(
@@ -326,6 +336,7 @@ object CharacterCatalog {
             badgeLabel = "MRSO Level 2",
             previewColorHex = 0xFFFF8A1F,
             secondaryColorHex = 0xFFFFC93C,
+            drawableRes = R.drawable.nano_uniform_vest_mrso,
             unlockRequirement = UnlockRequirement("m09", "MO9: Keselamatan MRI", 6, "Syarat rencana: 6 simpul MO9")
         ),
         CharacterItem(
@@ -337,6 +348,7 @@ object CharacterCatalog {
             badgeLabel = "Helium 4,2K",
             previewColorHex = 0xFF1FB6E8,
             secondaryColorHex = 0xFF1F4FB5,
+            drawableRes = R.drawable.nano_uniform_cryo,
             unlockRequirement = UnlockRequirement("m05", "MO5: Komponen Pesawat MRI", 10, "Syarat rencana: Selesaikan MO5")
         )
     )
@@ -351,6 +363,7 @@ object CharacterCatalog {
             badgeLabel = "Zona II",
             previewColorHex = 0xFF8FB3CC,
             secondaryColorHex = 0xFFBFD9EC,
+            drawableRes = null,
             unlockRequirement = UnlockRequirement(null, null, 0, "Terbuka sejak awal")
         ),
         CharacterItem(
@@ -362,6 +375,7 @@ object CharacterCatalog {
             badgeLabel = "-30 dB NRR",
             previewColorHex = 0xFF1FB6E8,
             secondaryColorHex = 0xFF7FDCD6,
+            drawableRes = R.drawable.nano_headset_radio,
             unlockRequirement = UnlockRequirement(null, null, 0, "Terbuka sejak awal")
         ),
         CharacterItem(
@@ -373,6 +387,7 @@ object CharacterCatalog {
             badgeLabel = "Dual-Mic",
             previewColorHex = 0xFF3CC4A3,
             secondaryColorHex = 0xFF1FB6E8,
+            drawableRes = R.drawable.nano_headset_intercom,
             unlockRequirement = UnlockRequirement("m06", "MO6: Gradien & Sistem RF", 5, "Syarat rencana: 5 simpul MO6")
         ),
         CharacterItem(
@@ -384,6 +399,7 @@ object CharacterCatalog {
             badgeLabel = "Air-Tube",
             previewColorHex = 0xFF7FDCD6,
             secondaryColorHex = 0xFFE6F2FB,
+            drawableRes = R.drawable.nano_headset_pneumatic,
             unlockRequirement = UnlockRequirement("m08", "MO8: Artefak & Kendali Mutu", 6, "Syarat rencana: 6 simpul MO8")
         ),
         CharacterItem(
@@ -395,6 +411,7 @@ object CharacterCatalog {
             badgeLabel = "SAR Alert",
             previewColorHex = 0xFFFF8A1F,
             secondaryColorHex = 0xFF1FB6E8,
+            drawableRes = R.drawable.nano_headset_sar,
             unlockRequirement = UnlockRequirement("m09", "MO9: Keselamatan MRI", 8, "Syarat rencana: 8 simpul MO9")
         )
     )
@@ -409,6 +426,7 @@ object CharacterCatalog {
             badgeLabel = "Skrining",
             previewColorHex = 0xFF1FB6E8,
             secondaryColorHex = 0xFFFF8A1F,
+            drawableRes = R.drawable.nano_tool_detector,
             unlockRequirement = UnlockRequirement(null, null, 0, "Terbuka sejak awal")
         ),
         CharacterItem(
@@ -420,6 +438,7 @@ object CharacterCatalog {
             badgeLabel = "Level 2",
             previewColorHex = 0xFF3CC4A3,
             secondaryColorHex = 0xFF7FDCD6,
+            drawableRes = R.drawable.nano_tool_badge,
             unlockRequirement = UnlockRequirement("m01", "MO1: Fisika Dasar MRI", 5, "Syarat rencana: 5 simpul MO1")
         ),
         CharacterItem(
@@ -431,6 +450,7 @@ object CharacterCatalog {
             badgeLabel = "QA Phantom",
             previewColorHex = 0xFF55BBDC,
             secondaryColorHex = 0xFF1F4FB5,
+            drawableRes = R.drawable.nano_tool_phantom,
             unlockRequirement = UnlockRequirement("m08", "MO8: Artefak & Kendali Mutu", 5, "Syarat rencana: 5 simpul MO8")
         ),
         CharacterItem(
@@ -442,6 +462,7 @@ object CharacterCatalog {
             badgeLabel = "Parameter",
             previewColorHex = 0xFF7FDCD6,
             secondaryColorHex = 0xFF1FB6E8,
+            drawableRes = R.drawable.nano_tool_tablet,
             unlockRequirement = UnlockRequirement("m02", "MO2: Relaksasi & Kontras", 6, "Syarat rencana: 6 simpul MO2")
         ),
         CharacterItem(
@@ -453,6 +474,7 @@ object CharacterCatalog {
             badgeLabel = "Fiber-Optic",
             previewColorHex = 0xFFFF8A1F,
             secondaryColorHex = 0xFF3CC4A3,
+            drawableRes = R.drawable.nano_tool_oximeter,
             unlockRequirement = UnlockRequirement("m09", "MO9: Keselamatan MRI", 5, "Syarat rencana: 5 simpul MO9")
         ),
         CharacterItem(
@@ -460,10 +482,11 @@ object CharacterCatalog {
             name = "Koil Loop Permukaan",
             category = CharacterCategory.AKSESORIS,
             description = "Koil penerima RF lokal untuk anatomi superfisial (bahu, lutut, TMJ).",
-            clinicalBenefit = "Sensitivitas tinggi sesuai rumus s = (D²/(D²+z²))^1,5",
+            clinicalBenefit = "Menangkap sinyal sangat tajam pada organ dekat permukaan kulit (bahu, lutut, rahang)",
             badgeLabel = "High-SNR",
             previewColorHex = 0xFFE6F2FB,
             secondaryColorHex = 0xFF1FB6E8,
+            drawableRes = R.drawable.nano_tool_coil,
             unlockRequirement = UnlockRequirement("m07", "MO7: Koil RF & Parallel Imaging", 5, "Syarat rencana: 5 simpul MO7")
         )
     )

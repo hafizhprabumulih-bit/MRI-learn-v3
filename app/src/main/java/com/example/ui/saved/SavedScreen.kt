@@ -57,9 +57,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.CharacterCustomizationState
 import com.example.data.MriModule
 import com.example.data.MriNode
 import com.example.data.MriRepository
+import com.example.ui.character.AvatarView
+import com.example.ui.character.Expression
 import com.example.ui.glossary.GlossaryCard
 import com.example.ui.glossary.GlossaryDetailDialog
 import com.example.ui.module.NodeCard
@@ -352,6 +355,7 @@ fun SavedScreen(
                 SavedEmptyStateCard(
                     hasQuery = query.isNotEmpty(),
                     query = searchQuery,
+                    customization = state.characterCustomization,
                     onExploreModules = { viewModel.selectTab(MainTab.BERANDA) },
                     onExploreGlossary = { viewModel.selectTab(MainTab.GLOSARIUM) }
                 )
@@ -588,6 +592,7 @@ fun SavedScreen(
 private fun SavedEmptyStateCard(
     hasQuery: Boolean,
     query: String,
+    customization: CharacterCustomizationState,
     onExploreModules: () -> Unit,
     onExploreGlossary: () -> Unit
 ) {
@@ -606,21 +611,12 @@ private fun SavedEmptyStateCard(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(AmberDark)
-                    .padding(14.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.BookmarkBorder,
-                    contentDescription = null,
-                    tint = AmberAccent,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
+            AvatarView(
+                role = customization.avatarId,
+                equipped = customization,
+                expression = if (hasQuery) Expression.BERPIKIR else Expression.SENANG,
+                modifier = Modifier.size(84.dp)
+            )
 
             Spacer(modifier = Modifier.height(14.dp))
 

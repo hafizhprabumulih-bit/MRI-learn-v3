@@ -45,6 +45,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.CharacterCatalog
+import com.example.ui.character.AvatarView
+import com.example.ui.character.Expression
 import com.example.ui.theme.AmberDark
 import com.example.ui.theme.AmberWarning
 import com.example.ui.theme.CardSlate
@@ -493,8 +496,57 @@ fun QuizScreen(
                             }
                         }
 
-                        // Penjelasan setelah disubmit
-                        if (state.isAnswerSubmitted) {
+                        // Reaksi Maskot Nano:
+                        // - Sebelum dijawab: BERPIKIR + Tip dari peran spesialis aktif
+                        // - Sesudah dijawab: BANGGA/SENANG (Benar) atau WASPADA/SEDIH (Salah)
+                        val specialistProfile = CharacterCatalog.getSpecialistProfile(state.characterCustomization.avatarId)
+                        if (!state.isAnswerSubmitted) {
+                            val tipText = specialistProfile.greetings.getOrElse(
+                                state.currentQuizIndex % specialistProfile.greetings.size
+                            ) { specialistProfile.greetings.first() }
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                color = DeepObsidian,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.45f))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    AvatarView(
+                                        role = state.characterCustomization.avatarId,
+                                        equipped = state.characterCustomization,
+                                        expression = Expression.BERPIKIR,
+                                        modifier = Modifier.size(52.dp)
+                                    )
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Nano (${specialistProfile.roleTitle}) sedang berpikir…",
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = CyanBright
+                                        )
+                                        Spacer(modifier = Modifier.height(3.dp))
+                                        Text(
+                                            text = tipText,
+                                            fontSize = 11.sp,
+                                            color = TextSecondary,
+                                            lineHeight = 15.sp
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            val isAnswerCorrect = state.selectedOptionIndex == currentQuiz.correctIndex
+                            val quizExpression = when {
+                                isAnswerCorrect && state.currentQuizIndex % 2 == 0 -> Expression.BANGGA
+                                isAnswerCorrect -> Expression.SENANG
+                                currentQuiz.moduleId.equals("M09", ignoreCase = true) -> Expression.WASPADA
+                                else -> Expression.SEDIH
+                            }
                             Spacer(modifier = Modifier.height(14.dp))
                             Surface(
                                 modifier = Modifier.fillMaxWidth(),
@@ -502,23 +554,35 @@ fun QuizScreen(
                                 color = DeepObsidian,
                                 border = androidx.compose.foundation.BorderStroke(
                                     1.dp,
-                                    if (state.selectedOptionIndex == currentQuiz.correctIndex) EmeraldSuccess.copy(alpha = 0.5f) else RoseDanger.copy(alpha = 0.5f)
+                                    if (isAnswerCorrect) EmeraldSuccess.copy(alpha = 0.5f) else RoseDanger.copy(alpha = 0.5f)
                                 )
                             ) {
-                                Column(modifier = Modifier.padding(12.dp)) {
-                                    Text(
-                                        text = if (state.selectedOptionIndex == currentQuiz.correctIndex) "✓ Jawaban Tepat! 🎉" else "✗ Kurang Tepat ❌",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (state.selectedOptionIndex == currentQuiz.correctIndex) EmeraldSuccess else RoseDanger
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    AvatarView(
+                                        role = state.characterCustomization.avatarId,
+                                        equipped = state.characterCustomization,
+                                        expression = quizExpression,
+                                        modifier = Modifier.size(56.dp)
                                     )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = currentQuiz.explanation,
-                                        fontSize = 11.sp,
-                                        color = TextSecondary,
-                                        lineHeight = 16.sp
-                                    )
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = if (isAnswerCorrect) "✓ Jawaban Tepat! 🎉" else "✗ Kurang Tepat ❌",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (isAnswerCorrect) EmeraldSuccess else RoseDanger
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = currentQuiz.explanation,
+                                            fontSize = 11.sp,
+                                            color = TextSecondary,
+                                            lineHeight = 16.sp
+                                        )
+                                    }
                                 }
                             }
                         }

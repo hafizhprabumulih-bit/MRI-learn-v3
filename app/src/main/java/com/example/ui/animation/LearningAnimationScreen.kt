@@ -52,6 +52,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -201,10 +202,13 @@ fun LearningAnimationScreen(
                         .background(DeepObsidian),
                     contentAlignment = Alignment.Center
                 ) {
+                    // PERF: sudut dikirim sebagai lambda dan baru dibaca di fase gambar (draw phase),
+                    // sehingga perubahan per-frame hanya menggambar ulang Canvas, bukan me-recompose seluruh layar.
+                    val rotAngleProvider = { rotAngle }
                     when (state.selectedAnimationIndex) {
-                        0 -> SpinEchoCanvas(step = state.animationStep, isPlaying = state.isAnimationPlaying, rotAngle = rotAngle)
-                        1 -> RelaxationCurvesCanvas(step = state.animationStep, isPlaying = state.isAnimationPlaying, rotAngle = rotAngle)
-                        else -> KSpaceFillCanvas(step = state.animationStep, isPlaying = state.isAnimationPlaying, rotAngle = rotAngle)
+                        0 -> SpinEchoCanvas(step = state.animationStep, isPlaying = state.isAnimationPlaying, rotAngleProvider = rotAngleProvider)
+                        1 -> RelaxationCurvesCanvas(step = state.animationStep, isPlaying = state.isAnimationPlaying, rotAngleProvider = rotAngleProvider)
+                        else -> KSpaceFillCanvas(step = state.animationStep, isPlaying = state.isAnimationPlaying, rotAngleProvider = rotAngleProvider)
                     }
                 }
 
@@ -316,8 +320,9 @@ fun LearningAnimationScreen(
 // Kanvas Animasi 1: Spin Echo 90° - 180° Refokusing
 // -------------------------------------------------------------
 @Composable
-fun SpinEchoCanvas(step: Int, isPlaying: Boolean, rotAngle: Float) {
+fun SpinEchoCanvas(step: Int, isPlaying: Boolean, rotAngleProvider: () -> Float) {
     Canvas(modifier = Modifier.fillMaxSize()) {
+        val rotAngle = rotAngleProvider()
         val cx = size.width / 2f
         val cy = size.height / 2f
         val radius = 70f
@@ -390,38 +395,44 @@ fun SpinEchoCanvas(step: Int, isPlaying: Boolean, rotAngle: Float) {
 // Kanvas Animasi 2: Kurva Relaksasi T1 & T2
 // -------------------------------------------------------------
 @Composable
-fun RelaxationCurvesCanvas(step: Int, isPlaying: Boolean, rotAngle: Float = 0f) {
-    Canvas(modifier = Modifier.fillMaxSize()) {
+fun RelaxationCurvesCanvas(step: Int, isPlaying: Boolean, rotAngleProvider: () -> Float = { 0f }) {
+    Spacer(modifier = Modifier.fillMaxSize().drawWithCache {
         val cx = 40f
         val cy = size.height - 40f
         val w = size.width - 80f
         val h = size.height - 70f
 
+        // PERF: Kurva statis T1/T2 (2 × 101 titik eksponensial) hanya dibangun ulang saat ukuran berubah,
+        // bukan di setiap frame animasi.
+        val pathT1 = Path().apply {
+            moveTo(cx, cy)
+            for (i in 0..100) {
+                val t = i / 100f
+                lineTo(cx + t * w, cy - (1f - Math.exp(-t * 2.0).toFloat()) * (h * 0.9f))
+            }
+        }
+        val pathT2 = Path().apply {
+            moveTo(cx, cy - h * 0.9f)
+            for (i in 0..100) {
+                val t = i / 100f
+                lineTo(cx + t * w, (cy - h * 0.9f) + (1f - Math.exp(-t * 4.5).toFloat()) * (h * 0.9f))
+            }
+        }
+        val axisStroke = 2.dp.toPx()
+        val curveStroke = Stroke(width = 3.dp.toPx())
+        val markerStroke = 1.5.dp.toPx()
+        val markerRadius = 5.dp.toPx()
+        val dashEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f)
+
+        onDrawBehind {
+        val rotAngle = rotAngleProvider()
         // Sumbu X dan Y
-        drawLine(color = CardSlateBorder, start = Offset(cx, cy), end = Offset(cx + w, cy), strokeWidth = 2.dp.toPx())
-        drawLine(color = CardSlateBorder, start = Offset(cx, cy), end = Offset(cx, cy - h), strokeWidth = 2.dp.toPx())
+        drawLine(color = CardSlateBorder, start = Offset(cx, cy), end = Offset(cx + w, cy), strokeWidth = axisStroke)
+        drawLine(color = CardSlateBorder, start = Offset(cx, cy), end = Offset(cx, cy - h), strokeWidth = axisStroke)
 
-        // Kurva T1 Recovery (Mz tumbuh eksponensial - lebih lambat karena T1 > T2)
-        val pathT1 = Path()
-        pathT1.moveTo(cx, cy)
-        for (i in 0..100) {
-            val t = i / 100f
-            val x = cx + t * w
-            val y = cy - (1f - Math.exp(-t * 2.0).toFloat()) * (h * 0.9f)
-            pathT1.lineTo(x, y)
-        }
-        drawPath(path = pathT1, color = CyanBright, style = Stroke(width = 3.dp.toPx()))
-
-        // Kurva T2 Decay (Mxy meluruh eksponensial - jauh lebih cepat karena T2 < T1)
-        val pathT2 = Path()
-        pathT2.moveTo(cx, cy - h * 0.9f)
-        for (i in 0..100) {
-            val t = i / 100f
-            val x = cx + t * w
-            val y = (cy - h * 0.9f) + (1f - Math.exp(-t * 4.5).toFloat()) * (h * 0.9f)
-            pathT2.lineTo(x, y)
-        }
-        drawPath(path = pathT2, color = RoseDanger, style = Stroke(width = 3.dp.toPx()))
+        // Kurva T1 Recovery (Mz tumbuh) & T2 Decay (Mxy meluruh) dari cache
+        drawPath(path = pathT1, color = CyanBright, style = curveStroke)
+        drawPath(path = pathT2, color = RoseDanger, style = curveStroke)
 
         // Titik penanda waktu aktif yang bergerak mengikuti rotAngle (dan berhenti saat Jeda)
         val baseProgress = ((step - 1) * 0.22f + (rotAngle / 360f) * 0.25f).coerceIn(0.05f, 0.98f)
@@ -433,20 +444,22 @@ fun RelaxationCurvesCanvas(step: Int, isPlaying: Boolean, rotAngle: Float = 0f) 
             color = AmberWarning.copy(alpha = 0.6f),
             start = Offset(markerX, cy),
             end = Offset(markerX, cy - h * 0.92f),
-            strokeWidth = 1.5.dp.toPx(),
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f)
+            strokeWidth = markerStroke,
+            pathEffect = dashEffect
         )
-        drawCircle(color = CyanBright, radius = 5.dp.toPx(), center = Offset(markerX, markerT1Y))
-        drawCircle(color = RoseDanger, radius = 5.dp.toPx(), center = Offset(markerX, markerT2Y))
-    }
+        drawCircle(color = CyanBright, radius = markerRadius, center = Offset(markerX, markerT1Y))
+        drawCircle(color = RoseDanger, radius = markerRadius, center = Offset(markerX, markerT2Y))
+        }
+    })
 }
 
 // -------------------------------------------------------------
 // Kanvas Animasi 3: Pengisian Ruang-k
 // -------------------------------------------------------------
 @Composable
-fun KSpaceFillCanvas(step: Int, isPlaying: Boolean, rotAngle: Float = 0f) {
+fun KSpaceFillCanvas(step: Int, isPlaying: Boolean, rotAngleProvider: () -> Float = { 0f }) {
     Canvas(modifier = Modifier.fillMaxSize()) {
+        val rotAngle = rotAngleProvider()
         val cx = size.width / 2f
         val cy = size.height / 2f
         val matrixSize = 130f

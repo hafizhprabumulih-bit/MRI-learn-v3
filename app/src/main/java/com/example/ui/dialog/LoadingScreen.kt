@@ -48,6 +48,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
+import com.example.data.CharacterCustomizationState
+import com.example.ui.character.AvatarView
+import com.example.ui.character.Expression
 import com.example.ui.theme.DeepObsidian
 import kotlinx.coroutines.delay
 
@@ -325,12 +328,24 @@ fun LoadingScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = currentStatusMsg,
-                        fontSize = 12.sp,
-                        color = Color(0xFF8FA3B5),
-                        fontWeight = FontWeight.Normal
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        AvatarView(
+                            role = "radiografer_mri",
+                            equipped = CharacterCustomizationState(),
+                            expression = Expression.BERPIKIR,
+                            modifier = Modifier.size(34.dp)
+                        )
+                        Text(
+                            text = currentStatusMsg,
+                            fontSize = 12.sp,
+                            color = Color(0xFF8FA3B5),
+                            fontWeight = FontWeight.Normal
+                        )
+                    }
                     Text(
                         text = "$percentage%",
                         fontSize = 12.sp,

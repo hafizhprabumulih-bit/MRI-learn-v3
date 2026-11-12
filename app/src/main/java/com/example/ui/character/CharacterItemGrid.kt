@@ -24,13 +24,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -40,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -50,7 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.data.CharacterAccentPalette
-import com.example.data.CharacterCatalog
 import com.example.data.CharacterCategory
 import com.example.data.CharacterItem
 import com.example.data.MedicalAvatar
@@ -84,6 +87,9 @@ fun SpecialistAvatarGrid(
     ) {
         items(avatars, key = { it.id }) { av ->
             val isSelected = selectedAvatarId == av.id
+            val previewLoadout = remember(av.id) {
+                AvatarLayerRegistry.defaultLoadoutForRole(av.id)
+            }
 
             Card(
                 modifier = Modifier
@@ -112,13 +118,13 @@ fun SpecialistAvatarGrid(
                             .background(CharRoomBg.copy(alpha = 0.68f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Image(
-                            painter = painterResource(id = av.drawableRes),
-                            contentDescription = av.label,
+                        AvatarView(
+                            role = av.id,
+                            equipped = previewLoadout,
+                            expression = if (isSelected) Expression.SENANG else Expression.NETRAL,
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(4.dp),
-                            contentScale = ContentScale.Fit
+                                .size(70.dp)
+                                .padding(2.dp)
                         )
                         if (isSelected) {
                             Box(
@@ -172,6 +178,7 @@ fun CharacterItemCard(
     Card(
         modifier = modifier
             .width(196.dp)
+            .alpha(if (isUnlocked) 1f else 0.55f)
             .clickable(enabled = isUnlocked, onClick = onClick),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
@@ -212,17 +219,37 @@ fun CharacterItemCard(
                             .background(CharStageDeep.copy(alpha = 0.85f))
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
-                        Text(
-                            text = if (isSelected) stringResource(R.string.char_item_equipped) else item.badgeLabel,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isSelected) CharAccentCyan else CharTextSecondary
-                        )
+                        if (!isUnlocked) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = CharActionOrange,
+                                    modifier = Modifier.size(11.dp)
+                                )
+                                Text(
+                                    text = stringResource(R.string.status_locked),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = CharActionOrange
+                                )
+                            }
+                        } else {
+                            Text(
+                                text = if (isSelected) stringResource(R.string.char_item_equipped) else item.badgeLabel,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) CharAccentCyan else CharTextSecondary
+                            )
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             } else {
-                // 2. Ilustrasi Kustom Spesifik untuk Setiap Item Kepala, Seragam, Headset & Alat Klinis
+                // 2. Thumbnail Gambar PNG Layer Nano (atau Ikon Vektor untuk "Tanpa Headset")
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -230,7 +257,7 @@ fun CharacterItemCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(46.dp)
+                            .size(50.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(CharRoomBg)
                             .border(
@@ -240,19 +267,62 @@ fun CharacterItemCard(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        CharacterItemVisualIcon(
-                            item = item,
-                            primary = itemPrimary,
-                            secondary = itemSecondary
-                        )
+                        if (item.drawableRes != null) {
+                            val (scale, tx, ty) = when (item.category) {
+                                CharacterCategory.RAMBUT -> Triple(2.0f, 0f, 18f)
+                                CharacterCategory.SERAGAM -> Triple(1.9f, 0f, -18f)
+                                CharacterCategory.HEADSET -> Triple(1.55f, 0f, 6f)
+                                CharacterCategory.AKSESORIS -> Triple(2.1f, -24f, -20f)
+                                else -> Triple(1.0f, 0f, 0f)
+                            }
+                            Image(
+                                painter = painterResource(id = item.drawableRes),
+                                contentDescription = item.name,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .graphicsLayer(
+                                        scaleX = scale,
+                                        scaleY = scale,
+                                        translationX = tx,
+                                        translationY = ty
+                                    ),
+                                contentScale = ContentScale.Fit
+                            )
+                        } else {
+                            CharacterItemVisualIcon(
+                                item = item,
+                                primary = itemPrimary,
+                                secondary = itemSecondary
+                            )
+                        }
                     }
 
-                    Text(
-                        text = if (isSelected) stringResource(R.string.char_item_equipped) else item.badgeLabel,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isSelected) accentPalette.primaryColor else CharTextDim
-                    )
+                    if (!isUnlocked) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = CharActionOrange,
+                                modifier = Modifier.size(13.dp)
+                            )
+                            Text(
+                                text = stringResource(R.string.status_locked),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = CharActionOrange
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = if (isSelected) stringResource(R.string.char_item_equipped) else item.badgeLabel,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSelected) accentPalette.primaryColor else CharTextDim
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -279,7 +349,7 @@ fun CharacterItemCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            // 5. Indikator Rencana Syarat Modul Kurikulum (Tetap Terbuka untuk Pengujian)
+            // 5. Indikator Syarat Modul Kurikulum (dengan dukungan UI Terkunci & Terbuka)
             val req = item.unlockRequirement
             if (req.requiredModuleId != null && req.requiredNodesCount > 0) {
                 Spacer(modifier = Modifier.height(6.dp))
@@ -292,23 +362,46 @@ fun CharacterItemCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth(if (isSelected) 1f else 0.65f)
+                            .fillMaxWidth(
+                                when {
+                                    !isUnlocked -> 0.25f
+                                    isSelected -> 1f
+                                    else -> 0.65f
+                                }
+                            )
                             .height(4.dp)
                             .clip(RoundedCornerShape(2.dp))
                             .background(if (isSelected) CharAccentMint else CharActionOrange)
                     )
                 }
                 Spacer(modifier = Modifier.height(3.dp))
-                Text(
-                    text = stringResource(
-                        R.string.char_item_unlock_fmt,
-                        req.requiredNodesCount,
-                        req.requiredModuleId.uppercase()
-                    ),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (isSelected) CharAccentMint else CharActionYellow
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    if (!isUnlocked) {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = null,
+                            tint = CharActionOrange,
+                            modifier = Modifier.size(11.dp)
+                        )
+                    }
+                    Text(
+                        text = stringResource(
+                            R.string.char_item_unlock_fmt,
+                            req.requiredNodesCount,
+                            req.requiredModuleId.uppercase()
+                        ),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = when {
+                            !isUnlocked -> CharActionOrange
+                            isSelected -> CharAccentMint
+                            else -> CharActionYellow
+                        }
+                    )
+                }
             }
         }
     }
@@ -327,272 +420,32 @@ fun CharacterItemVisualIcon(
         val cy = h / 2f
 
         when (item.id) {
-            // --- KEPALA & VISOR ---
-            "hair_default" -> {
-                // Antena Larmor Bulat
+            "headset_none" -> {
+                // Ikon Tanpa Headset (Siluet Headset dengan garis miring nonaktif)
+                drawArc(
+                    color = primary.copy(alpha = 0.65f),
+                    startAngle = 180f,
+                    sweepAngle = 180f,
+                    useCenter = false,
+                    topLeft = Offset(w * 0.18f, h * 0.16f),
+                    size = Size(w * 0.64f, h * 0.56f),
+                    style = Stroke(width = 3f, cap = StrokeCap.Round)
+                )
                 drawLine(
-                    color = primary,
-                    start = Offset(cx, h * 0.78f),
-                    end = Offset(cx, h * 0.30f),
-                    strokeWidth = 3.5f,
+                    color = secondary,
+                    start = Offset(w * 0.20f, h * 0.80f),
+                    end = Offset(w * 0.80f, h * 0.20f),
+                    strokeWidth = 3.2f,
                     cap = StrokeCap.Round
                 )
-                drawCircle(color = secondary, radius = w * 0.18f, center = Offset(cx, h * 0.24f))
-                drawArc(
-                    color = primary,
-                    startAngle = 200f,
-                    sweepAngle = 140f,
-                    useCenter = false,
-                    topLeft = Offset(w * 0.18f, h * 0.62f),
-                    size = Size(w * 0.64f, h * 0.32f),
-                    style = Stroke(width = 3.2f, cap = StrokeCap.Round)
-                )
-            }
-            "hair_visor" -> {
-                // Visor HUD K-Space dengan Kisi Matriks
-                drawRoundRect(
-                    color = primary.copy(alpha = 0.35f),
-                    topLeft = Offset(w * 0.08f, h * 0.28f),
-                    size = Size(w * 0.84f, h * 0.44f),
-                    cornerRadius = CornerRadius(10f, 10f)
-                )
-                drawRoundRect(
-                    color = secondary,
-                    topLeft = Offset(w * 0.08f, h * 0.28f),
-                    size = Size(w * 0.84f, h * 0.44f),
-                    cornerRadius = CornerRadius(10f, 10f),
-                    style = Stroke(width = 2.8f)
-                )
-                drawLine(color = primary, start = Offset(w * 0.25f, cy), end = Offset(w * 0.75f, cy), strokeWidth = 2f)
-            }
-            "hair_cap" -> {
-                // Topi Bedah Steril Medis
-                drawArc(
-                    color = primary,
-                    startAngle = 180f,
-                    sweepAngle = 180f,
-                    useCenter = true,
-                    topLeft = Offset(w * 0.12f, h * 0.22f),
-                    size = Size(w * 0.76f, h * 0.66f)
-                )
-                drawRoundRect(
-                    color = secondary,
-                    topLeft = Offset(w * 0.10f, h * 0.54f),
-                    size = Size(w * 0.80f, h * 0.16f),
-                    cornerRadius = CornerRadius(4f, 4f)
-                )
-            }
-            "hair_goggles" -> {
-                // Kacamata Prisma fMRI
-                drawCircle(
-                    color = primary,
-                    radius = w * 0.20f,
-                    center = Offset(w * 0.30f, cy),
-                    style = Stroke(width = 3.2f)
-                )
-                drawCircle(
-                    color = primary,
-                    radius = w * 0.20f,
-                    center = Offset(w * 0.70f, cy),
-                    style = Stroke(width = 3.2f)
-                )
-                drawLine(
-                    color = secondary,
-                    start = Offset(w * 0.48f, cy),
-                    end = Offset(w * 0.52f, cy),
-                    strokeWidth = 3f
-                )
-            }
-            "hair_cyber" -> {
-                // Halo Neural 7T Bercahaya
-                drawOval(
-                    color = primary,
-                    topLeft = Offset(w * 0.08f, h * 0.26f),
-                    size = Size(w * 0.84f, h * 0.34f),
-                    style = Stroke(width = 3.6f)
-                )
-                drawCircle(color = secondary, radius = 4f, center = Offset(cx, h * 0.26f))
-            }
-            "hair_crown_rf" -> {
-                // Helm Array Koil Kepala 64-Ch
-                drawArc(
-                    color = primary,
-                    startAngle = 180f,
-                    sweepAngle = 180f,
-                    useCenter = false,
-                    topLeft = Offset(w * 0.12f, h * 0.16f),
-                    size = Size(w * 0.76f, h * 0.76f),
-                    style = Stroke(width = 3.5f)
-                )
-                drawLine(color = secondary, start = Offset(w * 0.35f, h * 0.22f), end = Offset(w * 0.35f, h * 0.65f), strokeWidth = 2.2f)
-                drawLine(color = secondary, start = Offset(w * 0.65f, h * 0.22f), end = Offset(w * 0.65f, h * 0.65f), strokeWidth = 2.2f)
-            }
-
-            // --- SERAGAM & ROMPI ---
-            "uniform_apron_shield" -> {
-                // Rompi MRSO Oranye Reflektif
-                drawRoundRect(
-                    color = primary,
-                    topLeft = Offset(w * 0.18f, h * 0.14f),
-                    size = Size(w * 0.64f, h * 0.72f),
-                    cornerRadius = CornerRadius(6f, 6f)
-                )
-                drawRect(
-                    color = secondary,
-                    topLeft = Offset(w * 0.18f, h * 0.58f),
-                    size = Size(w * 0.64f, h * 0.12f)
-                )
-            }
-            "uniform_armor" -> {
-                // Suit Kryogenik Helium 4,2K
-                drawRoundRect(
-                    color = primary.copy(alpha = 0.4f),
-                    topLeft = Offset(w * 0.15f, h * 0.15f),
-                    size = Size(w * 0.70f, h * 0.70f),
-                    cornerRadius = CornerRadius(8f, 8f)
-                )
-                drawCircle(color = secondary, radius = w * 0.18f, center = Offset(cx, cy), style = Stroke(width = 3f))
             }
             else -> {
-                if (item.category == CharacterCategory.SERAGAM) {
-                    // Scrub Klinis / Jas Lab dengan Kerah V
-                    val path = Path().apply {
-                        moveTo(w * 0.28f, h * 0.16f)
-                        lineTo(w * 0.08f, h * 0.38f)
-                        lineTo(w * 0.22f, h * 0.48f)
-                        lineTo(w * 0.22f, h * 0.86f)
-                        lineTo(w * 0.78f, h * 0.86f)
-                        lineTo(w * 0.78f, h * 0.48f)
-                        lineTo(w * 0.92f, h * 0.38f)
-                        lineTo(w * 0.72f, h * 0.16f)
-                        lineTo(cx, h * 0.36f)
-                        close()
-                    }
-                    drawPath(path = path, color = primary.copy(alpha = 0.35f))
-                    drawPath(path = path, color = primary, style = Stroke(width = 2.6f))
-                    drawCircle(color = secondary, radius = 3.5f, center = Offset(w * 0.63f, h * 0.54f))
-                } else if (item.category == CharacterCategory.HEADSET) {
-                    // Headset Peredam Akustik / Interkom / Pneumatik
-                    drawArc(
-                        color = primary,
-                        startAngle = 180f,
-                        sweepAngle = 180f,
-                        useCenter = false,
-                        topLeft = Offset(w * 0.18f, h * 0.14f),
-                        size = Size(w * 0.64f, h * 0.60f),
-                        style = Stroke(width = 3.2f, cap = StrokeCap.Round)
-                    )
-                    drawRoundRect(
-                        color = secondary,
-                        topLeft = Offset(w * 0.08f, h * 0.44f),
-                        size = Size(w * 0.22f, h * 0.36f),
-                        cornerRadius = CornerRadius(5f, 5f)
-                    )
-                    drawRoundRect(
-                        color = secondary,
-                        topLeft = Offset(w * 0.70f, h * 0.44f),
-                        size = Size(w * 0.22f, h * 0.36f),
-                        cornerRadius = CornerRadius(5f, 5f)
-                    )
-                    if (item.id == "headset_neural") {
-                        // Boom Microphone
-                        drawLine(
-                            color = primary,
-                            start = Offset(w * 0.20f, h * 0.76f),
-                            end = Offset(cx, h * 0.88f),
-                            strokeWidth = 2.8f,
-                            cap = StrokeCap.Round
-                        )
-                    }
-                } else if (item.category == CharacterCategory.AKSESORIS) {
-                    when (item.id) {
-                        "acc_magnet_detector" -> {
-                            // Tongkat Detektor Feromagnetik
-                            drawLine(
-                                color = primary,
-                                start = Offset(w * 0.22f, h * 0.78f),
-                                end = Offset(w * 0.72f, h * 0.28f),
-                                strokeWidth = 5f,
-                                cap = StrokeCap.Round
-                            )
-                            drawCircle(color = secondary, radius = 5f, center = Offset(w * 0.76f, h * 0.24f))
-                        }
-                        "acc_badge_zona4" -> {
-                            // Kartu Lencana MR Safety Level 2
-                            drawRoundRect(
-                                color = primary.copy(alpha = 0.3f),
-                                topLeft = Offset(w * 0.18f, h * 0.22f),
-                                size = Size(w * 0.64f, h * 0.58f),
-                                cornerRadius = CornerRadius(6f, 6f)
-                            )
-                            drawRoundRect(
-                                color = primary,
-                                topLeft = Offset(w * 0.18f, h * 0.22f),
-                                size = Size(w * 0.64f, h * 0.58f),
-                                cornerRadius = CornerRadius(6f, 6f),
-                                style = Stroke(width = 2.6f)
-                            )
-                            drawCircle(color = secondary, radius = 4.5f, center = Offset(cx, cy))
-                        }
-                        "acc_phantom" -> {
-                            // Silinder Phantom Kalibrasi ACR
-                            drawCircle(
-                                color = primary.copy(alpha = 0.32f),
-                                radius = w * 0.34f,
-                                center = Offset(cx, cy)
-                            )
-                            drawCircle(
-                                color = primary,
-                                radius = w * 0.34f,
-                                center = Offset(cx, cy),
-                                style = Stroke(width = 2.8f)
-                            )
-                            drawLine(color = secondary, start = Offset(w * 0.24f, cy), end = Offset(w * 0.76f, cy), strokeWidth = 2f)
-                            drawLine(color = secondary, start = Offset(cx, h * 0.24f), end = Offset(cx, h * 0.76f), strokeWidth = 2f)
-                        }
-                        "acc_clipboard" -> {
-                            // Tablet Protokol TR/TE
-                            drawRoundRect(
-                                color = primary,
-                                topLeft = Offset(w * 0.20f, h * 0.14f),
-                                size = Size(w * 0.60f, h * 0.72f),
-                                cornerRadius = CornerRadius(6f, 6f),
-                                style = Stroke(width = 2.8f)
-                            )
-                            drawLine(color = secondary, start = Offset(w * 0.32f, h * 0.38f), end = Offset(w * 0.68f, h * 0.38f), strokeWidth = 2.5f)
-                            drawLine(color = secondary, start = Offset(w * 0.32f, h * 0.56f), end = Offset(w * 0.68f, h * 0.56f), strokeWidth = 2.5f)
-                        }
-                        "acc_oximeter" -> {
-                            // Pulse Oximeter Serat Optik dengan Gelombang SpO2
-                            val wave = Path().apply {
-                                moveTo(w * 0.12f, cy)
-                                lineTo(w * 0.34f, cy)
-                                lineTo(w * 0.44f, h * 0.22f)
-                                lineTo(w * 0.56f, h * 0.78f)
-                                lineTo(w * 0.66f, cy)
-                                lineTo(w * 0.88f, cy)
-                            }
-                            drawPath(path = wave, color = primary, style = Stroke(width = 3f, cap = StrokeCap.Round))
-                        }
-                        else -> {
-                            // Koil Loop Permukaan RF
-                            drawCircle(
-                                color = primary,
-                                radius = w * 0.30f,
-                                center = Offset(cx, cy - 2f),
-                                style = Stroke(width = 3.4f)
-                            )
-                            drawLine(color = secondary, start = Offset(cx, h * 0.74f), end = Offset(cx, h * 0.92f), strokeWidth = 3.5f)
-                        }
-                    }
-                } else {
-                    drawRoundRect(
-                        brush = Brush.linearGradient(listOf(primary, secondary)),
-                        topLeft = Offset(w * 0.10f, h * 0.18f),
-                        size = Size(w * 0.80f, h * 0.64f),
-                        cornerRadius = CornerRadius(6f, 6f)
-                    )
-                }
+                drawRoundRect(
+                    brush = Brush.linearGradient(listOf(primary, secondary)),
+                    topLeft = Offset(w * 0.10f, h * 0.18f),
+                    size = Size(w * 0.80f, h * 0.64f),
+                    cornerRadius = CornerRadius(6f, 6f)
+                )
             }
         }
     }

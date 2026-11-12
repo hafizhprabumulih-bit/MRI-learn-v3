@@ -109,7 +109,7 @@ object MriRepository {
         MedicalAvatar("radiolog", "Radiolog", R.drawable.avatar_radiolog),
         MedicalAvatar("ahli_neuro_mri", "Ahli Neuro", R.drawable.avatar_ahli_neuro_mri),
         MedicalAvatar("fisikawan_medis", "Fisikawan", R.drawable.avatar_fisikawan_medis),
-        MedicalAvatar("petugas_proteksi_radiasi", "PPR", R.drawable.avatar_petugas_proteksi_radiasi),
+        MedicalAvatar("petugas_proteksi_radiasi", "MRSO", R.drawable.avatar_petugas_proteksi_radiasi),
         MedicalAvatar("ahli_jantung", "Kardiolog", R.drawable.avatar_ahli_jantung),
         MedicalAvatar("perawat", "Perawat", R.drawable.avatar_perawat),
         MedicalAvatar("dokter_bedah", "Bedah", R.drawable.avatar_dokter_bedah),

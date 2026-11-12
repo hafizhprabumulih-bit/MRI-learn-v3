@@ -14,7 +14,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,7 +29,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -45,17 +43,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -67,11 +56,8 @@ import com.example.data.CharacterAccentPalette
 import com.example.data.CharacterCatalog
 import com.example.data.CharacterCustomizationState
 import com.example.data.MedicalAvatar
-import com.example.ui.theme.CharAccentBlue
 import com.example.ui.theme.CharAccentCyan
 import com.example.ui.theme.CharAccentMint
-import com.example.ui.theme.CharAccentSky
-import com.example.ui.theme.CharAccentTeal
 import com.example.ui.theme.CharActionDarkText
 import com.example.ui.theme.CharActionOrange
 import com.example.ui.theme.CharActionYellow
@@ -80,7 +66,6 @@ import com.example.ui.theme.CharCardSurface
 import com.example.ui.theme.CharSpeechBubbleBg
 import com.example.ui.theme.CharSpeechBubbleText
 import com.example.ui.theme.CharStageBase
-import com.example.ui.theme.CharStageDeep
 import com.example.ui.theme.CharTextPrimary
 import com.example.ui.theme.CharTextSecondary
 
@@ -165,16 +150,26 @@ fun InteractiveCharacterStage(
 
     val bgItem = CharacterCatalog.getItem(workingState.backgroundId)
 
-    // Pilih varian ekspresi apabila avatar adalah Radiografer MRI
-    val resolvedAvatarRes = if (currentAvatar.id == "radiografer_mri") {
-        when (interactionCount % 4) {
-            1 -> R.drawable.avatar_radiografer_senang
-            2 -> R.drawable.avatar_radiografer_bangga
-            3 -> R.drawable.avatar_radiografer_semangat
-            else -> R.drawable.avatar_radiografer_mri
+    // Pilih ekspresi visor Nano (berlaku untuk SEMUA 9 peran) berdasarkan kejadian & konteks klinis
+    val isSafetyAlertContext = bubbleText.contains("Zona IV", ignoreCase = true) ||
+        bubbleText.contains("proyektil", ignoreCase = true) ||
+        bubbleText.contains("Quench", ignoreCase = true) ||
+        bubbleText.contains("luka bakar", ignoreCase = true) ||
+        bubbleText.contains("SAR", ignoreCase = true) ||
+        workingState.backgroundId == "bg_scanner_suite"
+
+    val currentExpression = when {
+        bubbleText.contains("berhasil disimpan", ignoreCase = true) -> Expression.BANGGA
+        isSafetyAlertContext && interactionCount % 3 == 0 -> Expression.WASPADA
+        isJumping -> Expression.SENANG
+        else -> when (interactionCount % 6) {
+            0 -> if (isSafetyAlertContext) Expression.WASPADA else Expression.NETRAL
+            1 -> Expression.SENANG
+            2 -> Expression.BERPIKIR
+            3 -> Expression.WASPADA
+            4 -> Expression.BANGGA
+            else -> Expression.SEDIH
         }
-    } else {
-        currentAvatar.drawableRes
     }
 
     Box(
@@ -319,7 +314,7 @@ fun InteractiveCharacterStage(
                 }
             }
 
-            // Bagian Tengah: Panah < di Kiri (Tanpa Kotak Toggle), Avatar 220dp di Tengah, & Panah > di Kanan (Tanpa Kotak Toggle)
+            // Bagian Tengah: Panah < di Kiri (Tanpa Kotak Toggle), Avatar Berlapis Nano 220dp di Tengah, & Panah > di Kanan
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -345,12 +340,17 @@ fun InteractiveCharacterStage(
                     )
                 }
 
-                // Avatar 220dp + Overlay Item Kustomisasi di Tengah
+                // Avatar Berlapis "Nano" (220dp) di Tengah Panggung
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .width(235.dp)
-                        .height(216.dp)
+                        .size(216.dp)
+                        .offset(y = (floatOffset + jumpOffsetY).dp)
+                        .graphicsLayer {
+                            scaleX = jumpScale
+                            scaleY = jumpScale
+                            rotationZ = tiltAngle
+                        }
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
@@ -358,26 +358,11 @@ fun InteractiveCharacterStage(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    AvatarEquippedVisualOverlay(
-                        workingState = workingState,
-                        accentPalette = accentPalette,
-                        floatOffset = floatOffset + jumpOffsetY,
-                        glowPulse = glowPulse
-                    )
-
-                    Image(
-                        painter = painterResource(id = resolvedAvatarRes),
-                        contentDescription = stringResource(R.string.char_avatar_tap_desc, currentAvatar.label),
-                        modifier = Modifier
-                            .width(230.dp)
-                            .height(216.dp)
-                            .offset(y = (floatOffset + jumpOffsetY).dp)
-                            .graphicsLayer {
-                                scaleX = jumpScale
-                                scaleY = jumpScale
-                                rotationZ = tiltAngle
-                            },
-                        contentScale = ContentScale.Fit
+                    AvatarView(
+                        role = currentAvatar.id,
+                        equipped = workingState,
+                        expression = currentExpression,
+                        modifier = Modifier.size(216.dp)
                     )
                 }
 
@@ -431,189 +416,5 @@ fun InteractiveCharacterStage(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun AvatarEquippedVisualOverlay(
-    workingState: CharacterCustomizationState,
-    accentPalette: CharacterAccentPalette,
-    floatOffset: Float,
-    glowPulse: Float
-) {
-    Canvas(
-        modifier = Modifier
-            .width(235.dp)
-            .height(216.dp)
-            .offset(y = floatOffset.dp)
-    ) {
-        val cx = size.width / 2f
-        val cy = size.height / 2f
-
-        // 1. Aura & Kerah Seragam yang Dipilih
-        val uniformColor = when (workingState.equippedUniform) {
-            "uniform_scrub_mint" -> CharAccentMint
-            "uniform_standard" -> CharTextPrimary
-            "uniform_scrub_blue" -> CharAccentBlue
-            "uniform_scrub_teal" -> CharAccentTeal
-            "uniform_apron_shield" -> CharActionOrange
-            else -> CharAccentCyan
-        }
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    uniformColor.copy(alpha = 0.25f * glowPulse),
-                    accentPalette.primaryColor.copy(alpha = 0.08f),
-                    Color.Transparent
-                ),
-                center = Offset(cx, cy + 22f),
-                radius = size.minDimension * 0.56f
-            ),
-            radius = size.minDimension * 0.56f,
-            center = Offset(cx, cy + 22f)
-        )
-
-        // Lencana / Sabuk Seragam di Bagian Bawah Dada Robot
-        if (workingState.equippedUniform == "uniform_apron_shield") {
-            drawRoundRect(
-                color = CharActionOrange.copy(alpha = 0.85f),
-                topLeft = Offset(cx - 46f, cy + 56f),
-                size = Size(92f, 12f),
-                cornerRadius = CornerRadius(6f, 6f)
-            )
-            drawRoundRect(
-                color = CharActionYellow,
-                topLeft = Offset(cx - 30f, cy + 58f),
-                size = Size(60f, 8f),
-                cornerRadius = CornerRadius(4f, 4f)
-            )
-        } else if (workingState.equippedUniform == "uniform_armor") {
-            drawCircle(
-                color = CharAccentCyan.copy(alpha = 0.8f * glowPulse),
-                radius = 18f,
-                center = Offset(cx, cy + 42f),
-                style = Stroke(width = 3.5f)
-            )
-        }
-
-        // 2. Visualisasi Kepala & Visor di Kepala Robot
-        when (workingState.equippedHair) {
-            "hair_visor" -> {
-                drawRoundRect(
-                    color = CharAccentTeal.copy(alpha = 0.42f),
-                    topLeft = Offset(cx - 56f, cy - 36f),
-                    size = Size(112f, 24f),
-                    cornerRadius = CornerRadius(12f, 12f)
-                )
-                drawRoundRect(
-                    color = CharAccentCyan,
-                    topLeft = Offset(cx - 56f, cy - 36f),
-                    size = Size(112f, 24f),
-                    cornerRadius = CornerRadius(12f, 12f),
-                    style = Stroke(width = 3f)
-                )
-            }
-            "hair_cyber" -> {
-                drawOval(
-                    color = CharAccentSky.copy(alpha = 0.9f * glowPulse),
-                    topLeft = Offset(cx - 64f, 8f),
-                    size = Size(128f, 22f),
-                    style = Stroke(width = 4f)
-                )
-            }
-            "hair_cap" -> {
-                drawArc(
-                    color = CharAccentMint.copy(alpha = 0.65f),
-                    startAngle = 195f,
-                    sweepAngle = 150f,
-                    useCenter = true,
-                    topLeft = Offset(cx - 58f, 18f),
-                    size = Size(116f, 48f)
-                )
-            }
-            "hair_goggles" -> {
-                drawCircle(
-                    color = CharActionOrange,
-                    radius = 16f,
-                    center = Offset(cx - 22f, cy - 30f),
-                    style = Stroke(width = 3.5f)
-                )
-                drawCircle(
-                    color = CharActionOrange,
-                    radius = 16f,
-                    center = Offset(cx + 22f, cy - 30f),
-                    style = Stroke(width = 3.5f)
-                )
-            }
-            "hair_crown_rf" -> {
-                drawArc(
-                    color = CharTextPrimary.copy(alpha = 0.85f),
-                    startAngle = 180f,
-                    sweepAngle = 180f,
-                    useCenter = false,
-                    topLeft = Offset(cx - 68f, 10f),
-                    size = Size(136f, 76f),
-                    style = Stroke(width = 4f)
-                )
-            }
-        }
-
-        // 3. Gelombang Akustik Headset di Sisi Telinga
-        if (workingState.equippedHeadset != "headset_none") {
-            val hsColor = when (workingState.equippedHeadset) {
-                "headset_neural" -> CharAccentMint
-                "headset_pneumatic" -> CharAccentTeal
-                "headset_holo" -> CharActionOrange
-                else -> CharAccentCyan
-            }
-            for (i in 1..2) {
-                val r = 14f + i * 9f * glowPulse
-                drawArc(
-                    color = hsColor.copy(alpha = 0.68f / i),
-                    startAngle = 135f,
-                    sweepAngle = 90f,
-                    useCenter = false,
-                    topLeft = Offset(cx - 88f - r, cy - 18f - r),
-                    size = Size(r * 2, r * 2),
-                    style = Stroke(width = 2.6f, cap = StrokeCap.Round)
-                )
-                drawArc(
-                    color = hsColor.copy(alpha = 0.68f / i),
-                    startAngle = -45f,
-                    sweepAngle = 90f,
-                    useCenter = false,
-                    topLeft = Offset(cx + 88f - r, cy - 18f - r),
-                    size = Size(r * 2, r * 2),
-                    style = Stroke(width = 2.6f, cap = StrokeCap.Round)
-                )
-            }
-        }
-
-        // 4. Indikator Alat Klinis Terpasang di Sisi Kanan Bawah Karakter
-        val accColor = when (workingState.equippedAccessory) {
-            "acc_badge_zona4" -> CharAccentMint
-            "acc_phantom" -> CharAccentSky
-            "acc_clipboard" -> CharAccentTeal
-            "acc_oximeter" -> CharActionOrange
-            "acc_coil_surface" -> CharTextPrimary
-            else -> CharAccentCyan
-        }
-        val badgeCenter = Offset(cx + 78f, cy + 46f)
-        drawCircle(
-            color = CharStageDeep.copy(alpha = 0.85f),
-            radius = 18f,
-            center = badgeCenter
-        )
-        drawCircle(
-            color = accColor,
-            radius = 18f,
-            center = badgeCenter,
-            style = Stroke(width = 2.5f)
-        )
-        drawCircle(
-            color = accColor.copy(alpha = 0.85f * glowPulse),
-            radius = 7f,
-            center = badgeCenter
-        )
     }
 }
