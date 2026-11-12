@@ -42,4 +42,5 @@
     <string name="char_item_standard">Standar</string>
     <string name="char_item_module_fmt">Modul %1$s</string>
     <string name="char_item_unlock_fmt">Buka: %1$d simpul %2$s</string>
+    <string name="status_locked">Terkunci</string>
 </resources>
