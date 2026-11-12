@@ -11,13 +11,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,11 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.data.CharacterAccentPalette
-import com.example.data.CharacterCatalog
 import com.example.data.CharacterCategory
 import com.example.ui.theme.CharBorderSlate
 import com.example.ui.theme.CharCardSurface
-import com.example.ui.theme.CharRoomBg
 import com.example.ui.theme.CharTabActiveText
 import com.example.ui.theme.CharTextPrimary
 import com.example.ui.theme.CharTextSecondary
@@ -49,10 +42,8 @@ enum class CharacterTabGroup(val titleRes: Int) {
 @Composable
 fun CharacterCategoryTabs(
     selectedCategory: CharacterCategory,
-    selectedAccentId: String,
     accentPalette: CharacterAccentPalette,
     onSelectCategory: (CharacterCategory) -> Unit,
-    onSelectAccent: (CharacterAccentPalette) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val activeGroup = when (selectedCategory) {
@@ -69,7 +60,7 @@ fun CharacterCategoryTabs(
     )
 
     Column(modifier = modifier.fillMaxWidth()) {
-        // 1. Segmented Group Bar: Karakter | Tampilan | Latar & Warna (Sesuai Gambar PNG)
+        // 1. Segmented Group Bar: Karakter | Tampilan | Latar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -145,59 +136,6 @@ fun CharacterCategoryTabs(
                                 .clip(RoundedCornerShape(2.dp))
                                 .background(if (isSelected) accentPalette.primaryColor else Color.Transparent)
                         )
-                    }
-                }
-            }
-        }
-
-        // 3. Pemilih Warna Aksen Panggung saat berada di tab Latar & Warna
-        if (activeGroup == CharacterTabGroup.LATAR_WARNA) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(CharCardSurface)
-                    .border(1.dp, CharBorderSlate, RoundedCornerShape(14.dp))
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.char_accent_color_label),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = CharTextSecondary
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CharacterCatalog.accentPalettes.forEach { palette ->
-                        val isSelected = selectedAccentId == palette.id
-                        Box(
-                            modifier = Modifier
-                                .size(30.dp)
-                                .clip(CircleShape)
-                                .background(palette.primaryColor)
-                                .border(
-                                    width = if (isSelected) 2.5.dp else 1.dp,
-                                    color = if (isSelected) CharTextPrimary else CharRoomBg,
-                                    shape = CircleShape
-                                )
-                                .clickable { onSelectAccent(palette) },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = palette.label,
-                                    tint = CharRoomBg,
-                                    modifier = Modifier.size(15.dp)
-                                )
-                            }
-                        }
                     }
                 }
             }

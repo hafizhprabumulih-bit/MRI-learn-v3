@@ -11,13 +11,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.example.R
 import com.example.data.CharacterAccentPalette
 import com.example.data.CharacterCatalog
+import com.example.ui.theme.CharAccentMint
 import com.example.ui.theme.CharRoomBg
+import kotlin.math.PI
+import kotlin.math.sin
 import com.example.ui.theme.CharStageBase
 import com.example.ui.theme.CharStageDeep
 import com.example.ui.theme.CharStagePlatformFill
@@ -105,15 +110,47 @@ fun StageBackgroundCanvas(
                 style = Stroke(width = 2.5f)
             )
 
-            // Gelombang Pemindaian Pulsa RF 90° atau Mode Fokus Holografik
+            // Gelombang Pemindaian Pulsa RF 90° / Animasi Gelombang Interaktif
             if (isScanningRf || isHoloPose) {
-                val scanRadius = (w * 0.12f) + rfWavePhase * (w * 0.36f)
+                val scanRadius1 = (w * 0.12f) + rfWavePhase * (w * 0.36f)
+                val scanRadius2 = (w * 0.12f) + ((rfWavePhase + 0.5f) % 1f) * (w * 0.36f)
                 drawCircle(
                     color = accentPalette.glowColor.copy(alpha = (1f - rfWavePhase) * 0.75f),
-                    radius = scanRadius,
+                    radius = scanRadius1,
                     center = avatarCenter,
                     style = Stroke(width = 3.2f)
                 )
+                drawCircle(
+                    color = CharAccentMint.copy(alpha = (1f - ((rfWavePhase + 0.5f) % 1f)) * 0.55f),
+                    radius = scanRadius2,
+                    center = avatarCenter,
+                    style = Stroke(width = 2.4f)
+                )
+
+                // Gelombang Sinus RF mengalir di belakang karakter
+                val phaseRad = rfWavePhase * 2f * PI.toFloat()
+                for (waveIdx in 0..1) {
+                    val baseY = h * (if (waveIdx == 0) 0.54f else 0.62f)
+                    val amp = h * (if (waveIdx == 0) 0.055f else 0.040f)
+                    val waveColor = if (waveIdx == 0) {
+                        accentPalette.glowColor.copy(alpha = 0.72f)
+                    } else {
+                        CharAccentMint.copy(alpha = 0.52f)
+                    }
+                    val sinePath = Path()
+                    val steps = 36
+                    for (i in 0..steps) {
+                        val t = i.toFloat() / steps
+                        val x = w * t
+                        val y = baseY + sin(t * 4f * PI.toFloat() + phaseRad + waveIdx * 1.3f) * amp
+                        if (i == 0) sinePath.moveTo(x, y) else sinePath.lineTo(x, y)
+                    }
+                    drawPath(
+                        path = sinePath,
+                        color = waveColor,
+                        style = Stroke(width = 3f, cap = StrokeCap.Round)
+                    )
+                }
             }
         }
     }

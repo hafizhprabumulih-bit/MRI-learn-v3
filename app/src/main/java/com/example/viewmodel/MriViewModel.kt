@@ -50,6 +50,7 @@ enum class MainTab {
 }
 
 enum class SimType {
+    FISIKA_DASAR_M01,
     SPIN_LARMOR,
     KONTRAS_TR_TE,
     RUANG_K,
@@ -69,6 +70,15 @@ data class MriUiState(
     val quizzesList: List<QuizQuestion> = MriRepository.quizzes,
     val selectedModule: MriModule? = null,
     val selectedSimType: SimType = SimType.SPIN_LARMOR,
+    val selectedM01ActivityId: String = "pengantar_atom",
+    val selectedM02ActivityId: String = "m2_fantom_otak",
+    val selectedM03ActivityId: String = "m3a_spin_echo",
+    val selectedM04ActivityId: String = "m4a_gradien_larmor",
+    val selectedM05ActivityId: String = "m5_a1_penampang",
+    val selectedM06ActivityId: String = "m6a_trapesium_gradien",
+    val selectedM07ActivityId: String = "m7a_zona_akses",
+    val selectedM08ActivityId: String = "m8a_luar_fase",
+    val selectedM09ActivityId: String = "ta_snr",
     val completedNodeCodes: Set<String> = emptySet(),
     val lastVisitedNodeCode: String? = null,
     val isResumeRestored: Boolean = false,
@@ -1196,6 +1206,7 @@ class MriViewModel(
     fun selectSimType(simType: SimType) {
         pushCurrentSession()
         val simName = when (simType) {
+            SimType.FISIKA_DASAR_M01 -> "Laboratorium Fisika Dasar M01"
             SimType.SPIN_LARMOR -> "Simulator Presesi Larmor"
             SimType.KONTRAS_TR_TE -> "Simulator Kontras TR/TE"
             SimType.RUANG_K -> "Simulator Domain Ruang-k"
@@ -1221,6 +1232,96 @@ class MriViewModel(
                 )
             }
         }
+    }
+
+    fun selectM01Activity(activityId: String) {
+        _uiState.update { it.copy(selectedM01ActivityId = activityId) }
+    }
+
+    fun launchM01Lab(labType: String) {
+        val mapped = when (labType) {
+            "presesi" -> "presesi_bola"
+            else -> labType
+        }
+        _uiState.update { it.copy(selectedM01ActivityId = mapped) }
+        selectSimType(SimType.FISIKA_DASAR_M01)
+    }
+
+    fun selectM02Activity(activityId: String) {
+        _uiState.update { it.copy(selectedM02ActivityId = activityId) }
+    }
+
+    fun launchM02Lab(labType: String) {
+        val mapped = if (labType == "contrast") "m2_fantom_otak" else labType
+        _uiState.update { it.copy(selectedM02ActivityId = mapped) }
+        selectSimType(SimType.KONTRAS_TR_TE)
+    }
+
+    fun selectM03Activity(activityId: String) {
+        _uiState.update { it.copy(selectedM03ActivityId = activityId) }
+    }
+
+    fun launchM03Lab(labType: String) {
+        _uiState.update { it.copy(selectedM03ActivityId = labType) }
+        selectSimType(SimType.SEKUENS_KONTRAS_M03)
+    }
+
+    fun selectM04Activity(activityId: String) {
+        _uiState.update { it.copy(selectedM04ActivityId = activityId) }
+    }
+
+    fun launchM04Lab(labType: String) {
+        val mapped = if (labType == "kspace") "m4b_lab_terpadu" else labType
+        _uiState.update { it.copy(selectedM04ActivityId = mapped) }
+        selectSimType(SimType.RUANG_K)
+    }
+
+    fun selectM05Activity(activityId: String) {
+        _uiState.update { it.copy(selectedM05ActivityId = activityId) }
+    }
+
+    fun launchM05Lab(labType: String) {
+        _uiState.update { it.copy(selectedM05ActivityId = labType) }
+        selectSimType(SimType.PESAWAT_MAGNET_M05)
+    }
+
+    fun selectM06Activity(activityId: String) {
+        _uiState.update { it.copy(selectedM06ActivityId = activityId) }
+    }
+
+    fun launchM06Lab(labType: String) {
+        val mapped = if (labType == "m6a_sumbu_gradien") "m6a_peta_frekuensi" else labType
+        _uiState.update { it.copy(selectedM06ActivityId = mapped) }
+        selectSimType(SimType.GRADIEN_RF_M06)
+    }
+
+    fun selectM07Activity(activityId: String) {
+        _uiState.update { it.copy(selectedM07ActivityId = activityId) }
+    }
+
+    fun launchM07Lab(labType: String) {
+        val mapped = if (labType == "sar") "m7c_sar" else labType
+        _uiState.update { it.copy(selectedM07ActivityId = mapped) }
+        selectSimType(SimType.SAR_SAFETY)
+    }
+
+    fun selectM08Activity(activityId: String) {
+        _uiState.update { it.copy(selectedM08ActivityId = activityId) }
+    }
+
+    fun launchM08Lab(labType: String) {
+        _uiState.update { it.copy(selectedM08ActivityId = labType) }
+        selectSimType(SimType.ARTEFAK_QA_M08)
+    }
+
+    fun selectM09Activity(activityId: String) {
+        _uiState.update { it.copy(selectedM09ActivityId = activityId) }
+    }
+
+    fun launchM09Lab(labType: String) {
+        val mapped = if (labType.startsWith("m9_")) "ta_snr" else labType
+        _uiState.update { it.copy(selectedM09ActivityId = mapped) }
+        selectSimType(if (mapped == "console_tabs") SimType.KONSOL_VENDOR else SimType.PROTOKOL_TA_SNR)
     }
 
     fun selectTissue(tissue: TissueProperties) {

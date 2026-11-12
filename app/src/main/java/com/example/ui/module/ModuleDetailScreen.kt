@@ -360,16 +360,15 @@ fun ModuleDetailScreen(
                             onToggleBookmark = { viewModel.toggleNodeBookmark(node.code) },
                             onLaunchLab = { lab ->
                                 when {
-                                    lab == "ta_snr" || lab.startsWith("m9_") -> viewModel.selectSimType(SimType.PROTOKOL_TA_SNR)
-                                    lab == "console_tabs" -> viewModel.selectSimType(SimType.KONSOL_VENDOR)
-                                    lab.startsWith("m3_") || lab.startsWith("m3a_") || lab.startsWith("m3b_") || lab.startsWith("m3c_") -> viewModel.selectSimType(SimType.SEKUENS_KONTRAS_M03)
-                                    lab.startsWith("m4_") || lab.startsWith("m4a_") || lab.startsWith("m4b_") || lab.startsWith("m4c_") -> viewModel.selectSimType(SimType.RUANG_K)
-                                    lab.startsWith("m5_") -> viewModel.selectSimType(SimType.PESAWAT_MAGNET_M05)
-                                    lab.startsWith("m6_") || lab.startsWith("m6a_") || lab.startsWith("m6b_") -> viewModel.selectSimType(SimType.GRADIEN_RF_M06)
-                                    lab == "sar" || lab.startsWith("m7_") || lab.startsWith("m7a_") || lab.startsWith("m7b_") || lab.startsWith("m7c_") -> viewModel.selectSimType(SimType.SAR_SAFETY)
-                                    lab.startsWith("m8_") || lab.startsWith("m8a_") || lab.startsWith("m8b_") || lab.startsWith("m8c_") -> viewModel.selectSimType(SimType.ARTEFAK_QA_M08)
-                                    lab == "contrast" || lab.startsWith("m2_") -> viewModel.selectSimType(SimType.KONTRAS_TR_TE)
-                                    lab.startsWith("m1_") || lab in listOf("presesi", "larmor", "atom_h", "cek_inti", "populasi_spin", "spektrum_em", "nmv_3d", "sudut_flip", "fase_fid", "bola_bloch", "tr_berulang") -> viewModel.selectSimType(SimType.SPIN_LARMOR)
+                                    lab == "ta_snr" || lab == "console_tabs" || lab.startsWith("m9_") -> viewModel.launchM09Lab(lab)
+                                    lab.startsWith("m3_") || lab.startsWith("m3a_") || lab.startsWith("m3b_") || lab.startsWith("m3c_") -> viewModel.launchM03Lab(lab)
+                                    lab == "kspace" || lab.startsWith("m4_") || lab.startsWith("m4a_") || lab.startsWith("m4b_") || lab.startsWith("m4c_") -> viewModel.launchM04Lab(lab)
+                                    lab.startsWith("m5_") -> viewModel.launchM05Lab(lab)
+                                    lab.startsWith("m6_") || lab.startsWith("m6a_") || lab.startsWith("m6b_") -> viewModel.launchM06Lab(lab)
+                                    lab == "sar" || lab.startsWith("m7_") || lab.startsWith("m7a_") || lab.startsWith("m7b_") || lab.startsWith("m7c_") -> viewModel.launchM07Lab(lab)
+                                    lab.startsWith("m8_") || lab.startsWith("m8a_") || lab.startsWith("m8b_") || lab.startsWith("m8c_") -> viewModel.launchM08Lab(lab)
+                                    lab == "contrast" || lab.startsWith("m2_") -> viewModel.launchM02Lab(lab)
+                                    lab.startsWith("m1_") || lab in listOf("presesi", "larmor", "atom_h", "cek_inti", "populasi_spin", "spektrum_em", "nmv_3d", "sudut_flip", "fase_fid", "bola_bloch", "tr_berulang") -> viewModel.launchM01Lab(lab)
                                     else -> viewModel.selectSimType(SimType.RUANG_K)
                                 }
                             }
@@ -514,9 +513,30 @@ fun NodeCard(
     onLaunchLab: (String) -> Unit,
     onMarkNodeCompleted: (String) -> Unit = { if (!isCompleted) onToggleCompleted() }
 ) {
+    var isCompleteAnimTriggered by remember { mutableStateOf(false) }
+    LaunchedEffect(isCompleteAnimTriggered) {
+        if (isCompleteAnimTriggered) {
+            delay(340)
+            isCompleteAnimTriggered = false
+        }
+    }
+
+    val cardContainerColor by animateColorAsState(
+        targetValue = if (isCompleted && !isCompleteAnimTriggered) {
+            Color(0xFF0A2E25)
+        } else {
+            DarkNavySlate
+        },
+        animationSpec = tween(durationMillis = 320),
+        label = "node_card_container_color"
+    )
     val cardBorderColor by animateColorAsState(
-        targetValue = if (isBookmarked) AmberAccent.copy(alpha = 0.75f) else CardSlateBorder,
-        animationSpec = tween(durationMillis = 240),
+        targetValue = when {
+            isCompleted && !isCompleteAnimTriggered -> EmeraldSuccess.copy(alpha = 0.78f)
+            isBookmarked -> AmberAccent.copy(alpha = 0.75f)
+            else -> CardSlateBorder
+        },
+        animationSpec = tween(durationMillis = 280),
         label = "node_card_border_color"
     )
 
@@ -525,8 +545,8 @@ fun NodeCard(
             .fillMaxWidth()
             .testTag("node_card_${node.code}"),
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkNavySlate),
-        border = androidx.compose.foundation.BorderStroke(1.dp, cardBorderColor)
+        colors = CardDefaults.cardColors(containerColor = cardContainerColor),
+        border = androidx.compose.foundation.BorderStroke(1.2.dp, cardBorderColor)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             // Header Row: Kode Simpul, Tag Level, Bookmark, dan Tombol Selesai
@@ -570,14 +590,6 @@ fun NodeCard(
                         savedContentDescription = "Hapus Bookmark Materi",
                         unsavedContentDescription = "Simpan Bookmark Materi"
                     )
-
-                    var isCompleteAnimTriggered by remember { mutableStateOf(false) }
-                    LaunchedEffect(isCompleteAnimTriggered) {
-                        if (isCompleteAnimTriggered) {
-                            delay(340)
-                            isCompleteAnimTriggered = false
-                        }
-                    }
 
                     val completeScale by animateFloatAsState(
                         targetValue = when {

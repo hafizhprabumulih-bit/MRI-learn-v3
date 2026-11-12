@@ -302,24 +302,26 @@ fun MriBottomNavigationBar(
                         .weight(1f)
                         .padding(horizontal = 3.dp)
                         .clip(RoundedCornerShape(12.dp))
+                        .background(if (isSelected) CyanDark else Color.Transparent)
+                        .border(
+                            width = 1.dp,
+                            color = if (isSelected) CyanBright.copy(alpha = 0.45f) else Color.Transparent,
+                            shape = RoundedCornerShape(12.dp)
+                        )
                         .clickable { onTabSelected(item.tab) }
-                        .padding(vertical = 3.dp, horizontal = 2.dp)
+                        .padding(vertical = 5.dp, horizontal = 4.dp)
                         .testTag("nav_tab_${item.tab.name.lowercase()}"),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(if (isSelected) CyanDark else Color.Transparent)
-                            .padding(horizontal = 7.dp, vertical = 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
                             contentDescription = item.label,
                             tint = if (isSelected) CyanBright else TextMuted,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(26.dp)
                         )
                         if (item.tab == MainTab.TERSIMPAN && savedCount > 0) {
                             Box(

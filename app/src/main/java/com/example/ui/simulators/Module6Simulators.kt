@@ -100,73 +100,88 @@ private fun fmtId(value: Float, decimals: Int = 2): String =
 // ============================================================================
 // SUITE PENUH MODUL 6 (M06A GRADIEN + M06B SISTEM RF & KOIL) UNTUK LAB VIRTUAL
 // ============================================================================
+private data class M06SubCard(val id: String, val code: String, val title: String, val nodeTag: String, val tabIdx: Int)
+
+private val M06_SUB_CARDS = listOf(
+    M06SubCard("m6a_trapesium_gradien", "M06A", "Trapesium Slew Rate", "M06A.T1", 0),
+    M06SubCard("m6a_gradien_seimbang", "M06A", "Gradien Seimbang & DWI", "M06A.T2", 0),
+    M06SubCard("m6a_peta_frekuensi", "M06A", "Peta Frekuensi & Sumbu", "M06A.T1", 0),
+    M06SubCard("m6a_koil_maxwell_golay", "M06A", "Koil Maxwell & Golay", "M06A.T2", 0),
+    M06SubCard("m6b_a1_rantai_sinyal", "M06B·A1", "Rantai Sinyal Penerima", "M06B.T1", 1),
+    M06SubCard("m6b_a2_a3_a4_koil", "M06B·A2-4", "Pemilih & Array Koil", "M06B.T2", 2),
+    M06SubCard("m6b_a5_faraday", "M06B·A5", "Kandang Faraday & RF", "M06B.T2", 3),
+    M06SubCard("m6b_a6_chemical_shift", "M06B·A6", "Spektrum Pergeseran Kimia", "M06B.T3", 4),
+    M06SubCard("m6b_a7_b1_ptx", "M06B·A7", "Peta B₁ & pTx", "M06B.T3", 4),
+    M06SubCard("m6b_a8_birdcage", "M06B·A8", "Birdcage Kuadratur", "M06B.T3", 4)
+)
+
 @Composable
-fun Module6GradientRfLabSuite() {
-    var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf(
-        "M06A: Gradien & Lobus",
-        "A1: Rantai Sinyal RF",
-        "A2–A4: Pemilih & Array Koil",
-        "A5: Kandang Faraday",
-        "A6–A8: Pergeseran Kimia, B1 & Birdcage"
-    )
+fun Module6GradientRfLabSuite(
+    selectedActivityId: String = "m6a_trapesium_gradien",
+    onSelectActivity: (String) -> Unit = {}
+) {
+    val activeCard = M06_SUB_CARDS.firstOrNull { it.id == selectedActivityId } ?: M06_SUB_CARDS.first()
+    val selectedTab = activeCard.tabIdx
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("module6_lab_suite"),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = DarkNavySlate),
-            border = androidx.compose.foundation.BorderStroke(1.dp, CardSlateBorder)
+            border = androidx.compose.foundation.BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.7f))
         ) {
-            Column(modifier = Modifier.padding(14.dp)) {
+            Column(modifier = Modifier.padding(12.dp)) {
                 Text(
-                    text = "Laboratorium M06A & M06B: Sistem Gradien, RF, dan Koil",
-                    fontSize = 15.sp,
+                    text = "M06: Laboratorium Gradien (M06A) & Sistem RF/Koil (M06B)",
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary
                 )
                 Text(
-                    text = "100% Native Jetpack Compose • Trapesium Slew Rate, Maxwell/Golay, Lobus Seimbang, Rantai Sinyal, Koil Array, Kandang Faraday & Birdcage Kuadratur",
-                    fontSize = 11.sp,
+                    text = "Trapesium Slew Rate, Maxwell/Golay, Rantai Sinyal, Koil Array, Faraday & Birdcage.",
+                    fontSize = 10.sp,
                     color = TextSecondary
                 )
-                Spacer(modifier = Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    tabs.forEachIndexed { idx, label ->
-                        val isSel = selectedTab == idx
-                        FilterChip(
-                            selected = isSel,
-                            onClick = { selectedTab = idx },
-                            modifier = Modifier.testTag("m6_suite_tab_$idx"),
-                            label = {
-                                Text(
-                                    text = label,
-                                    fontSize = 11.sp,
-                                    fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal
-                                )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = CyanPrimary,
-                                selectedLabelColor = DeepObsidian,
-                                containerColor = DeepObsidian,
-                                labelColor = TextSecondary
-                            ),
-                            border = FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = isSel,
-                                borderColor = if (isSel) CyanBright else CardSlateBorder
-                            )
-                        )
+                Spacer(modifier = Modifier.height(8.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    M06_SUB_CARDS.chunked(2).forEach { pair ->
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            pair.forEach { item ->
+                                val isSel = item.id == activeCard.id
+                                androidx.compose.material3.Surface(
+                                    onClick = { onSelectActivity(item.id) },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = if (isSel) CyanDark else DeepObsidian,
+                                    border = androidx.compose.foundation.BorderStroke(
+                                        width = if (isSel) 1.5.dp else 1.dp,
+                                        color = if (isSel) CyanBright else CardSlateBorder
+                                    )
+                                ) {
+                                    Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text(item.code, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = if (isSel) CyanBright else AmberAccent)
+                                            Text(item.nodeTag, fontSize = 9.sp, color = TextMuted)
+                                        }
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = item.title,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = if (isSel) CyanBright else TextPrimary,
+                                            maxLines = 1,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                            }
+                            if (pair.size == 1) Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
                 }
             }

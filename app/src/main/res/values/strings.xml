@@ -14,7 +14,7 @@
     <!-- Tab Utama & Sub-Tab -->
     <string name="char_tab_group_karakter">Karakter</string>
     <string name="char_tab_group_tampilan">Tampilan</string>
-    <string name="char_tab_group_latar">Latar &amp; Warna</string>
+    <string name="char_tab_group_latar">Latar</string>
     <string name="char_subtab_kepala">Kepala</string>
     <string name="char_subtab_seragam">Seragam</string>
     <string name="char_subtab_headset">Headset</string>
@@ -34,6 +34,7 @@
     <string name="char_fav_sequence_fmt">Sekuens favorit: %1$s</string>
     <string name="char_prev_avatar_desc">Karakter Sebelumnya</string>
     <string name="char_next_avatar_desc">Karakter Berikutnya</string>
+    <string name="char_wave_toggle_desc">Animasi Gelombang RF</string>
     <string name="char_avatar_tap_desc">Karakter %1$s - Ketuk untuk berinteraksi</string>
 
     <!-- Kartu Item -->

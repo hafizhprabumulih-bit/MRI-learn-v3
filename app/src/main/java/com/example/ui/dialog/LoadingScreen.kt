@@ -295,23 +295,23 @@ fun LoadingScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Progress Bar matching HTML .bar & .status (width 280.dp)
+            // Progress Bar matching HTML .bar & .status (sedikit diperbesar agar lebih jelas)
             Column(
-                modifier = Modifier.width(280.dp),
+                modifier = Modifier.width(304.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Track
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(6.dp)
+                        .height(10.dp)
                         .background(Color(0xFF0A1A28), RoundedCornerShape(99.dp))
                         .border(1.dp, Color(0xFF16394F), RoundedCornerShape(99.dp))
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(progress.coerceIn(0f, 1f))
-                            .height(6.dp)
+                            .height(10.dp)
                             .background(
                                 brush = Brush.horizontalGradient(
                                     colors = listOf(Color(0xFF14917F), Color(0xFF2DD4BF))

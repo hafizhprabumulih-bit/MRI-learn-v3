@@ -39,60 +39,199 @@ import kotlin.math.*
 // ============================================================================
 // SUITE GABUNGAN MODUL 3: M03A (SPIN ECHO & TSE), M03B (GRADIENT ECHO & TUNAK), M03C (DWI & KONTRAS)
 // ============================================================================
+private data class M03SubCardItem(
+    val id: String,
+    val subModule: String,
+    val shortCode: String,
+    val title: String,
+    val nodeTag: String,
+    val subIndex: Int,
+    val tabIndex: Int
+)
+
+private val M03_SUB_CARDS = listOf(
+    M03SubCardItem("m3a_spin_echo", "M03A", "A1", "Spin Echo 90°–180°", "M03A.T1.1", 0, 0),
+    M03SubCardItem("m3a_ir_null", "M03A", "A2", "Inversion Recovery (TI)", "M03A.T1.2", 0, 1),
+    M03SubCardItem("m3a_tse", "M03A", "A3", "TSE & Turbo Factor", "M03A.T1.4", 0, 2),
+    M03SubCardItem("m3a_drive", "M03A", "A4", "DRIVE Equilibrium", "M03A.T3.1", 0, 3),
+    M03SubCardItem("m3b_ernst", "M03B", "B1", "Sudut Ernst & TR", "M03B.T1.3", 1, 0),
+    M03SubCardItem("m3b_gre_kompor", "M03B", "B5", "Kompor Kontras GRE", "M03B.T1.1", 1, 1),
+    M03SubCardItem("m3b_bipolar_rewinder", "M03B", "B9", "Bipolar & Rewinder", "M03B.T1.2", 1, 2),
+    M03SubCardItem("m3b_steady_state", "M03B", "B2", "3 Sekuens Tunak", "M03B.T2.1", 1, 3),
+    M03SubCardItem("m3b_tiga_tunak", "M03B", "B2+", "Koheren vs Inkoheren", "M03B.T2.2", 1, 3),
+    M03SubCardItem("m3b_t2star_servikal", "M03B", "B10", "T2* Servikal & Kasus", "M03B.T2.3", 1, 4),
+    M03SubCardItem("m3b_epi", "M03B", "EPI", "EPI & T2* Cepat", "M03B.T3.2", 1, 4),
+    M03SubCardItem("m3b_dummy_pulses", "M03B", "B3", "Dummy Pulses Tunak", "Lab M03B", 3, 0),
+    M03SubCardItem("m3b_se_vs_gre", "M03B", "B4", "SE vs GRE Dephasing", "Lab M03B", 3, 1),
+    M03SubCardItem("m3b_jam_fase", "M03B", "B7", "Jam Fase RF Spoiling", "Lab M03B", 3, 2),
+    M03SubCardItem("m3b_koherensi", "M03B", "B8", "Diagram Koherensi Fase", "Lab M03B", 3, 3),
+    M03SubCardItem("m3c_dwi", "M03C", "C1", "DWI & Faktor b", "M03C.T1.1", 2, 0),
+    M03SubCardItem("m3c_kontras", "M03C", "C2", "Agen Kontras Gd/Fe", "M03C.T1.4", 2, 1),
+    M03SubCardItem("m3c_bold_mtc", "M03C", "C3", "fMRI BOLD & MTC", "M03C.T1.2", 2, 2),
+    M03SubCardItem("m3c_ilustrasi_bola", "M03C", "C3+", "Bola Difusi & Gd", "Lab M03C", 3, 4)
+)
+
 @Composable
 fun Module3SequenceContrastSuite(
-    initialModuleIndex: Int = 0,
+    selectedActivityId: String = "m3a_spin_echo",
+    onSelectActivity: (String) -> Unit = {},
     onNodeComplete: (String) -> Unit = {}
 ) {
-    var selectedSubModule by rememberSaveable(initialModuleIndex) { mutableIntStateOf(initialModuleIndex) }
+    val activeCard = M03_SUB_CARDS.firstOrNull { it.id == selectedActivityId } ?: M03_SUB_CARDS.first()
+    var subFilter by remember { mutableStateOf("SEMUA") }
+    val filteredCards = remember(subFilter) {
+        if (subFilter == "SEMUA") M03_SUB_CARDS
+        else M03_SUB_CARDS.filter { it.subModule == subFilter }
+    }
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(bottom = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        // Kartu Induk M03 + Sub-Kartu Kecil
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = DarkNavySlate),
+            border = androidx.compose.foundation.BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.7f))
         ) {
-            FilterChip(
-                selected = selectedSubModule == 0,
-                onClick = { selectedSubModule = 0 },
-                label = { Text("M03A: Spin Echo, IR & TSE", fontSize = 11.sp, fontWeight = if (selectedSubModule == 0) FontWeight.Bold else FontWeight.Normal) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = CyanPrimary,
-                    selectedLabelColor = DeepObsidian,
-                    containerColor = DarkNavySlate,
-                    labelColor = TextSecondary
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = "M03: Laboratorium Sekuens (M03A, M03B, M03C)",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
                 )
-            )
-            FilterChip(
-                selected = selectedSubModule == 1,
-                onClick = { selectedSubModule = 1 },
-                label = { Text("M03B: Gradient Echo & Keadaan Tunak", fontSize = 11.sp, fontWeight = if (selectedSubModule == 1) FontWeight.Bold else FontWeight.Normal) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = AmberAccent,
-                    selectedLabelColor = DeepObsidian,
-                    containerColor = DarkNavySlate,
-                    labelColor = TextSecondary
+                Text(
+                    text = "19 simulasi sekuens Spin Echo, IR, TSE, GRE Steady-State, RF Spoiling, DWI, BOLD & Agen Kontras.",
+                    fontSize = 11.sp,
+                    color = TextSecondary,
+                    lineHeight = 15.sp
                 )
-            )
-            FilterChip(
-                selected = selectedSubModule == 2,
-                onClick = { selectedSubModule = 2 },
-                label = { Text("M03C: DWI, BOLD, MTC & Kontras", fontSize = 11.sp, fontWeight = if (selectedSubModule == 2) FontWeight.Bold else FontWeight.Normal) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = EmeraldSuccess,
-                    selectedLabelColor = DeepObsidian,
-                    containerColor = DarkNavySlate,
-                    labelColor = TextSecondary
-                )
-            )
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    listOf("SEMUA" to "Semua (19)", "M03A" to "M03A (4)", "M03B" to "M03B (11)", "M03C" to "M03C (4)").forEach { (id, lbl) ->
+                        FilterChip(
+                            selected = subFilter == id,
+                            onClick = { subFilter = id },
+                            label = { Text(lbl, fontSize = 10.sp) },
+                            colors = FilterChipDefaults.filterChipColors(selectedContainerColor = CyanDark, selectedLabelColor = CyanBright)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    filteredCards.chunked(2).forEach { pair ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            pair.forEach { item ->
+                                val isSelected = item.id == activeCard.id
+                                androidx.compose.material3.Surface(
+                                    onClick = { onSelectActivity(item.id) },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = if (isSelected) CyanDark else DeepObsidian,
+                                    border = androidx.compose.foundation.BorderStroke(
+                                        width = if (isSelected) 1.5.dp else 1.dp,
+                                        color = if (isSelected) CyanBright else CardSlateBorder
+                                    )
+                                ) {
+                                    Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                text = "${item.subModule}·${item.shortCode}",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = if (isSelected) CyanBright else AmberAccent
+                                            )
+                                            Text(item.nodeTag, fontSize = 9.sp, color = TextMuted)
+                                        }
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = item.title,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = if (isSelected) CyanBright else TextPrimary,
+                                            maxLines = 1,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                            }
+                            if (pair.size == 1) Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
         }
 
-        when (selectedSubModule) {
-            0 -> SpinEchoIrTseSimulator(initialTab = 0, onNodeComplete = onNodeComplete)
-            1 -> GradientEchoSteadyStateSimulator(initialTab = 0, onNodeComplete = onNodeComplete)
-            2 -> SpecialContrastDwiAgentSimulator(initialTab = 0, onNodeComplete = onNodeComplete)
+        when (activeCard.subIndex) {
+            0 -> SpinEchoIrTseSimulator(initialTab = activeCard.tabIndex, onNodeComplete = onNodeComplete)
+            1 -> GradientEchoSteadyStateSimulator(initialTab = activeCard.tabIndex, onNodeComplete = onNodeComplete)
+            2 -> SpecialContrastDwiAgentSimulator(initialTab = activeCard.tabIndex, onNodeComplete = onNodeComplete)
+            else -> Module3ExtraActivityCard(extraIndex = activeCard.tabIndex)
+        }
+    }
+}
+
+@Composable
+private fun Module3ExtraActivityCard(extraIndex: Int) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardSlate),
+        border = androidx.compose.foundation.BorderStroke(1.dp, CardSlateBorder)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            when (extraIndex) {
+                0 -> {
+                    var dummyCount by remember { mutableIntStateOf(4) }
+                    Text("M03B · A3. Dummy Pulses menuju Keadaan Tunak", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = CyanBright)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("Pulsa awal sebelum akuisisi ruang-k menstabilkan Mz agar tidak terjadi fluktuasi sinyal (ghosting).", fontSize = 11.sp, color = TextSecondary)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Jumlah Dummy Pulses: $dummyCount TR", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AmberAccent)
+                    Slider(value = dummyCount.toFloat(), onValueChange = { dummyCount = it.roundToInt() }, valueRange = 0f..12f)
+                    val stabilityPct = ((1.0 - kotlin.math.exp(-dummyCount / 3.0)) * 100).roundToInt()
+                    Text("Kestabilan Steady-State saat ky=0: $stabilityPct%", fontSize = 11.sp, color = EmeraldSuccess)
+                }
+                1 -> {
+                    Text("M03B · A4. Spin Echo (180°) vs Gradient Echo (Dephasing T2*)", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = CyanBright)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text("• Spin Echo memakai pulsa RF 180° untuk membalik fase spin sehingga inhomogenitas B₀ terkompensasi (peluruhan mengikuti T2 murni).\n• Gradient Echo membalik polaritas gradien baca tanpa pulsa 180° sehingga inhomogenitas B₀ tetap memengaruhi sinyal (peluruhan mengikuti T2*).", fontSize = 11.sp, color = TextSecondary, lineHeight = 16.sp)
+                }
+                2 -> {
+                    var spoilDeg by remember { mutableFloatStateOf(117f) }
+                    Text("M03B · A7. Jam Fase RF Spoiling (FISP/FLASH)", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = CyanBright)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("Penambahan inkremen fase RF kuadratik (umumnya 117° atau 50°) membatalkan koherensi Mxy sisa untuk menghasilkan kontras T1 murni.", fontSize = 11.sp, color = TextSecondary)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text("Inkremen Fase RF: ${spoilDeg.roundToInt()}°", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AmberAccent)
+                    Slider(value = spoilDeg, onValueChange = { spoilDeg = it }, valueRange = 0f..180f)
+                }
+                3 -> {
+                    Text("M03B · A8. Diagram Koherensi Fase (Extended Phase Graph)", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = CyanBright)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text("Setiap pulsa RF berturut-turut memecah magnetisasi menjadi jalur FID (S+), jalur Echo/Stimulated Echo (S−), dan keadaan longitudinal tersimpan (Z).", fontSize = 11.sp, color = TextSecondary, lineHeight = 16.sp)
+                }
+                else -> {
+                    var bVal by remember { mutableFloatStateOf(1000f) }
+                    val freeWaterSig = kotlin.math.exp(-bVal * 0.0025f)
+                    val restrictedSig = kotlin.math.exp(-bVal * 0.0005f)
+                    Text("M03C · A3. Ilustrasi Bola Difusi Air (Bebas vs Terbatas)", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = CyanBright)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("Pada nilai b tinggi, air bebas (CSF) mengalami atenuasi sinyal kuat (gelap), sedangkan jaringan dengan difusi terbatas (iskemia akut) tetap terang.", fontSize = 11.sp, color = TextSecondary)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text("b-value: ${bVal.roundToInt()} s/mm²", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AmberAccent)
+                    Slider(value = bVal, onValueChange = { bVal = (it / 100f).roundToInt() * 100f }, valueRange = 0f..2000f)
+                    Text("Sinyal Air Bebas: ${(freeWaterSig * 100).roundToInt()}% | Sinyal Difusi Terbatas: ${(restrictedSig * 100).roundToInt()}%", fontSize = 11.sp, color = EmeraldSuccess)
+                }
+            }
         }
     }
 }

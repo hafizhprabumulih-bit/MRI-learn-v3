@@ -1,8 +1,10 @@
 package com.example.ui.simulators
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,6 +51,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.MriRepository
@@ -127,6 +130,126 @@ private val PHANTOM_LIST = listOf(
     Triple("knee_sagital", "Knee Sagital", 200f),
     Triple("knee_coronal", "Knee Coronal", 200f)
 )
+
+// -------------------------------------------------------------
+// KARTU INDUK M09: PROTOKOL, TA, SNR & KONSOL VENDOR
+// -------------------------------------------------------------
+private data class M09SubCardSpec(
+    val id: String,
+    val title: String,
+    val subtitle: String,
+    val nodeRef: String
+)
+
+private val M09_SUB_CARDS = listOf(
+    M09SubCardSpec("ta_snr", "Kalkulator TA, Voksel & SNR", "S1 • Trade-off & Irisan", "M09.1–M09.4"),
+    M09SubCardSpec("console_tabs", "Peta Tab Konsol & Vendor", "S2 • Siemens/GE/Philips", "M09.5–M09.7")
+)
+
+@Composable
+fun Module9LabSuite(
+    selectedActivityId: String = "ta_snr",
+    onSelectActivity: (String) -> Unit = {}
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = DarkNavySlate),
+            shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(1.dp, CardSlateBorder)
+        ) {
+            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "M09 • Protokol, TA, SNR & Konsol Vendor",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = CyanBright
+                        )
+                        Text(
+                            text = "Pilih simulasi parameter protokol atau peta tab konsol vendor.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Surface(
+                        color = CyanDark.copy(alpha = 0.25f),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.45f))
+                    ) {
+                        Text(
+                            text = "2 Simulasi",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = CyanBright,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    M09_SUB_CARDS.forEach { card ->
+                        val isSelected = selectedActivityId == card.id
+                        Surface(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(10.dp))
+                                .clickable { onSelectActivity(card.id) },
+                            color = if (isSelected) CyanDark.copy(alpha = 0.35f) else DeepObsidian,
+                            shape = RoundedCornerShape(10.dp),
+                            border = BorderStroke(
+                                if (isSelected) 1.5.dp else 1.dp,
+                                if (isSelected) CyanBright else CardSlateBorder
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                Text(
+                                    text = card.title,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isSelected) CyanBright else Color.White,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = card.subtitle,
+                                    fontSize = 10.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = card.nodeRef,
+                                    fontSize = 9.sp,
+                                    color = CyanPrimary,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (selectedActivityId == "console_tabs") {
+            ConsoleTabsSimulator()
+        } else {
+            ProtocolTaSnrSimulator()
+        }
+    }
+}
 
 // -------------------------------------------------------------
 // SIMULASI S1: KALKULATOR TA, VOKSEL, DAN SNR (MODUL 9)
@@ -208,7 +331,7 @@ fun ProtocolTaSnrSimulator() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
+                    .height(180.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(DeepObsidian)
                     .border(1.dp, CardSlateBorder, RoundedCornerShape(14.dp))

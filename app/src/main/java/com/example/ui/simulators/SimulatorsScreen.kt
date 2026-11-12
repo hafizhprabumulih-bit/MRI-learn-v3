@@ -132,6 +132,11 @@ fun SimulatorsScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             SimChip(
+                label = "M01: Fisika Dasar",
+                selected = state.selectedSimType == SimType.FISIKA_DASAR_M01,
+                onClick = { viewModel.selectSimType(SimType.FISIKA_DASAR_M01) }
+            )
+            SimChip(
                 label = "Spin & Larmor",
                 selected = state.selectedSimType == SimType.SPIN_LARMOR,
                 onClick = { viewModel.selectSimType(SimType.SPIN_LARMOR) }
@@ -196,21 +201,55 @@ fun SimulatorsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             when (state.selectedSimType) {
+                SimType.FISIKA_DASAR_M01 -> Module1LabHub(
+                    selectedActivityId = state.selectedM01ActivityId,
+                    onSelectActivity = { viewModel.selectM01Activity(it) }
+                )
                 SimType.SPIN_LARMOR -> SpinLarmorSimulator(state, viewModel)
-                SimType.KONTRAS_TR_TE -> ContrastSimulator(state, viewModel)
-                SimType.RUANG_K -> KSpaceSimulator()
+                SimType.KONTRAS_TR_TE -> {
+                    Module2LabHub(
+                        selectedActivityId = state.selectedM02ActivityId,
+                        onSelectActivity = { viewModel.selectM02Activity(it) }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    ContrastSimulator(state, viewModel)
+                }
+                SimType.RUANG_K -> {
+                    Module4LabHub(
+                        selectedActivityId = state.selectedM04ActivityId,
+                        onSelectActivity = { viewModel.selectM04Activity(it) }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    KSpaceSimulator()
+                }
                 SimType.SAR_SAFETY -> SarSafetySimulator(state, viewModel)
                 SimType.SCAN_TIME_ESTIMATOR -> ScanTimeEstimatorSimulator(state, viewModel)
-                SimType.PROTOKOL_TA_SNR -> ProtocolTaSnrSimulator()
-                SimType.KONSOL_VENDOR -> ConsoleTabsSimulator()
-                SimType.PESAWAT_MAGNET_M05 -> Module5HardwareLabSuite()
-                SimType.GRADIEN_RF_M06 -> Module6GradientRfLabSuite()
+                SimType.PROTOKOL_TA_SNR -> Module9LabSuite(
+                    selectedActivityId = state.selectedM09ActivityId,
+                    onSelectActivity = { viewModel.launchM09Lab(it) }
+                )
+                SimType.KONSOL_VENDOR -> Module9LabSuite(
+                    selectedActivityId = state.selectedM09ActivityId,
+                    onSelectActivity = { viewModel.launchM09Lab(it) }
+                )
+                SimType.PESAWAT_MAGNET_M05 -> Module5HardwareLabSuite(
+                    selectedActivityId = state.selectedM05ActivityId,
+                    onSelectActivity = { viewModel.selectM05Activity(it) }
+                )
+                SimType.GRADIEN_RF_M06 -> Module6GradientRfLabSuite(
+                    selectedActivityId = state.selectedM06ActivityId,
+                    onSelectActivity = { viewModel.selectM06Activity(it) }
+                )
                 SimType.SEKUENS_KONTRAS_M03 -> Module3SequenceContrastSuite(
+                    selectedActivityId = state.selectedM03ActivityId,
+                    onSelectActivity = { viewModel.selectM03Activity(it) },
                     onNodeComplete = { code ->
                         viewModel.markNodeCompleted(code)
                     }
                 )
                 SimType.ARTEFAK_QA_M08 -> Module8ArtifactsFlowQaSuite(
+                    selectedActivityId = state.selectedM08ActivityId,
+                    onSelectActivity = { viewModel.selectM08Activity(it) },
                     onNodeComplete = { code ->
                         viewModel.markNodeCompleted(code)
                     }
@@ -1312,6 +1351,8 @@ fun SarSafetySimulator(state: MriUiState, viewModel: MriViewModel) {
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Module7SafetyLabSuite(
+            selectedActivityId = state.selectedM07ActivityId,
+            onSelectActivity = { viewModel.selectM07Activity(it) },
             onNodeComplete = { nodeCode ->
                 viewModel.markNodeCompleted(nodeCode)
             }

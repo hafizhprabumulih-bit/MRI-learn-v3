@@ -1,4 +1,4 @@
-package com.example.data
+﻿package com.example.data
 
 import com.example.R
 import com.example.data.local.CurriculumNodeEntity
@@ -464,7 +464,7 @@ object MriRepository {
                     summaryShort = "Relaksasi adalah proses kembalinya Net Magnetization Vector (NMV) ke keadaan kesetimbangan termal (sejajar B₀) setelah pulsa Radiofrekuensi (RF) dimatikan. Proses ini terdiri dari dua mekanisme independen yang berjalan simultan: pemulihan longitudinal (T1) dan peluruhan transversal (T2).",
                     detailFull = "Ketika pulsa RF 90° diberikan pada frekuensi Larmor, proton menyerap energi sehingga populasi spin berpindah ke tingkat energi tinggi (anti-parallel) dan seluruh spin berpresesi secara sefase (in-phase). Akibatnya, vektor magnetisasi longitudinal (Mz) turun menjadi nol dan muncul magnetisasi transversal maksimum (Mxy).\n\nSegera setelah pulsa RF dimatikan, sistem spin melepaskan energi dan kembali menuju kesetimbangan awal melalui dua proses yang terjadi secara bersamaan tetapi memiliki laju yang berbeda:\n• Pemulihan Longitudinal (Mz): Tumbuhnya kembali komponen magnetisasi sepanjang sumbu Z menuju M₀ (Relaksasi T1).\n• Peluruhan Transversal (Mxy): Hilangnya komponen magnetisasi pada bidang XY akibat hilangnya koherensi fase antar-spin (Relaksasi T2).",
                     analogi = "Analogi Pegas & Penari Sinkron: Bayangkan sekelompok penari yang awalnya berdiri tegak (sejajar B₀). Pulsa RF adalah aba-aba musik yang membuat mereka kompak membungkuk 90° dan berputar serempak (in-phase). Saat musik berhenti (RF mati), para penari perlahan kembali berdiri tegak karena melepaskan lelah ke lantai (Relaksasi T1), sembari putaran mereka mulai tidak kompak satu sama lain karena saling bersenggolan (Relaksasi T2).",
-                    labType = "contrast"
+                    labType = "m2_kompor_kontras"
                 ),
                 MriNode(
                     code = "M02.T1.2",
@@ -473,7 +473,7 @@ object MriRepository {
                     summaryShort = "Relaksasi T1 adalah waktu yang dibutuhkan magnetisasi longitudinal (Mz) untuk pulih kembali sebesar 63% dari nilai kesetimbangan awalnya (M₀) melalui pelepasan energi termal dari spin proton ke lingkungan molekuler sekitar (lattice).",
                     detailFull = "Disebut spin-lattice relaxation karena energi yang diserap oleh spin selama eksitasi RF dilepaskan kembali ke kisi molekuler di sekitarnya (lattice). Saat energi dilepaskan, proton kembali ke tingkat energi rendah (parallel) dan vektor Mz tumbuh secara eksponensial mendekati M₀.\n\nRumus: Mz(t) = M0 · (1 - e^(-t / T1))\n\n• Definisi Konstanta T1: Waktu yang diperlukan agar Mz pulih mencapai 63% dari nilai magnetisasi maksimum M₀ setelah pulsa RF 90°.\n• Pada waktu 3 × T1, Mz telah pulih sekitar 95%; pada 5 × T1, Mz dianggap pulih sempurna (~99,3%).\n• Efisiensi T1 bergantung pada kesesuaian frekuensi gerak molekul (tumbling rate) dengan frekuensi Larmor.",
                     analogi = "Analogi Kopi Panas di Ruangan: Spin yang tereksitasi seperti secangkir kopi panas, sedangkan lattice (lingkungan molekul) adalah udara kamar. Kopi melepaskan panas ke udara sekitar hingga suhunya kembali seimbang. Jika udara sekitar menyerap panas dengan efisien (seperti molekul lemak), kopi cepat dingin (T1 pendek). Jika wadahnya terisolasi (seperti air murni/CSF), kopi lama dinginnya (T1 panjang).",
-                    labType = "contrast",
+                    labType = "m2_fantom_otak",
                     htmlSimulationAsset = "modul2/index.html"
                 ),
                 MriNode(
@@ -483,7 +483,7 @@ object MriRepository {
                     summaryShort = "T1w (TR pendek, TE pendek), T2w (TR panjang, TE panjang), PDw (TR panjang, TE pendek). Nilai TR mengontrol pemulihan T1; nilai TE mengontrol peluruhan T2.",
                     detailFull = "Rumus: S = PD · (1 - e^(-TR / T1)) · e^(-TE / T2)\n\n• T1-Weighted (TR pendek 400–700 ms, TE pendek 10–25 ms): Memaksimalkan perbedaan T1 antar-jaringan (Lemak tampak terang, CSF tampak gelap).\n• T2-Weighted (TR panjang ≥ 2000 ms, TE panjang ≥ 80 ms): Meminimalkan efek T1 dan menonjolkan perbedaan peluruhan T2 (CSF tampak sangat terang).\n• PD-Weighted (TR panjang ≥ 2000 ms, TE pendek ≤ 25 ms): Meminimalkan kontras T1 maupun T2 sehingga sinyal mencerminkan kerapatan proton (Proton Density).",
                     analogi = "TR dan TE seperti dua kenop pengatur kontras foto: TR mengatur seberapa penuh daya pulih sebelum bidikan berikutnya, sedangkan TE mengatur seberapa lama gema dibiarkan meluruh sebelum direkam.",
-                    labType = "contrast",
+                    labType = "m2_parameter_sekuens",
                     htmlSimulationAsset = "modul2/index.html"
                 ),
                 MriNode(
@@ -493,7 +493,7 @@ object MriRepository {
                     summaryShort = "Relaksasi T2 adalah waktu yang dibutuhkan magnetisasi transversal (Mxy) untuk meluruh hingga tersisa 37% dari nilai awalnya akibat interaksi medan magnet mikro antar-spin (dephasing).",
                     detailFull = "Setelah pulsa RF dimatikan, spin-spin yang tadinya berpresesi sefase (in-phase) mulai mengalami perbedaan kecepatan presesi sesaat karena adanya fluktuasi medan magnet lokal dari spin tetangganya (interaksi spin-spin). Akibatnya terjadi kehilangan koherensi fase (dephasing) dan Mxy meluruh secara eksponensial:\n\nRumus: Mxy(t) = Mxy0 · e^(-t / T2)\n\n• Definisi Konstanta T2: Waktu yang diperlukan hingga Mxy berkurang sebanyak 63%, atau menyisakan 37% dari nilai awalnya (Mxy0).\n• Perbedaan T2 vs T2*: Peluruhan T2 murni hanya disebabkan oleh interaksi acak molekuler antar-spin (tidak dapat dibalikkan). Sedangkan T2* (T2-star) adalah peluruhan yang jauh lebih cepat karena gabungan efek T2 murni ditambah inhomogenitas medan magnet statis B₀: 1/T2* = 1/T2 + γ·ΔB₀. Efek inhomogenitas B₀ ini dapat dikompensasi dengan pulsa 180° pada sekuens Spin Echo.\n• Pada setiap jaringan biologis, nilai T2 selalu lebih pendek atau sama dengan T1 (T2 ≤ T1).",
                     analogi = "Analogi Pelari di Lintasan: Saat aba-aba mulai (pulsa RF), 10 pelari mulai berlari sejajar (in-phase). Seiring waktu, karena perbedaan kecepatan kecil saat saling berdekatan (interaksi spin-spin), jarak antar-pelari mulai menyebar (dephasing). Waktu hingga barisan pelari menyebar dan kehilangan kekompakan hingga tinggal 37% itulah T2. Jika lintasan larinya juga naik-turun tidak rata (inhomogenitas B₀), mereka menyebar jauh lebih cepat lagi—itulah T2*.",
-                    labType = "contrast",
+                    labType = "m2_peluruhan_t2",
                     htmlSimulationAsset = "modul2/index.html"
                 ),
                 MriNode(
@@ -503,7 +503,7 @@ object MriRepository {
                     summaryShort = "Kecepatan gerak molekul (tumbling rate) menentukan efisiensi relaksasi: Lemak memiliki T1 pendek dan T2 pendek, sedangkan Air bebas (CSF) memiliki T1 panjang dan T2 panjang.",
                     detailFull = "Molekul di dalam tubuh bergerak, berotasi, dan bertumbukan dengan frekuensi tertentu yang disebut frekuensi tumbling (ωc):\n• Lemak (Molekul Sedang-Besar): Memiliki laju tumbling lambat-sedang yang dekat dengan frekuensi Larmor proton. Transfer energi ke lattice sangat efisien (T1 pendek) dan interaksi medan lokal antar-spin kuat (T2 pendek).\n• Air Bebas / CSF (Molekul Kecil): Bergerak sangat cepat (high tumbling rate ≫ frekuensi Larmor). Transfer energi ke lattice tidak efisien (T1 panjang) dan fluktuasi medan magnet antar-spin saling meniadakan (motional averaging) sehingga fase bertahan lama (T2 panjang).\n\nTabel Perbandingan Jaringan (pada 1.5 Tesla):\n• Lemak (Adiposa): T1 ~250–260 ms (Pendek) | T2 ~60–80 ms (Pendek-Sedang) | T1W: Terang (Hiperintens) | T2W: Sedang-Terang\n• Substansia Alba (WM): T1 ~600–780 ms (Sedang) | T2 ~70–90 ms (Sedang) | T1W: Agak Terang | T2W: Agak Gelap\n• Substansia Grisea (GM): T1 ~900–1100 ms (Agak Panjang) | T2 ~90–100 ms (Sedang) | T1W: Agak Gelap | T2W: Agak Terang\n• Cairan Serebrospinal (CSF / Air): T1 ~2400–4000 ms (Panjang) | T2 ~1600–2000 ms (Panjang) | T1W: Gelap (Hipointens) | T2W: Sangat Terang (Hiperintens)",
                     analogi = "Analogi Oper Bola di Kereta: Menyerahkan barang (energi T1) ke orang di kereta sebelah paling mudah jika kecepatan transfer energi ke kisi berlangsung optimal bila frekuensi gerak molekul cocok dengan frekuensi Larmor (seperti pada molekul lemak, menghasilkan T1 pendek). Jika frekuensi molekul terlalu lambat atau terlalu cepat (seperti air/CSF), transfer energi menjadi tidak efisien sehingga T1 sangat panjang.",
-                    labType = "contrast",
+                    labType = "m2_peluruhan_t2",
                     htmlSimulationAsset = "modul2/index.html"
                 )
             )
@@ -764,7 +764,7 @@ object MriRepository {
                     summaryShort = "Gradient coil membuat frekuensi dan fase berbeda di tiap posisi. Tiga langkah (pilih irisan, kode fase, kode frekuensi) mengodekan posisi, dan sinyalnya disusun di ruang-k.",
                     detailFull = "Magnet utama (B0) membuat seluruh tubuh beresonansi pada frekuensi Larmor yang sama. Tanpa gradien spasial, sistem tidak dapat melokalisasi koordinat anatomi asal sinyal. Karena itu gradient coil menambahkan gradien medan linear yang berubah secara linear terhadap posisi. Di tempat berbeda, frekuensi dan fase berbeda. Dari sinilah posisi bisa dikodekan.\n\nAda tiga langkah, selalu berurutan:\n1. Pilih irisan: Gradien menyala saat pulsa RF dikirim, sehingga hanya satu irisan yang beresonansi.\n2. Kode fase: Gradien singkat memberi tiap baris voksel fase yang berbeda. Langkah ini diulang pada setiap TR.\n3. Kode frekuensi: Gradien menyala saat sinyal dibaca, sehingga tiap kolom voksel berfrekuensi berbeda.\n\nSemua sinyal yang terbaca disusun di sebuah tabel yang disebut ruang-k. Ruang-k bukan gambar. Gambar baru muncul setelah ruang-k diolah.",
                     analogi = "Analogi: Bayangkan gedung bertingkat: pilih lantainya (irisan), lalu beri tiap ruangan nomor baris (fase) dan nomor kolom (frekuensi).",
-                    labType = "kspace"
+                    labType = "m4a_gradien_larmor"
                 ),
                 MriNode(
                     code = "M04A.T1.2",
@@ -773,7 +773,7 @@ object MriRepository {
                     summaryShort = "Gradient coil membuat medan yang berubah linear di sepanjang sumbunya dan menumpang pada B0. Arah arus menentukan polaritas, besar arus menentukan kemiringan (amplitudo), dan di isosenter kuat medan tetap B0.",
                     detailFull = "Mengapa perlu pengodean spasial? Pulsa RF eksitasi membuat magnetisasi transversal yang koheren dan berpresesi pada frekuensi Larmor, sehingga menginduksi sinyal di RF coil. Untuk membentuk citra, sistem harus menghitung seberapa banyak sinyal datang dari tiap lokasi tiga dimensi (voksel). Cara paling sederhana: tentukan irisan terlebih dahulu, lalu tentukan sinyal pada tiap lokasi dua dimensi di dalamnya (piksel).\n\nGradient coil: Agar sinyal dapat dilokalisasi, B0 dibuat miring secara linear sehingga dapat diprediksi. Medan miring itu dibangkitkan oleh elektromagnet silindris di dalam bore, yaitu gradient coil.\n\nPolaritas: Arah arus lewat terminal-terminal menentukan apakah medan induksi menambah atau mengurangi B0 di tiap sisi. Titik tengah sumbu gradien tetap bernilai B0 walaupun gradien menyala, disebut isosenter magnetik.\n\nRumus: Bp = B0 + G · p\ndengan Bp kuat medan di posisi p (T), G amplitudo gradien (mT/m), dan p jarak dari isosenter.\n\nFase ikut berubah: Spin dengan frekuensi lebih tinggi memperoleh fase relatif terhadap spin lain, dan spin dengan frekuensi lebih rendah kehilangan fase. Makin jauh dari isosenter, makin besar selisih fasenya.",
                     analogi = "Analogi: Spin adalah jam tangan. Tanpa gradien, semua jam berdetak sama. Saat gradien menyala, jam di sisi medan tinggi berdetak lebih cepat dan menunjukkan waktu yang mendahului jam di isosenter (maju fase). Jam di sisi medan rendah berdetak lebih lambat dan tertinggal (mundur fase).",
-                    labType = "kspace",
+                    labType = "m4a_gradien_larmor",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04A"
                 ),
                 MriNode(
@@ -783,7 +783,7 @@ object MriRepository {
                     summaryShort = "Ada tiga gradient coil yang dinamai menurut sumbunya (z, y, x). Pada diagram urutan pulsa, gradien digambar sebagai lobus: luas menunjukkan amplitudo dan durasi, posisi di atas atau bawah garis menunjukkan polaritas.",
                     detailFull = "Tiga sumbu: Tiga gradient coil berada di dalam bore dan dinamai menurut sumbu kerjanya:\n• Gradien z mengubah kuat medan sepanjang sumbu z (panjang), dari kepala ke kaki pasien.\n• Gradien y mengubah kuat medan sepanjang sumbu y (vertikal), dari punggung ke depan pasien.\n• Gradien x mengubah kuat medan sepanjang sumbu x (horizontal), dari kanan ke kiri pasien.\n\nLobus: Pada diagram urutan pulsa, gradien digambar sebagai bentuk di atas dan di bawah garis tengah yang disebut lobus. Luas di dalam lobus menunjukkan amplitudo dan/atau durasi: luas besar berarti gradien curam atau lama, luas kecil berarti gradien landai atau singkat. Lobus di atas garis berarti polaritas positif, lobus di bawah garis berarti polaritas negatif.",
                     analogi = "Analogi: Seperti pedal gas pada grafik: lobus tinggi berarti injakan dalam, lobus lebar berarti injakan lama, dan arah atas atau bawah menunjukkan maju atau mundur.",
-                    labType = "kspace",
+                    labType = "m4a_satu_tr_tiga",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04A"
                 ),
                 MriNode(
@@ -793,7 +793,7 @@ object MriRepository {
                     summaryShort = "Irisan dipilih dengan menyalakan gradien bersamaan dengan pulsa RF. Hanya spin di irisan yang frekuensi presesinya sama dengan frekuensi RF yang beresonansi. Bidang pindai menentukan gradien mana (x, y, atau z) yang bertugas memilih irisan.",
                     detailFull = "Tiga tugas pengodean spasial: (1) pemilihan irisan, yaitu menemukan irisan dalam bidang pindai yang dipilih, (2) pengodean frekuensi sepanjang sumbu panjang irisan, dan (3) pengodean fase sepanjang sumbu pendek irisan.\n\nCara kerja: Saat gradien menyala, tiap posisi memiliki frekuensi tertentu (Bp = B0 + G·p). Irisan dieksitasi dengan pulsa RF yang berosilasi pada frekuensi sama dengan frekuensi presesi spin di irisan itu sehingga terjadi resonansi. Dalam praktik, posisi irisan diubah dengan menggeser frekuensi tengah pulsa RF.\n\nBidang menentukan gradien: Pada konvensi umum, gradien z memilih irisan aksial (kepala ke kaki), gradien x memilih irisan sagital (kiri ke kanan), dan gradien y memilih irisan koronal (belakang ke depan). Irisan oblik dipilih dengan menggabungkan dua atau tiga gradien.\n\nKapan pemilihan irisan terjadi? Pada urutan spin-echo, gradien pemilih irisan menyala selama pulsa eksitasi 90° dan pulsa rephasing 180°. Pada gradient-echo, gradien ini menyala hanya saat pulsa eksitasi.",
                     analogi = "Analogi: Garpu tala. Bayangkan deretan garpu tala yang masing-masing disetel ke nada berbeda diletakkan sepanjang gradien. Pulsa RF seperti sumber bunyi satu nada: hanya garpu tala bernada sama yang bergetar (resonansi).",
-                    labType = "kspace",
+                    labType = "m4a_pemilihan_irisan",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04A"
                 ),
                 MriNode(
@@ -803,7 +803,7 @@ object MriRepository {
                     summaryShort = "Tebal irisan sama dengan transmit bandwidth dibagi (γ × amplitudo gradien). Irisan tipis: gradien curam dan/atau TBW sempit. Irisan tebal: gradien landai dan/atau TBW lebar.",
                     detailFull = "Pita frekuensi: Agar irisan punya ketebalan, pulsa RF mengeksitasi satu 'pita' inti yang disebut transmit bandwidth (TBW).\n\nRumus: Tebal irisan = TBW / (γ · G)\ndengan γ rasio giromagnetik (MHz/T) dan G amplitudo gradien (mT/m). Jadi tebal irisan diatur lewat amplitudo gradien, TBW, atau keduanya.\n\nPilihan TBW: TBW rendah memberi profil irisan yang baik dan berguna untuk menurunkan SAR, tetapi citra lebih rentan terhadap distorsi dan TE minimum naik. TBW tinggi berefek sebaliknya dan kadang dipakai pada urutan gradient-echo cepat untuk memendekkan TE.\n\nHal yang perlu diingat:\n• Irisan tipis membutuhkan gradien curam dan TBW sempit.\n• Irisan tebal membutuhkan gradien landai dan TBW lebar.",
                     analogi = "Analogi: Tangga dengan anak tangga bernada berbeda. Gradien curam membuat nada antar anak tangga berjauhan. Pita RF yang sempit hanya membunyikan satu atau dua anak tangga (irisan tipis), sedangkan pita yang lebar membunyikan banyak anak tangga (irisan tebal).",
-                    labType = "kspace",
+                    labType = "m4a_pemilihan_irisan",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04A"
                 ),
                 MriNode(
@@ -813,7 +813,7 @@ object MriRepository {
                     summaryShort = "Setelah irisan dipilih, gradien frekuensi menyala saat gema dibaca. Frekuensi spin kini berbeda menurut posisinya sepanjang sumbu gradien, sehingga sinyal dapat ditempatkan. Gradien yang lebih curam memberi FOV lebih kecil pada arah frekuensi.",
                     detailFull = "Cara kerja: Sinyal biasanya dilokalisasi di sepanjang sumbu panjang anatomi lewat pengodean frekuensi. Saat gradien frekuensi menyala, inti di ujung medan tinggi berpresesi lebih cepat daripada inti di ujung medan rendah, sedangkan di isosenter frekuensinya tetap.\n\nArah pengodean frekuensi:\n• Koronal dan sagital: sumbu panjang searah z (kepala ke kaki), sehingga gradien z melakukan pengodean frekuensi.\n• Aksial tubuh: sumbu panjang horizontal (kiri ke kanan), sehingga gradien x yang dipakai.\n• Aksial kepala: sumbu panjang depan-belakang, sehingga gradien y yang dipakai.\n\nKapan terjadi? Gradien frekuensi menyala saat sinyal diterima (saat gema muncul), sehingga disebut gradien baca (readout). Lama menyalanya disebut waktu sampling atau jendela sampling.\n\nRumus: FOV = RBW / (γ · G)\nFOV kecil membutuhkan gradien frekuensi curam, sedangkan FOV besar membutuhkan gradien landai.",
                     analogi = "Analogi: Papan tuts piano. Tiap tuts berbunyi pada nada (frekuensi) berbeda. Gradien frekuensi mengubah tubuh menjadi 'papan tuts': tiap posisi punya 'nada' sendiri, sehingga komputer mengenali posisi sinyal dari nadanya.",
-                    labType = "kspace",
+                    labType = "m4a_pengodean_frekuensi",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04A"
                 ),
                 MriNode(
@@ -823,7 +823,7 @@ object MriRepository {
                     summaryShort = "Gradien fase menyala singkat setelah eksitasi dan mati sebelum sinyal dibaca. Ia meninggalkan fase berbeda di tiap baris voksel, dan polaritas serta kemiringannya diubah di setiap TR sehingga tiap TR memberi satu \"kode\" baris.",
                     detailFull = "Langkah ketiga dari tiga gradien: Pengodean fase mengisi celah antara pemilihan irisan dan pengodean frekuensi: gradien pada sumbu pendek menyala singkat setelah eksitasi dan sudah mati ketika gema dibaca.\n\nCara kerja: Selama gradien fase menyala, spin di posisi berbeda berpresesi dengan frekuensi berbeda. Setelah gradien mati, semua spin kembali berpresesi dengan frekuensi yang sama, tetapi selisih fase yang sudah terbentuk tetap tersimpan. Hasilnya, tiap baris voksel membawa fase yang berbeda.\n\nSatu TR hanya memberi satu pola fase: Untuk membedakan banyak baris voksel, gradien fase harus diulang dengan polaritas dan kemiringan berbeda di setiap TR. Pada NEX 1, jumlah TR sama dengan matriks fase.",
                     analogi = "Analogi: Pelari yang dilepas dari garis start berbeda. Setelah semua berlari dengan kecepatan sama, jarak antar pelari tetap sama dengan jarak start awal. Selisih fase yang tertinggal itulah yang memberi tahu posisi baris.",
-                    labType = "kspace",
+                    labType = "m4a_satu_tr_tiga",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04A"
                 )
             )
@@ -844,7 +844,7 @@ object MriRepository {
                     summaryShort = "Ruang-k adalah tempat penyimpanan data satu irisan. Bentuknya persegi panjang dengan sumbu frekuensi (horizontal) dan sumbu fase (vertikal), dan diisi baris demi baris.",
                     detailFull = "Mengapa dinamai 'k'? Huruf k melambangkan frekuensi spasial, yaitu seberapa cepat fase berubah menurut jarak sepanjang gradien (satuan radian per meter atau per cm).\n\nDua sumbu: Sumbu frekuensi mendatar dan berpusat di tengah (data kode frekuensi). Sumbu fase tegak dan berpusat di tengah (data kode fase).\n\nEmpat hal yang harus diketahui sistem:\n1. Jumlah matriks ruang-k per irisan (slice), yaitu jumlah irisan yang dipilih.\n2. Jumlah baris pengodean fase (garis ky ruang-k), yaitu matriks fase.\n3. Nomor baris pengodean fase (garis ky), supaya tiap baris teridentifikasi dengan tepat.\n4. Cara pengisian trajektori ruang-k yang efisien.\n\nPenomoran garis: Nomor dimulai dari garis tengah (garis 0) yang selalu terisi, lalu bertambah ke arah tepi (±1, ±2, dst.). Separuh atas disebut garis positif (gradien fase positif) dan separuh bawah garis negatif (gradien fase negatif).",
                     analogi = "Analogi: Lemari laci. Laci adalah baris data, lemari adalah irisan, dan tumpukan pakaian adalah semua frekuensi spasial yang harus dipilah ke laci yang tepat.",
-                    labType = "kspace"
+                    labType = "m4b_lemari_laci"
                 ),
                 MriNode(
                     code = "M04B.T2.2",
@@ -853,7 +853,7 @@ object MriRepository {
                     summaryShort = "Gradien fase memilih baris pengodean fase (garis ky ruang-k) mana yang terisi pada tiap TR. Polaritas memilih separuh atas atau bawah, dan kemiringan memilih jarak dari pusat: curam ke tepi, landai ke pusat.",
                     detailFull = "Polaritas dan kemiringan: Gradien fase positif memilih garis di separuh atas ruang-k, dan gradien negatif memilih garis di separuh bawah. Gradien curam memilih garis terluar, sedangkan gradien landai memilih garis dekat pusat.\n\nJika gradien fase tidak pernah diubah, garis yang sama terisi pada setiap TR sehingga matriks fase bernilai satu. Karena itu polaritas dan kemiringan diubah di setiap TR.\n\nHal yang perlu diingat:\n• Ruang-k menyimpan informasi tentang di mana frekuensi di dalam irisan berada.\n• Titik data yang terkumpul selama pindai diubah oleh FFT menjadi informasi amplitudo.\n• Jumlah baris pengodean fase (garis ky ruang-k) sama dengan matriks fase. Jumlah titik sampel per baris sama dengan matriks frekuensi.",
                     analogi = "Analogi: Seperti tombol lift. Arah (atas atau bawah) adalah polaritas, dan seberapa jauh lift bergerak dari lantai tengah adalah kemiringan. Tiap TR, satu laci yang sama dibuka di semua lemari.",
-                    labType = "kspace",
+                    labType = "m4b_lemari_laci",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -863,7 +863,7 @@ object MriRepository {
                     summaryShort = "Hanya gradien fase yang boleh berubah dari TR ke TR tanpa efek samping. Perubahan itu membuat data tampak berbeda, sehingga masuk ke garis ruang-k yang berbeda.",
                     detailFull = "Mengapa gradien fase harus berubah? Agar data tampak berbeda dari TR sebelumnya, sehingga sistem tahu harus meletakkannya di garis ruang-k yang baru.\n\nMengapa gradien lain tidak boleh berubah? Jika kemiringan gradien frekuensi berubah tiap TR, ukuran piksel dan FOV pada arah frekuensi ikut berubah. Jika kemiringan gradien pemilih irisan berubah tiap TR, tebal irisan berubah. Hanya kemiringan gradien fase yang dapat diubah tanpa akibat buruk.\n\nHal yang perlu diingat tentang data fase:\n• Tiap voksel mempunyai pseudo-frekuensi sendiri yang diperoleh dengan mengamati perubahan fase selama seluruh pemindaian.\n• Tiap titik data memuat informasi pengodean spasial seluruh irisan, dan FFT diperlukan untuk membukanya.",
                     analogi = "Analogi: Seperti memotret benda yang sama dari sudut berbeda pada setiap pengambilan. Jika sudutnya selalu sama, semua foto identik dan tidak ada informasi baru.",
-                    labType = "kspace",
+                    labType = "m4c_pseudo_frekuensi",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -873,7 +873,7 @@ object MriRepository {
                     summaryShort = "Gema memuat banyak frekuensi dengan amplitudo berbeda. Gema disederhanakan menjadi satu modulasi, didigitalkan (ADC) selama jendela sampling, dan tiap sampel menjadi satu titik data di ruang-k.",
                     detailFull = "Gema adalah banyak gelombang: Gema yang diterima RF coil pada waktu TE memuat ratusan frekuensi dengan amplitudo berbeda yang digabung menjadi satu gelombang modulasi. Puncak gema biasanya muncul di tengah masa gradien frekuensi menyala.\n\nADC & Jendela sampling: Konversi analog ke digital (ADC) mengubah gelombang kontinu menjadi deretan angka selama gradien frekuensi menyala (jendela sampling). Tiap sampel disimpan sebagai satu titik data berurutan dari kiri ke kanan dalam satu garis ruang-k.\n\nDi balik layar protokol: Jumlah irisan menentukan jumlah matriks ruang-k per irisan (slice). Matriks fase menentukan jumlah baris pengodean fase (garis ky ruang-k). Matriks frekuensi menentukan titik sampel pengodean frekuensi (kolom kx).",
                     analogi = "Analogi: ADC mengubah 'jam analog' menjadi 'jam digital'. Titik data juga mirip foto: tiap foto mencatat keadaan pada satu saat, seperti bingkai pada video.",
-                    labType = "kspace",
+                    labType = "m4b_sampling_nyquist",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -883,7 +883,7 @@ object MriRepository {
                     summaryShort = "Sampling yang terlalu jarang membuat frekuensi salah terbaca (aliasing). Frekuensi tertinggi harus disampel minimal dua kali per siklus.",
                     detailFull = "Rumus: ω_sampling = 1 / ΔTs\nFrekuensi sampling digital adalah jumlah titik data yang diambil per detik selama jendela sampling (Hz), dan selang waktu antartitik disebut interval sampling (ΔTs).\n\nTeorema Nyquist: Frekuensi tertinggi dalam modulasi harus disampel setidaknya dua kali per siklus. Sekali per siklus membuat gelombang tampak sebagai garis lurus sehingga frekuensinya hilang. Kurang dari dua kali per siklus menghasilkan frekuensi yang salah (aliasing). Frekuensi sampling biasanya dijaga sekitar dua kali frekuensi tertinggi.",
                     analogi = "Analogi: Kamera video memotret kipas yang berputar cepat. Jika bingkai terlalu jarang, kipas tampak berputar lambat atau bahkan mundur. Itulah aliasing.",
-                    labType = "kspace",
+                    labType = "m4b_sampling_nyquist",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -893,7 +893,7 @@ object MriRepository {
                     summaryShort = "Frekuensi sampling dijaga dua kali frekuensi Nyquist, yaitu frekuensi tertinggi pada gema. Parameter yang dipilih di protokol adalah receive bandwidth (RBW), yang bernilai sama dengan frekuensi sampling digital.",
                     detailFull = "Rumus: ω_sampling = 2 × ω_Nyquist = RBW\nFrekuensi Nyquist adalah frekuensi tertinggi pada gema yang masih dapat disampel dengan benar.\n\nTransmit vs receive bandwidth: Transmit bandwidth adalah rentang frekuensi pulsa RF eksitasi (menentukan tebal irisan). Receive bandwidth (RBW) adalah rentang frekuensi yang didigitalkan dengan akurat selama jendela sampling (dari -RBW/2 sampai +RBW/2 di sekitar frekuensi pembawa Larmor).\n\nSaat RBW dipilih, RBW lebar berarti gema sering disampel, titik data terkumpul cepat, dan jendela sampling pendek.",
                     analogi = "Analogi: Sprinter dan kamera. Tiap foto adalah satu titik data. Jumlah foto sama dengan matriks frekuensi, panjang lomba sama dengan jendela sampling, dan jumlah foto per detik sama dengan frekuensi sampling (RBW).",
-                    labType = "kspace",
+                    labType = "m4b_receive_bw",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -903,7 +903,7 @@ object MriRepository {
                     summaryShort = "Jendela sampling sama dengan jumlah titik data dikali interval sampling. Puncak gema berada di tengahnya, jadi jendela yang lebih panjang menaikkan TE minimum.",
                     detailFull = "Rumus: RBW = 1 / ΔTs  |  Jendela sampling = N × ΔTs\ndengan N adalah matriks frekuensi. Gradien frekuensi menyala selama jendela itu.\n\nMengapa TE ikut terpengaruh: Puncak gema berada di tengah jendela, sehingga jendela yang lebih lama membuat puncak gema muncul lebih lambat dan TE minimum naik.\n\nDua cara memperpanjang jendela: menurunkan RBW (RBW setengahnya membuat jendela dua kali lebih panjang), atau menaikkan matriks frekuensi (N dua kali membuat jendela dua kali lebih panjang). Keduanya menaikkan TE minimum.",
                     analogi = "Analogi: Kamera sprinter hanya sanggup separuh foto per detik. Untuk tetap mendapat jumlah foto yang sama, lomba harus dua kali lebih panjang, sehingga puncak gema lebih lambat dan TE lebih besar.",
-                    labType = "kspace",
+                    labType = "m4b_receive_bw",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -913,7 +913,7 @@ object MriRepository {
                     summaryShort = "Mengubah RBW atau matriks frekuensi mengubah jendela sampling, dan itu menggeser TE minimum. Pabrikan juga menampilkan RBW dengan cara berbeda, dan perubahan jendela dapat memengaruhi jumlah irisan serta waktu pindai.",
                     detailFull = "Rumus: Ws = ΔTs × M(f)\ndengan M(f) matriks frekuensi. Karena puncak gema berada di tengah jendela, TE minimum kira-kira sama dengan waktu tetap sebelum jendela ditambah separuh jendela.\n\nCara pabrikan menampilkan RBW:\n1. RBW untuk seluruh FOV, biasanya dalam kHz.\n2. RBW per piksel (RBW seluruh FOV dibagi matriks frekuensi), dalam Hz per piksel.\n3. Pergeseran lemak-air dalam piksel (chemical shift).\n\nJumlah irisan dan TE: Jika jendela bertambah panjang dan TE naik, sistem harus menunggu lebih lama di tiap irisan sehingga jumlah irisan maksimum dalam TR yang sama berkurang.",
                     analogi = "Analogi: Seperti dokter yang menunggu satu pasien selesai menjalani pemeriksaan sebelum memanggil pasien berikutnya. Pemeriksaan yang lebih lama berarti lebih sedikit pasien yang tertangani dalam satu sesi.",
-                    labType = "kspace",
+                    labType = "m4b_receive_bw",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -923,7 +923,7 @@ object MriRepository {
                     summaryShort = "FFT mengubah titik data (amplitudo terhadap waktu) menjadi amplitudo terhadap frekuensi. Tiap piksel mendapat tingkat abu-abu sesuai amplitudo frekuensi yang berasal dari lokasinya.",
                     detailFull = "Dari ruang-k ke piksel: Jumlah garis terisi (matriks fase) dan jumlah titik data per garis (matriks frekuensi) menentukan ukuran matriks citra. Setelah FFT, tiap piksel diberi warna pada skala abu-abu sesuai amplitudo frekuensi yang berasal dari lokasi piksel itu.\n\nMengapa perlu FFT: Setiap titik data memuat informasi fase dan frekuensi dari seluruh irisan di domain waktu. Karena gradien menentukan lokasi sinyal dari frekuensinya, FFT memindahkan data ke domain frekuensi. Gelombang dengan satu frekuensi menjadi satu puncak, dan dua frekuensi menjadi dua puncak.",
                     analogi = "Analogi: FFT seperti penyetel radio. Gelombang campuran dipisah menjadi stasiun-stasiun, dan tinggi tiap puncak menunjukkan kerasnya stasiun itu.",
-                    labType = "kspace",
+                    labType = "m4b_fft_gelombang",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -933,7 +933,7 @@ object MriRepository {
                     summaryShort = "Ruang-k bukan citra. Datanya simetris. Garis tengah membawa sinyal dan kontras, sedangkan garis tepi membawa resolusi.",
                     detailFull = "Fakta 1 — Ruang-k bukan citra: Satu titik data bukan satu piksel. Setiap titik data memuat informasi seluruh irisan, karena itu FFT diperlukan untuk membuka tiap titik data.\n\nFakta 2 — Data ruang-k simetris: Data di separuh atas berpasangan dengan separuh bawah dan sisi kiri dengan sisi kanan (simetri konjugat). Tiap titik data berpasangan dengan titik yang berseberangan secara diagonal.\n\nFakta 3 — Garis tengah membawa sinyal dan kontras, garis tepi membawa resolusi:\n• Bagian tengah ruang-k (gradien fase landai): sinyal tinggi, resolusi rendah.\n• Bagian tepi ruang-k (gradien fase curam): sinyal rendah, resolusi tinggi.",
                     analogi = "Analogi: Satu nada bukan satu bagian lagu (Fakta 1). Separuh wajah di cermin sama dengan separuh lainnya (Fakta 2). Suara utama membuat lagu terdengar, sedangkan nada tinggi membuatnya jernih (Fakta 3).",
-                    labType = "kspace",
+                    labType = "m4b_sinyal_resolusi",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -943,7 +943,7 @@ object MriRepository {
                     summaryShort = "Citra dari seluruh ruang-k memuat sinyal dan resolusi. Dari tepi ruang-k saja, detail jelas tetapi sinyal sangat sedikit. Dari pusat saja, sinyal baik tetapi resolusi buruk, dan seluruh objek tetap tampak.",
                     detailFull = "Bandingkan tiga citra dari satu objek:\n1. Seluruh ruang-k dipakai: sinyal dan resolusi sama-sama tampak.\n2. Hanya data di tepi ruang-k (data resolusi): detail tepi tampak jelas, tetapi sinyalnya sangat sedikit.\n3. Hanya data di pusat ruang-k (data sinyal): sinyalnya sangat baik, tetapi resolusinya rendah akibat kehilangan frekuensi spasial tinggi (blurring spasial).\n\nKedua citra tetap menampilkan seluruh objek walaupun hanya sebagian titik data yang dipakai, karena tiap titik data memuat informasi dari seluruh irisan.",
                     analogi = "Analogi: Citra kontras murni (resolusi rendah) versus kontur tepi spasial tinggi. Foto buram (pusat) tetap memperlihatkan seluruh wajah dengan terang. Sketsa garis (tepi) tajam, tetapi gelap dan miskin isi.",
-                    labType = "kspace",
+                    labType = "m4b_lab_terpadu",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -953,7 +953,7 @@ object MriRepository {
                     summaryShort = "Waktu pindai dihitung dari TR × matriks fase × NSA. Pada TSE dibagi ETL, dan pada 3D dikali jumlah lokasi irisan. Intinya, waktu pindai adalah waktu yang dibutuhkan untuk mengisi seluruh ruang-k.",
                     detailFull = "Rumus: ST (2D) = TR × M(p) × NSA  |  ST (TSE) = TR × M(p) × NSA / ETL  |  ST (3D) = TR × M(p) × NSA × Ns\n\nPada setiap TR, satu garis data terisi untuk setiap irisan. Matriks fase menentukan jumlah garis ruang-k yang terisi, sedangkan NSA (NEX) adalah berapa kali tiap garis diisi dengan data. Jumlah titik data pada tiap garis (matriks frekuensi) tidak menambah waktu pindai.",
                     analogi = "Analogi: TR adalah jeda antara mengisi laci teratas lemari pertama dan laci berikutnya pada lemari yang sama. Matriks fase adalah jumlah laci tiap lemari, dan NSA adalah berapa kali tiap laci diisi.",
-                    labType = "kspace",
+                    labType = "m4b_kspace_detil",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -963,7 +963,7 @@ object MriRepository {
                     summaryShort = "Jarak antar garis ruang-k menentukan FOV fase, dan jarak antar titik data pada satu baris (interval sampling) menentukan FOV frekuensi. Hubungannya berbanding terbalik.",
                     detailFull = "Rumus: FOV = 1 / Δk  |  FOV(f) = RBW / (γ · G)\n\nArah fase: Selisih pergeseran fase (langkah inkremental Δk) antar titik pada tiap kolom berbanding terbalik dengan FOV fase. Jika langkah antar garis menjadi dua kali, FOV fase menjadi setengah.\n\nArah frekuensi: Interval sampling antar titik pada tiap baris berbanding terbalik dengan FOV frekuensi. FOV frekuensi kecil diperoleh dengan menaikkan amplitudo gradien frekuensi atau menurunkan RBW.",
                     analogi = "Analogi: Laci dan sweter. Sweter tebal membutuhkan laci yang dalam (langkah antar garis besar → FOV kecil), sedangkan benda tipis cukup dengan laci dangkal (FOV besar).",
-                    labType = "kspace",
+                    labType = "m4b_fov_matriks",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 ),
                 MriNode(
@@ -973,7 +973,7 @@ object MriRepository {
                     summaryShort = "Ukuran piksel sama dengan FOV dibagi matriks pada tiap arah. Resolusi naik jika FOV tetap dan matriks naik, atau matriks tetap dan FOV turun.",
                     detailFull = "Rumus: Ukuran piksel = FOV / Matriks\n\nResolusi spasial adalah ukuran tiap piksel, yaitu seberapa baik dua titik yang berdekatan pada pasien dapat dibedakan.\n• Ukuran piksel arah fase ditentukan amplitudo gradien fase paling curam (rentang ky maksimum).\n• Ukuran piksel arah frekuensi ditentukan jendela sampling dan laju sampling (rentang kx maksimum).\n• Di citra, FOV = ukuran piksel × jumlah piksel. Di ruang-k, FOV = dimensi ruang-k / jarak antar titik data.",
                     analogi = "Analogi: Bingkai kayu berisi laci. Tinggi bingkai dan jumlah laci menentukan ketebalan tiap laci (piksel arah fase). Lebar laci dan jumlah kaus kaki menentukan ukuran tiap kaus kaki (piksel arah frekuensi).",
-                    labType = "kspace",
+                    labType = "m4b_fov_voksel",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04B"
                 )
             )
@@ -994,7 +994,7 @@ object MriRepository {
                     summaryShort = "Pada satu voksel, titik tengah tiap garis ruang-k berubah dari TR ke TR. Rangkaian perubahan itu membentuk gelombang baru yang disebut pseudo-frekuensi, dan FFT memakainya untuk menemukan posisi pada sumbu fase.",
                     detailFull = "Contoh spin di tepi FOV: Spin di tepi FOV mengalami variasi besar pada kemiringan gradien fase sepanjang pemindaian. Pada sebagian TR gradiennya sangat curam, pada TR lain sangat landai.\n\nTitik merah: Jika titik tengah tiap garis dihubungkan dari TR pertama sampai terakhir, muncul gelombang lain yang disebut pseudo-frekuensi. Gelombang ini mewakili perubahan fase spin di lokasi itu sepanjang seluruh pemindaian. Lokasi lain di irisan mengalami pola perubahan kemiringan yang berbeda sehingga pseudo-frekuensinya berbeda, dan FFT memakainya untuk membedakan posisi sepanjang sumbu fase.",
                     analogi = "Analogi: Seperti lampu yang berkedip dengan irama berbeda di tiap rumah. Dari variasi periodisitas kedipnya, operator dapat mengidentifikasi koordinat spasial tiap titik.",
-                    labType = "kspace"
+                    labType = "m4c_pseudo_frekuensi"
                 ),
                 MriNode(
                     code = "M04C.T3.2",
@@ -1003,7 +1003,7 @@ object MriRepository {
                     summaryShort = "Ruang-k adalah tabel data mentah. Satu titik berarti satu pola garis. Pusat memberi kontras, tepi memberi detail.",
                     detailFull = "Apa itu ruang-k? Ruang-k adalah tabel data mentah yang direkam pemindai. Setiap sel berisi bilangan kompleks (besar sinyal dan fasenya).\n\nSatu titik berarti satu pola garis: Titik (kx, ky) menyatakan seberapa banyak pola garis bergelombang tertentu ada di dalam citra (kx siklus horizontal, ky siklus vertikal).\n• Pusat berisi pola garis lebar dan landai (menentukan kecerahan dan kontras).\n• Tepi berisi pola garis yang sangat rapat (menentukan detail halus dan ketajaman tepi).\n\nSalah kaprah yang umum: Titik kiri atas ruang-k bukan bagian kiri atas tubuh. Setiap titik membawa informasi dari seluruh citra.",
                     analogi = "Analogi: Citra seperti lagu dan ruang-k seperti daftar nadanya. Nada rendah memberi dasar, nada tinggi memberi kerincian.",
-                    labType = "kspace",
+                    labType = "m4b_simulator_akhir",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04C"
                 ),
                 MriNode(
@@ -1013,7 +1013,7 @@ object MriRepository {
                     summaryShort = "Titik di seberang pusat ruang-k saling berpasangan. Ini dasar partial Fourier.",
                     detailFull = "Untuk objek nyata, titik di sisi berseberangan dari pusat berpasangan secara diagonal (simetri konjugat: besar sinyal sama, bagian imajiner berlawanan tanda). Karena itu sebagian ruang-k secara teori cukup diisi, dan sisanya diperkirakan. Inilah gagasan di balik partial Fourier.",
                     analogi = "Analogi: Seperti cermin: separuh wajah cukup untuk memperkirakan separuh lainnya.",
-                    labType = "kspace",
+                    labType = "m4c_simetri_konjugat",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04C"
                 ),
                 MriNode(
@@ -1023,7 +1023,7 @@ object MriRepository {
                     summaryShort = "Urutan dan proporsi garis tengah dibanding garis tepi memengaruhi pembobotan dan kualitas citra. Mengurangi matriks fase biasanya membuang garis tepi dan mempertahankan garis tengah.",
                     detailFull = "Mengatur ulang garis (misalnya pada TSE): Garis tengah yang memberi sinyal dan kontras diisi pada gema ber-TE mirip TE efektif yang dipilih di protokol, sehingga pengaruhnya pada pembobotan citra maksimal. Garis tepi (resolusi) diisi pada gema yang TE-nya berbeda dari TE efektif.\n\nMengurangi matriks fase: Bila matriks fase dikurangi, garis tepi dibuang dan hanya garis di sekitar tengah yang diisi, mempertahankan sinyal dan kontras.",
                     analogi = "Analogi: Seperti pembicara yang mengutamakan isi pidato (garis tengah) dan baru kemudian memoles ucapannya (garis tepi).",
-                    labType = "kspace",
+                    labType = "m4c_pilihan_pengisian",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04C"
                 ),
                 MriNode(
@@ -1033,7 +1033,7 @@ object MriRepository {
                     summaryShort = "Kombinasi pulsa RF serta polaritas dan amplitudo gradien frekuensi dan fase menentukan jalur penelusuran ruang-k. Eksitasi RF memusatkan titik awal, gradien fase memilih garis atas atau bawah, dan gradien frekuensi menentukan arah kiri-kanan.",
                     detailFull = "Aturan tarian ruang-k:\n• Pulsa RF eksitasi memusatkan sistem ke tengah ruang-k.\n• Amplitudo gradien fase menentukan seberapa jauh ke atas atau ke bawah suatu garis terisi (menentukan ukuran piksel arah fase).\n• Polaritas gradien fase menentukan separuh atas (positif) atau separuh bawah (negatif).\n• Polaritas gradien frekuensi menentukan arah penelusuran: positif dari kiri ke kanan, negatif dari kanan ke kiri.\n• Pada spin-echo, pulsa rephasing 180° membalik titik ke titik cermin di sisi berlawanan ruang-k (dari +N ke -N).",
                     analogi = "Analogi: Lantai dansa. Trajektori lintasan ruang-k analog dengan gerakan penari di lantai dansa: pulsa RF memposisikan titik awal di pusat koordinat, gradien pengode fase mengarahkan langkah ke sumbu ky (atas/bawah), dan gradien pengode frekuensi mengarahkan sapuan sepanjang sumbu kx (kiri/kanan).",
-                    labType = "kspace",
+                    labType = "m4c_tarian_kspace",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04C"
                 ),
                 MriNode(
@@ -1043,7 +1043,7 @@ object MriRepository {
                     summaryShort = "Cara ruang-k diisi dapat diatur untuk mempersingkat waktu pindai, misalnya dengan memanfaatkan simetri ruang-k atau beberapa coil sekaligus.",
                     detailFull = "Partial (fractional) averaging atau half Fourier: Hanya sebagian garis ruang-k (lebih dari separuh) diukur sehingga langkah pengodean fase dan waktu pindai berkurang, tetapi SNR turun.\n\nPartial echo: Hanya puncak dan bagian dephasing gema yang disampel untuk mencapai TE sangat pendek (memaksimalkan pembobotan T1 dan PD).\n\nParallel imaging (sensitivity encoding): Mengisi beberapa garis per TR secara serentak menggunakan array coil multi-saluran dengan faktor reduksi R. Karena tiap saluran melompati tiap R-ke garis, jarak antar garis R kali lebih besar sehingga FOV fase mengecil menjadi 1/R dan terjadi lipatan (aliasing) yang kemudian dibuka menggunakan profil sensitivitas coil.",
                     analogi = "Analogi: Beberapa petugas mengisi laci berbeda sekaligus sehingga pekerjaan selesai lebih cepat, tetapi mereka harus teliti agar tidak ada yang tertukar atau terlipat.",
-                    labType = "kspace",
+                    labType = "m4c_urutan_akuisisi",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04C"
                 ),
                 MriNode(
@@ -1053,7 +1053,7 @@ object MriRepository {
                     summaryShort = "Mengisi lebih dari satu garis per TR memangkas waktu pindai. Pada single-shot, seluruh ruang-k terisi dalam satu eksitasi. Data juga dapat diperoleh secara sequential, 2D volumetrik, atau 3D volumetrik.",
                     detailFull = "Single-shot (SS-FSE / EPI): Seluruh garis ruang-k diisi dari satu echo train dalam satu eksitasi RF. Gradien frekuensi berosilasi positif-negatif (kiri-kanan lalu kanan-kiri), sedangkan gradien fase melakukan blipping (berkedip turun satu garis tiap kali).\n\nPengisian spiral: Gradien frekuensi dan fase sama-sama berosilasi, menelusuri ruang-k dari pusat menyebar ke luar dalam satu tembakan.\n\nPropeller (radial): Data diperoleh dalam strip (bilah) yang berputar mengelilingi pusat ruang-k sehingga pusat diambil pada setiap TR, setara NSA ganda dan tahan artefak gerak.\n\nJenis akuisisi data:\n• Sequential: seluruh data irisan 1 diambil penuh, lalu irisan 2 (cocok untuk tahan napas).\n• 2D volumetrik: satu garis yang sama diisi untuk semua irisan dalam satu TR, lalu garis berikutnya (semua irisan selesai hampir bersamaan di akhir).\n• 3D volumetrik: seluruh volume (slab) tereksitasi lalu dibagi menjadi partisi tanpa celah lewat slice encoding.",
                     analogi = "Analogi: Menggambar dengan satu goresan pena tanpa pernah mengangkatnya: itulah single-shot. Pada akuisisi sequential, lemari 1 diisi penuh dulu baru lemari 2. Pada 2D volumetrik, laci teratas di semua lemari diisi dulu, lalu laci berikutnya.",
-                    labType = "kspace",
+                    labType = "m4c_jalur_kspace",
                     htmlSimulationAsset = "modul4/modul4-native.html?mod=M04C"
                 ),
                 MriNode(

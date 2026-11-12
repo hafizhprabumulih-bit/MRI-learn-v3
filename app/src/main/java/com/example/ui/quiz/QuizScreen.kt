@@ -1,5 +1,6 @@
 package com.example.ui.quiz
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,8 +32,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.window.Dialog
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -75,11 +84,32 @@ fun QuizScreen(
 ) {
     val quizzes = state.filteredQuizzes
     val allQuizzes = state.quizzesList
+    var showStatsDialog by rememberSaveable { mutableStateOf(false) }
 
-    Column(
+    val scopedAttempts = state.quizAttempts.filter { attempt ->
+        val filter = state.quizModuleFilter
+        filter == "SEMUA" ||
+            attempt.moduleId == filter ||
+            (filter.length <= 3 && attempt.moduleId.startsWith(filter)) ||
+            attempt.nodeCode.startsWith(filter)
+    }
+    val totalAttempts = scopedAttempts.size
+    val correctAttempts = scopedAttempts.count { it.isCorrect }
+    val latestAttemptByQuizId = scopedAttempts
+        .groupBy { it.quizId }
+        .mapValues { (_, list) -> list.maxByOrNull { it.answeredAt } }
+    val stillWrongAttempts = latestAttemptByQuizId.values
+        .filterNotNull()
+        .filter { !it.isCorrect }
+
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(DeepObsidian)
+    ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(12.dp))
@@ -222,48 +252,6 @@ fun QuizScreen(
         ) {
 
         // Ringkasan Riwayat & Statistik Kuis - Di-scope ke filter modul aktif & status terbaru per soal (K-10)
-        val scopedAttempts = state.quizAttempts.filter { attempt ->
-            val filter = state.quizModuleFilter
-            filter == "SEMUA" ||
-                attempt.moduleId == filter ||
-                (filter.length <= 3 && attempt.moduleId.startsWith(filter)) ||
-                attempt.nodeCode.startsWith(filter)
-        }
-        val totalAttempts = scopedAttempts.size
-        val correctAttempts = scopedAttempts.count { it.isCorrect }
-        val latestAttemptByQuizId = scopedAttempts
-            .groupBy { it.quizId }
-            .mapValues { (_, list) -> list.maxByOrNull { it.answeredAt } }
-        val stillWrongAttempts = latestAttemptByQuizId.values
-            .filterNotNull()
-            .filter { !it.isCorrect }
-        if (totalAttempts > 0) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 14.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = DarkNavySlate),
-                border = androidx.compose.foundation.BorderStroke(1.dp, CardSlateBorder)
-            ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    Text(text = "Statistik & Riwayat Kuis (Room DB)", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = CyanBright)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = "Total Percobaan: $totalAttempts jawaban | Benar: $correctAttempts", fontSize = 11.sp, color = TextSecondary)
-                    if (stillWrongAttempts.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(text = "Soal yang masih salah (${stillWrongAttempts.size}):", fontSize = 11.sp, color = RoseDanger, fontWeight = FontWeight.SemiBold)
-                        stillWrongAttempts.take(3).forEach { att ->
-                            val q = allQuizzes.find { it.id == att.quizId }
-                            if (q != null) {
-                                Text(text = "• [${q.moduleId}] ${q.question}", fontSize = 10.sp, color = TextMuted, maxLines = 1)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         if (quizzes.isEmpty()) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -324,67 +312,75 @@ fun QuizScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                            Text(
+                                text = "Soal ${state.currentQuizIndex + 1} / ${quizzes.size}",
+                                fontSize = 12.sp,
+                                color = TextMuted,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = CyanDark,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, CyanPrimary)
                             ) {
                                 Text(
-                                    text = "Soal ${state.currentQuizIndex + 1} / ${quizzes.size}",
-                                    fontSize = 12.sp,
-                                    color = TextMuted,
-                                    fontWeight = FontWeight.SemiBold
+                                    text = "${currentQuiz.moduleId} · ${currentQuiz.nodeCode}",
+                                    fontSize = 10.sp,
+                                    color = CyanBright,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                    fontFamily = FontFamily.Monospace
                                 )
-                                Surface(
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = if (currentQuiz.level == 1) EmeraldDark else AmberDark,
-                                    border = androidx.compose.foundation.BorderStroke(
-                                        1.dp,
-                                        if (currentQuiz.level == 1) EmeraldSuccess else AmberWarning
-                                    )
-                                ) {
-                                    Text(
-                                        text = "T${currentQuiz.level} · ${currentQuiz.levelBadge}",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (currentQuiz.level == 1) EmeraldSuccess else AmberWarning,
-                                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
-                                    )
-                                }
                             }
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = if (currentQuiz.level == 1) EmeraldDark else AmberDark,
+                                border = androidx.compose.foundation.BorderStroke(
+                                    1.dp,
+                                    if (currentQuiz.level == 1) EmeraldSuccess else AmberWarning
+                                )
                             ) {
-                                if (state.quizModuleFilter != "SEMUA") {
-                                    Surface(
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(6.dp))
-                                            .clickable { viewModel.setQuizModuleFilter("SEMUA") }
-                                            .testTag("quiz_reset_module_package"),
-                                        shape = RoundedCornerShape(6.dp),
-                                        color = CardSlate,
-                                        border = androidx.compose.foundation.BorderStroke(1.dp, CardSlateBorder)
-                                    ) {
-                                        Text(
-                                            text = "Ganti Paket Modul",
-                                            fontSize = 9.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = CyanBright,
-                                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
-                                        )
-                                    }
-                                }
+                                Text(
+                                    text = "T${currentQuiz.level} · ${currentQuiz.levelBadge}",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (currentQuiz.level == 1) EmeraldSuccess else AmberWarning,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                )
+                            }
+
+                            if (state.quizModuleFilter != "SEMUA") {
                                 Surface(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .clickable { viewModel.setQuizModuleFilter("SEMUA") }
+                                        .testTag("quiz_reset_module_package"),
                                     shape = RoundedCornerShape(6.dp),
-                                    color = CyanDark,
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, CyanPrimary)
+                                    color = CardSlate,
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, CardSlateBorder)
                                 ) {
                                     Text(
-                                        text = "${currentQuiz.moduleId} · ${currentQuiz.nodeCode}",
+                                        text = "Ganti Paket Modul",
                                         fontSize = 10.sp,
+                                        fontWeight = FontWeight.SemiBold,
                                         color = CyanBright,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                        fontFamily = FontFamily.Monospace
+                                        maxLines = 1,
+                                        softWrap = false,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                                     )
                                 }
                             }
@@ -647,6 +643,125 @@ fun QuizScreen(
 
         Spacer(modifier = Modifier.height(84.dp))
         }
+    }
+
+    // Floating 3-step statistics toggle positioned above the "Karakter" bottom tab
+    Surface(
+        onClick = { showStatsDialog = !showStatsDialog },
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(end = 16.dp, bottom = 14.dp)
+            .size(48.dp),
+        shape = RoundedCornerShape(14.dp),
+        color = if (showStatsDialog) CyanPrimary else DarkNavySlate,
+        border = androidx.compose.foundation.BorderStroke(
+            width = 1.5.dp,
+            color = if (showStatsDialog) CyanBright else CyanPrimary.copy(alpha = 0.7f)
+        ),
+        shadowElevation = 8.dp
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            val barColor = if (showStatsDialog) DeepObsidian else CyanBright
+            Canvas(modifier = Modifier.size(24.dp)) {
+                val barW = size.width * 0.22f
+                val gap = size.width * 0.11f
+                val startX = (size.width - (3 * barW + 2 * gap)) / 2f
+                val bottomY = size.height * 0.88f
+                val heights = listOf(0.32f, 0.56f, 0.82f)
+                heights.forEachIndexed { idx, frac ->
+                    val h = size.height * frac
+                    drawRoundRect(
+                        color = barColor,
+                        topLeft = Offset(startX + idx * (barW + gap), bottomY - h),
+                        size = Size(barW, h),
+                        cornerRadius = CornerRadius(3f, 3f)
+                    )
+                }
+            }
+        }
+    }
+
+    if (showStatsDialog) {
+        Dialog(onDismissRequest = { showStatsDialog = false }) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = DarkNavySlate),
+                border = androidx.compose.foundation.BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.6f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Statistik & Riwayat Kuis",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CyanBright
+                        )
+                        IconButton(
+                            onClick = { showStatsDialog = false },
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Tutup statistik",
+                                tint = TextMuted,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    if (totalAttempts == 0) {
+                        Text(
+                            text = "Belum ada riwayat jawaban untuk filter modul ini. Jawab minimal 1 soal untuk melihat statistik.",
+                            fontSize = 12.sp,
+                            color = TextSecondary,
+                            lineHeight = 17.sp
+                        )
+                    } else {
+                        val accuracyPct = (correctAttempts * 100) / totalAttempts.coerceAtLeast(1)
+                        Text(
+                            text = "Total Percobaan: $totalAttempts jawaban | Benar: $correctAttempts ($accuracyPct%)",
+                            fontSize = 12.sp,
+                            color = TextPrimary,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        if (stillWrongAttempts.isNotEmpty()) {
+                            Text(
+                                text = "Soal yang masih salah (${stillWrongAttempts.size}):",
+                                fontSize = 11.sp,
+                                color = RoseDanger,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            stillWrongAttempts.take(5).forEach { att ->
+                                val q = allQuizzes.find { it.id == att.quizId }
+                                if (q != null) {
+                                    Text(
+                                        text = "• [${q.moduleId}] ${q.question}",
+                                        fontSize = 11.sp,
+                                        color = TextSecondary,
+                                        maxLines = 2
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                }
+                            }
+                        } else {
+                            Text(
+                                text = "Semua soal yang pernah dicoba pada cakupan ini sudah terjawab benar!",
+                                fontSize = 11.sp,
+                                color = EmeraldSuccess
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
     }
 }
 

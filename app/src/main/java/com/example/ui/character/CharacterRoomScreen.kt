@@ -80,12 +80,14 @@ fun CharacterRoomScreen(
     var customBubbleText by rememberSaveable { mutableStateOf<String?>(null) }
     var isJumping by remember { mutableStateOf(false) }
     var isScanningRf by remember { mutableStateOf(false) }
+    var isWaveActive by rememberSaveable { mutableStateOf(false) }
 
     val avatars = MriRepository.avatars
     val currentAvatarIndex = avatars.indexOfFirst { it.id == workingState.avatarId }.coerceAtLeast(0)
     val currentAvatar = avatars[currentAvatarIndex]
     val specialistProfile = CharacterCatalog.getSpecialistProfile(workingState.avatarId)
-    val accentPalette = CharacterCatalog.getAccentPalette(workingState.accentColor)
+    // Fungsi warna panggung dimatikan: gunakan palet biru default
+    val accentPalette = CharacterCatalog.getAccentPalette("cyan")
 
     LaunchedEffect(isJumping) {
         if (isJumping) {
@@ -161,9 +163,14 @@ fun CharacterRoomScreen(
                 bubbleText = displayedBubbleText,
                 isJumping = isJumping,
                 isScanningRf = isScanningRf,
+                isWaveActive = isWaveActive,
                 activeMode = activeMode,
                 interactionCount = interactionCount,
                 hasUnsavedChanges = hasUnsavedChanges,
+                onToggleWave = {
+                    isWaveActive = !isWaveActive
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                },
                 onReset = {
                     val def = CharacterCustomizationState()
                     avatarId = def.avatarId
@@ -199,18 +206,13 @@ fun CharacterRoomScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 2. Navigasi Tab Segmen (Karakter | Tampilan | Latar & Warna) + Sub-Tab
+            // 2. Navigasi Tab Segmen (Karakter | Tampilan | Latar) + Sub-Tab
             CharacterCategoryTabs(
                 selectedCategory = selectedCategory,
-                selectedAccentId = workingState.accentColor,
                 accentPalette = accentPalette,
                 onSelectCategory = { category ->
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     selectedCategory = category
-                },
-                onSelectAccent = { palette ->
-                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    accentColor = palette.id
                 }
             )
 

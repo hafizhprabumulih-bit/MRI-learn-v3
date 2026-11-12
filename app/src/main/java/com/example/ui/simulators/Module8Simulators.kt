@@ -34,44 +34,123 @@ import kotlin.math.*
 // SUITE GABUNGAN MODUL 8: M08A (PENGODEAN & JARINGAN), M08B (ALIRAN), M08C (QA & CAPSTONE)
 // ============================================================================
 
+private data class M08SubCard(
+    val id: String,
+    val subModule: String,
+    val code: String,
+    val title: String,
+    val nodeTag: String,
+    val subIndex: Int,
+    val tabIndex: Int
+)
+
+private val M08_SUB_CARDS = listOf(
+    M08SubCard("m8a_luar_fase", "M08A", "A1", "Luar-Fase & Dixon", "M08A.T1", 0, 0),
+    M08SubCard("m8a_magic_angle", "M08A", "A2", "Sudut Ajaib (54,7°)", "M08A.T1", 0, 1),
+    M08SubCard("m8a_ghosting", "M08A", "A3", "Ghosting Gerak", "M08A.T2", 0, 2),
+    M08SubCard("m8a_resp_gating", "M08A", "A4", "Gating Pernapasan", "M08A.T2", 0, 2),
+    M08SubCard("m8a_aliasing", "M08A", "A5-6", "Aliasing & Nyquist", "M08A.T2", 0, 3),
+    M08SubCard("m8a_chemical_shift", "M08A", "A7", "Chemical Shift", "M08A.T3", 0, 4),
+    M08SubCard("m8a_gibbs", "M08A", "A8", "Gibbs Ringing", "M08A.T1", 0, 4),
+    M08SubCard("m8b_aliran", "M08B", "B1", "Fenomena Aliran & ESP", "M08B.T1", 1, 0),
+    M08SubCard("m8b_tof", "M08B", "B2", "TOF Spin-Echo", "M08B.T2", 1, 1),
+    M08SubCard("m8b_reynolds", "M08B", "B3", "Bilangan Reynolds", "M08B.T2", 1, 1),
+    M08SubCard("m8b_gmn", "M08B", "B4", "GMN (+1, −2, +1)", "M08B.T2", 1, 2),
+    M08SubCard("m8b_presat", "M08B", "B5-6", "Presaturasi Spasial", "M08B.T3", 1, 3),
+    M08SubCard("m8c_qa_fantom", "M08C", "C1", "QA Fantom Harian", "M08C.T3", 2, 0),
+    M08SubCard("m8c_celah_irisan", "M08C", "C2", "Celah Irisan & Cross-Talk", "M08C.T1", 2, 1),
+    M08SubCard("m8c_spike_moire", "M08C", "C3", "Spike Ruang-k & Moire", "M08C.T2", 2, 2),
+    M08SubCard("m8c_logam_udara", "M08C", "C6", "Suseptibilitas Logam", "M08C.T2", 2, 2),
+    M08SubCard("m8c_capstone_tabel88", "M08C", "C4-5", "Remediasi Tabel 8.8", "M08C.T3", 2, 3)
+)
+
 @Composable
 fun Module8ArtifactsFlowQaSuite(
-    initialModuleIndex: Int = 0,
+    selectedActivityId: String = "m8a_luar_fase",
+    onSelectActivity: (String) -> Unit = {},
     onNodeComplete: (String) -> Unit = {}
 ) {
-    var selectedSubModule by rememberSaveable(initialModuleIndex) { mutableIntStateOf(initialModuleIndex) }
-    val subModules = listOf(
-        "M08A: Pengodean & Jaringan (A1–A8)",
-        "M08B: Aliran & Kompensasi (A1–A6)",
-        "M08C: Hardware, QA & Tabel 8.8 (A1–A6)"
-    )
+    val activeCard = M08_SUB_CARDS.firstOrNull { it.id == selectedActivityId } ?: M08_SUB_CARDS.first()
+    var subFilter by remember { mutableStateOf("SEMUA") }
+    val filteredCards = remember(subFilter) {
+        if (subFilter == "SEMUA") M08_SUB_CARDS else M08_SUB_CARDS.filter { it.subModule == subFilter }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("module8_suite_container"),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
         ) {
-            subModules.forEachIndexed { idx, label ->
-                FilterChip(
-                    selected = selectedSubModule == idx,
-                    onClick = { selectedSubModule = idx },
-                    label = { Text(label, fontWeight = FontWeight.SemiBold, fontSize = 12.sp) },
-                    modifier = Modifier.testTag("m08_suite_tab_$idx")
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = "M08: Laboratorium Artefak, Aliran & QA (M08A–C)",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
                 )
+                Text(
+                    text = "17 simulasi artefak pengodean, fenomena aliran/GMN, QA fantom & remediasi Tabel 8.8.",
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    listOf("SEMUA" to "Semua (17)", "M08A" to "M08A (7)", "M08B" to "M08B (5)", "M08C" to "M08C (5)").forEach { (id, lbl) ->
+                        FilterChip(selected = subFilter == id, onClick = { subFilter = id }, label = { Text(lbl, fontSize = 10.sp) })
+                    }
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    filteredCards.chunked(2).forEach { pair ->
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            pair.forEach { item ->
+                                val isSel = item.id == activeCard.id
+                                Surface(
+                                    onClick = { onSelectActivity(item.id) },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                    border = androidx.compose.foundation.BorderStroke(
+                                        width = if (isSel) 1.5.dp else 1.dp,
+                                        color = if (isSel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                                    )
+                                ) {
+                                    Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text("${item.subModule}·${item.code}", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                            Text(item.nodeTag, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = item.title,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            maxLines = 1,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                            }
+                            if (pair.size == 1) Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
             }
         }
 
-        when (selectedSubModule) {
-            0 -> EncodingAndTissueArtifactsSimulator(initialTab = 0, onNodeComplete = onNodeComplete)
-            1 -> FlowAndCompensationSimulator(initialTab = 0, onNodeComplete = onNodeComplete)
-            2 -> HardwareQaAndCapstoneSimulator(initialTab = 0, onNodeComplete = onNodeComplete)
+        when (activeCard.subIndex) {
+            0 -> EncodingAndTissueArtifactsSimulator(initialTab = activeCard.tabIndex, onNodeComplete = onNodeComplete)
+            1 -> FlowAndCompensationSimulator(initialTab = activeCard.tabIndex, onNodeComplete = onNodeComplete)
+            else -> HardwareQaAndCapstoneSimulator(initialTab = activeCard.tabIndex, onNodeComplete = onNodeComplete)
         }
     }
 }

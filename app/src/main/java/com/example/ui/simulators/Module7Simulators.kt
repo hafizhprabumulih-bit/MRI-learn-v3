@@ -42,182 +42,159 @@ private fun fmtId(v: Double, decimals: Int = 1): String =
 // ============================================================================
 // SUITE UTAMA MODUL 7 (M07A, M07B, M07C) - 100% NATIVE JETPACK COMPOSE
 // ============================================================================
+private data class M07SubCard(
+    val id: String,
+    val subModule: String,
+    val code: String,
+    val title: String,
+    val nodeTag: String,
+    val mainTab: Int,
+    val subTab: Int
+)
+
+private val M07_SUB_CARDS = listOf(
+    M07SubCard("m7a_zona_akses", "M07A", "A1", "Denah Zona I–IV ACR", "M07A.T1", 0, 0),
+    M07SubCard("m7a_skrining", "M07A", "A2", "Simulasi Skrining", "M07A.T1", 0, 1),
+    M07SubCard("m7a_label_alur", "M07A", "A3", "Label ASTM & Alur Implan", "M07A.T2", 0, 2),
+    M07SubCard("m7a_lima_bahaya", "M07A", "A4", "5 Bahaya Utama MR", "M07A.T2", 0, 3),
+    M07SubCard("m7a_kecemasan", "M07A", "A5", "Kecemasan Pasien", "M07A.T2", 0, 4),
+    M07SubCard("m7a_tips", "M07A", "A6", "Kuis Tips Keselamatan", "M07A.T2", 0, 5),
+    M07SubCard("m7a_kontras", "M07A", "A7", "Skrining Kontras & eGFR", "M07A.T3", 0, 6),
+    M07SubCard("m7b_medan_tepi", "M07B", "B1", "Medan Tepi 5G & Tarikan", "M07B.T1", 1, 0),
+    M07SubCard("m7b_torsi", "M07B", "B2", "Torsi Implan Memanjang", "M07B.T1", 1, 1),
+    M07SubCard("m7b_skala_efek", "M07B", "B3", "Skala Efek Medan B₀", "M07B.T2", 1, 2),
+    M07SubCard("m7b_oksigen_helium", "M07B", "B4", "Oksigen & Ekspansi He", "M07B.T2", 1, 3),
+    M07SubCard("m7b_lenz", "M07B", "B5", "Efek Lenz (Arus Pusar)", "M07B.T3", 1, 4),
+    M07SubCard("m7b_darurat", "M07B", "B6", "Tindakan Darurat Ruang MR", "M07B.T3", 1, 5),
+    M07SubCard("m7c_sar", "M07C", "C1", "Kalkulator SAR IEC", "M07C.T1", 2, 0),
+    M07SubCard("m7c_antena_loop", "M07C", "C2", "Efek Antena & Loop", "M07C.T2", 2, 1),
+    M07SubCard("m7c_stimulasi", "M07C", "C3", "Ambang PNS Gradien", "M07C.T2", 2, 2),
+    M07SubCard("m7c_bising", "M07C", "C4", "Kalkulator Bising dB", "M07C.T3", 2, 3),
+    M07SubCard("m7c_b1_jaringan", "M07C", "C5", "Gelombang RF & B₁", "M07C.T3", 2, 4)
+)
+
 @Composable
 fun Module7SafetyLabSuite(
+    selectedActivityId: String = "m7a_zona_akses",
+    onSelectActivity: (String) -> Unit = {},
     onNodeComplete: (String) -> Unit = {}
 ) {
-    var selectedMainTab by remember { mutableIntStateOf(0) }
-    val mainTabs = listOf(
-        "M07A · Zona, Skrining & Kontras",
-        "M07B · B0, Proyektil & Kriogen",
-        "M07C · SAR, Antena, PNS & Bising"
-    )
+    val activeCard = M07_SUB_CARDS.firstOrNull { it.id == selectedActivityId } ?: M07_SUB_CARDS.first()
+    var subFilter by remember { mutableStateOf("SEMUA") }
+    val filteredCards = remember(subFilter) {
+        if (subFilter == "SEMUA") M07_SUB_CARDS else M07_SUB_CARDS.filter { it.subModule == subFilter }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("module7_safety_lab_suite"),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Surface(
-            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+        Card(
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
         ) {
-            Column(modifier = Modifier.padding(14.dp)) {
+            Column(modifier = Modifier.padding(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.Shield,
                         contentDescription = "Laboratorium Keselamatan MR",
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        "Laboratorium Interaktif Modul 7: Keselamatan MR (M07A · M07B · M07C)",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.ExtraBold
+                        "M07: Laboratorium Keselamatan MR (M07A–C)",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    "18 aktivitas interaktif Native Compose: denah Zona I–IV ACR, skrining pasien & implan ASTM, kontras gadolinium, kurva medan tepi 5 Gauss, torsi, efek Lenz, oksigen/helium quench, kalkulator SAR IEC Tabel 10.1, efek antena/loop, ambang PNS, dan bising desibel.",
-                    style = MaterialTheme.typography.bodySmall,
+                    "18 simulasi Zona I–IV ACR, skrining implan, medan tepi 5G, quench, SAR IEC, PNS & bising.",
+                    fontSize = 10.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    listOf("SEMUA" to "Semua (18)", "M07A" to "M07A (7)", "M07B" to "M07B (6)", "M07C" to "M07C (5)").forEach { (id, lbl) ->
+                        FilterChip(
+                            selected = subFilter == id,
+                            onClick = { subFilter = id },
+                            label = { Text(lbl, fontSize = 10.sp) }
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    filteredCards.chunked(2).forEach { pair ->
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            pair.forEach { item ->
+                                val isSel = item.id == activeCard.id
+                                Surface(
+                                    onClick = { onSelectActivity(item.id) },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                    border = androidx.compose.foundation.BorderStroke(
+                                        width = if (isSel) 1.5.dp else 1.dp,
+                                        color = if (isSel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                                    )
+                                ) {
+                                    Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text("${item.subModule}·${item.code}", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                            Text(item.nodeTag, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = item.title,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            maxLines = 1,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                            }
+                            if (pair.size == 1) Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
             }
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            mainTabs.forEachIndexed { idx, label ->
-                FilterChip(
-                    selected = selectedMainTab == idx,
-                    onClick = { selectedMainTab = idx },
-                    label = { Text(label, fontWeight = FontWeight.Bold) },
-                    modifier = Modifier.testTag("m07_main_tab_$idx")
-                )
+        when (activeCard.mainTab) {
+            0 -> when (activeCard.subTab) {
+                0 -> M07AZoneAndAccessSimulator()
+                1 -> M07AScreeningScenarioSimulator(onComplete = { onNodeComplete("M07A.T1.2") })
+                2 -> M07ADeviceLabelAndFlowSimulator()
+                3 -> M07AFiveHazardsScannerSimulator()
+                4 -> M07APatientAnxietyJourneySimulator()
+                5 -> M07ASafetyTipsTrueFalseSimulator(onComplete = { onNodeComplete("M07A.T2.5") })
+                else -> M07AContrastScreeningSimulator()
             }
-        }
-
-        when (selectedMainTab) {
-            0 -> M07ASafetySuiteContent(onNodeComplete = onNodeComplete)
-            1 -> M07BSafetySuiteContent(onNodeComplete = onNodeComplete)
-            2 -> M07CSafetySuiteContent()
-        }
-    }
-}
-
-@Composable
-private fun M07ASafetySuiteContent(onNodeComplete: (String) -> Unit) {
-    var subTab by remember { mutableIntStateOf(0) }
-    val subTabs = listOf(
-        "A1 · Zona & Akses",
-        "A2 · Skrining",
-        "A3 · Label ASTM & Alur",
-        "A4 · 5 Bahaya",
-        "A5 · Kecemasan",
-        "A6 · Tips",
-        "A7 · Kontras"
-    )
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            subTabs.forEachIndexed { i, title ->
-                FilterChip(
-                    selected = subTab == i,
-                    onClick = { subTab = i },
-                    label = { Text(title, fontSize = 12.sp) }
-                )
+            1 -> when (activeCard.subTab) {
+                0 -> M07BFringeFieldAndForceSimulator()
+                1 -> M07BImplantTorqueSimulator()
+                2 -> M07BFieldScaleEffectsSimulator()
+                3 -> M07BOxygenAndHeliumExpansionSimulator()
+                4 -> M07BLenzEffectDropSimulator()
+                else -> M07BEmergencyActionSimulator(onComplete = { onNodeComplete("M07B.T3.2") })
             }
-        }
-        when (subTab) {
-            0 -> M07AZoneAndAccessSimulator()
-            1 -> M07AScreeningScenarioSimulator(onComplete = { onNodeComplete("M07A.T1.2") })
-            2 -> M07ADeviceLabelAndFlowSimulator()
-            3 -> M07AFiveHazardsScannerSimulator()
-            4 -> M07APatientAnxietyJourneySimulator()
-            5 -> M07ASafetyTipsTrueFalseSimulator(onComplete = { onNodeComplete("M07A.T2.5") })
-            6 -> M07AContrastScreeningSimulator()
-        }
-    }
-}
-
-@Composable
-private fun M07BSafetySuiteContent(onNodeComplete: (String) -> Unit) {
-    var subTab by remember { mutableIntStateOf(0) }
-    val subTabs = listOf(
-        "A1 · Medan Tepi 5G",
-        "A2 · Torsi Implan",
-        "A3 · Skala Efek B0",
-        "A4 · Oksigen & Helium",
-        "A5 · Efek Lenz",
-        "A6 · Skenario Darurat"
-    )
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            subTabs.forEachIndexed { i, title ->
-                FilterChip(
-                    selected = subTab == i,
-                    onClick = { subTab = i },
-                    label = { Text(title, fontSize = 12.sp) }
-                )
+            else -> when (activeCard.subTab) {
+                0 -> M07CSarCalculatorSimulator()
+                1 -> M07CAntennaAndLoopBurnSimulator()
+                2 -> M07CPnsThresholdSimulator()
+                3 -> M07CAcousticNoiseCalculatorSimulator()
+                else -> M07CRfWavelengthInTissueSimulator()
             }
-        }
-        when (subTab) {
-            0 -> M07BFringeFieldAndForceSimulator()
-            1 -> M07BImplantTorqueSimulator()
-            2 -> M07BFieldScaleEffectsSimulator()
-            3 -> M07BOxygenAndHeliumExpansionSimulator()
-            4 -> M07BLenzEffectDropSimulator()
-            5 -> M07BEmergencyActionSimulator(onComplete = { onNodeComplete("M07B.T3.2") })
-        }
-    }
-}
-
-@Composable
-private fun M07CSafetySuiteContent() {
-    var subTab by remember { mutableIntStateOf(0) }
-    val subTabs = listOf(
-        "A1 · Kalkulator SAR",
-        "A2 · Antena & Loop",
-        "A3 · Ambang PNS",
-        "A4 · Bising Desibel",
-        "A5 · Gelombang RF & B1"
-    )
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            subTabs.forEachIndexed { i, title ->
-                FilterChip(
-                    selected = subTab == i,
-                    onClick = { subTab = i },
-                    label = { Text(title, fontSize = 12.sp) }
-                )
-            }
-        }
-        when (subTab) {
-            0 -> M07CSarCalculatorSimulator()
-            1 -> M07CAntennaAndLoopBurnSimulator()
-            2 -> M07CPnsThresholdSimulator()
-            3 -> M07CAcousticNoiseCalculatorSimulator()
-            4 -> M07CRfWavelengthInTissueSimulator()
         }
     }
 }
@@ -342,7 +319,7 @@ fun M07AZoneAndAccessSimulator() {
                 Canvas(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(210.dp)
+                        .height(180.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
                 ) {

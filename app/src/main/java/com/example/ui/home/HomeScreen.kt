@@ -23,21 +23,22 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.AllInclusive
+import androidx.compose.material.icons.filled.AutoFixHigh
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Layers
-import androidx.compose.material.icons.filled.MotionPhotosOn
 import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.GridOn
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PrecisionManufacturing
 import androidx.compose.material.icons.filled.Quiz
-import androidx.compose.material.icons.filled.Radio
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -228,20 +229,13 @@ fun HomeScreen(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            // Horizontal Row of Simulation & Feature Cards
+            // Horizontal Row of Feature Cards (non-simulation/non-animation shortcuts)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                SimInteractiveCard(
-                    title = "Animasi Belajar",
-                    subtitle = "Spin Echo & Ruang-k",
-                    icon = Icons.Default.PlayCircle,
-                    iconColor = CyanBright,
-                    onClick = { viewModel.selectTab(MainTab.ANIMASI) }
-                )
                 SimInteractiveCard(
                     title = "Tersimpan",
                     subtitle = "Bookmark Materi & Kamus",
@@ -255,62 +249,6 @@ fun HomeScreen(
                     icon = Icons.Default.EditNote,
                     iconColor = EmeraldSuccess,
                     onClick = { viewModel.selectTab(MainTab.CATATAN) }
-                )
-                SimInteractiveCard(
-                    title = "Spin Proton & B0",
-                    subtitle = "Presesi Larmor & B0",
-                    icon = Icons.Default.MotionPhotosOn,
-                    iconColor = CyanBright,
-                    onClick = { viewModel.selectSimType(SimType.SPIN_LARMOR) }
-                )
-                SimInteractiveCard(
-                    title = "Kontras TR & TE",
-                    subtitle = "Pembobotan T1w, T2w & PDw",
-                    icon = Icons.Default.Tune,
-                    iconColor = EmeraldSuccess,
-                    onClick = { viewModel.selectSimType(SimType.KONTRAS_TR_TE) }
-                )
-                SimInteractiveCard(
-                    title = "Ruang-k & FFT",
-                    subtitle = "Frekuensi Spasial & FFT",
-                    icon = Icons.Default.Layers,
-                    iconColor = AmberWarning,
-                    onClick = { viewModel.selectSimType(SimType.RUANG_K) }
-                )
-                SimInteractiveCard(
-                    title = "Pesawat & Magnet",
-                    subtitle = "5 Lapisan, 4,2K & 5G",
-                    icon = Icons.Default.Radio,
-                    iconColor = CyanBright,
-                    onClick = { viewModel.selectSimType(SimType.PESAWAT_MAGNET_M05) }
-                )
-                SimInteractiveCard(
-                    title = "Gradien & Sistem RF",
-                    subtitle = "Slew Rate, Faraday & Koil",
-                    icon = Icons.Default.Tune,
-                    iconColor = AmberWarning,
-                    onClick = { viewModel.selectSimType(SimType.GRADIEN_RF_M06) }
-                )
-                SimInteractiveCard(
-                    title = "Sekuens & Kontras",
-                    subtitle = "SE, TSE, GRE, Ernst & DWI",
-                    icon = Icons.Default.Bolt,
-                    iconColor = CyanBright,
-                    onClick = { viewModel.selectSimType(SimType.SEKUENS_KONTRAS_M03) }
-                )
-                SimInteractiveCard(
-                    title = "Keselamatan & SAR",
-                    subtitle = "Zonasi ACR & SAR Termal RF",
-                    icon = Icons.Default.Security,
-                    iconColor = CyanBright,
-                    onClick = { viewModel.selectSimType(SimType.SAR_SAFETY) }
-                )
-                SimInteractiveCard(
-                    title = "Artefak, Aliran & QA",
-                    subtitle = "M08A–C, GMN & Tabel 8.8",
-                    icon = Icons.Default.Warning,
-                    iconColor = AmberWarning,
-                    onClick = { viewModel.selectSimType(SimType.ARTEFAK_QA_M08) }
                 )
                 SimInteractiveCard(
                     title = "Glosarium Medis",
@@ -592,17 +530,39 @@ fun ModuleCard(
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(46.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(if (isComplete) EmeraldDark else CyanDark)
-                        .border(1.dp, moduleAccentColor, RoundedCornerShape(12.dp)),
-                    contentAlignment = Alignment.Center
+                val moduleIcon = when (module.code) {
+                    "M01" -> Icons.Default.Science
+                    "M02" -> Icons.Default.ShowChart
+                    "M03" -> Icons.Default.GraphicEq
+                    "M04" -> Icons.Default.GridOn
+                    "M05" -> Icons.Default.PrecisionManufacturing
+                    "M06" -> Icons.Default.Tune
+                    "M07" -> Icons.Default.Security
+                    "M08" -> Icons.Default.AutoFixHigh
+                    else -> Icons.Default.Speed
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .size(46.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(if (isComplete) EmeraldDark else CyanDark)
+                            .border(1.dp, moduleAccentColor, RoundedCornerShape(12.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = moduleIcon,
+                            contentDescription = module.code,
+                            tint = if (isComplete) EmeraldSuccess else CyanBright,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = module.code,
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (isComplete) EmeraldSuccess else CyanBright,
                         fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace

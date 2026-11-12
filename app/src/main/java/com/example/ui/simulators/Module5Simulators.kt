@@ -103,60 +103,90 @@ private fun fmtKoma(value: Double, decimals: Int = 0): String {
 // ============================================================================
 // SUITE GABUNGAN MODUL 5 UNTUK TAB SIMULASI
 // ============================================================================
+private data class M05SubCard(val id: String, val code: String, val title: String, val nodeTag: String, val tabIdx: Int)
+
+private val M05_SUB_CARDS = listOf(
+    M05SubCard("m5_a1_penampang", "A1", "Penampang 5 Lapisan", "M05.T1", 0),
+    M05SubCard("m5_a2_ppm_hz", "A2", "Kalkulator ppm → Hz", "M05.T2", 1),
+    M05SubCard("m5_a3_superkonduktif", "A3", "Superkonduktif & Ramping", "M05.T1", 2),
+    M05SubCard("m5_a4_perisai_5g", "A4", "Perisai Medan 5G", "M05.T2", 3),
+    M05SubCard("m5_a5_b0_snr_sar", "A5", "B₀ vs SNR & SAR", "M05.T3", 4),
+    M05SubCard("m5_a6_pilih_magnet", "A6", "Pilih Jenis Magnet", "M05.T1", 5),
+    M05SubCard("m5_a7_quench", "A7", "Urutan Quench", "M05.T3", 6)
+)
+
 @Composable
-fun Module5HardwareLabSuite() {
-    var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf(
-        "A1: Penampang 5 Lapisan",
-        "A2: Kalkulator ppm → Hz",
-        "A3: Superkonduktif & Ramping",
-        "A4: Perisai 5 Gauss",
-        "A5: B0 vs SNR & SAR",
-        "A6: Pilih Magnet",
-        "A7: Urutan Quench"
-    )
+fun Module5HardwareLabSuite(
+    selectedActivityId: String = "m5_a1_penampang",
+    onSelectActivity: (String) -> Unit = {}
+) {
+    val activeCard = M05_SUB_CARDS.firstOrNull { it.id == selectedActivityId } ?: M05_SUB_CARDS.first()
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("module5_hardware_lab_suite"),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = DarkNavySlate),
+            border = androidx.compose.foundation.BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.7f))
         ) {
-            tabs.forEachIndexed { index, title ->
-                val isSelected = selectedTab == index
-                FilterChip(
-                    selected = isSelected,
-                    onClick = { selectedTab = index },
-                    modifier = Modifier.testTag("m5_suite_tab_$index"),
-                    label = {
-                        Text(
-                            text = title,
-                            fontSize = 11.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                        )
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = CyanPrimary,
-                        selectedLabelColor = DeepObsidian,
-                        containerColor = DarkNavySlate,
-                        labelColor = TextSecondary
-                    ),
-                    border = FilterChipDefaults.filterChipBorder(
-                        enabled = true,
-                        selected = isSelected,
-                        borderColor = if (isSelected) CyanBright else CardSlateBorder
-                    )
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = "M05: Laboratorium Pesawat & Magnet MRI",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
                 )
+                Text(
+                    text = "7 simulasi komponen magnet, kriogen 4,2 K, perisai 5G & prosedur quench.",
+                    fontSize = 10.sp,
+                    color = TextSecondary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    M05_SUB_CARDS.chunked(2).forEach { pair ->
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            pair.forEach { item ->
+                                val isSel = item.id == activeCard.id
+                                androidx.compose.material3.Surface(
+                                    onClick = { onSelectActivity(item.id) },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = if (isSel) CyanDark else DeepObsidian,
+                                    border = androidx.compose.foundation.BorderStroke(
+                                        width = if (isSel) 1.5.dp else 1.dp,
+                                        color = if (isSel) CyanBright else CardSlateBorder
+                                    )
+                                ) {
+                                    Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text(item.code, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = if (isSel) CyanBright else AmberAccent)
+                                            Text(item.nodeTag, fontSize = 9.sp, color = TextMuted)
+                                        }
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = item.title,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = if (isSel) CyanBright else TextPrimary,
+                                            maxLines = 1,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                            }
+                            if (pair.size == 1) Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
             }
         }
 
-        when (selectedTab) {
+        when (activeCard.tabIdx) {
             0 -> A1PenampangPesawatSimulator()
             1 -> A2PpmKeHzCalculator()
             2 -> A3SuperkonduktifSimulator()
@@ -425,7 +455,7 @@ fun A1PenampangPesawatSimulator(modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(235.dp)
+                    .height(185.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFF111E33))
                     .border(1.dp, Color(0xFF243A5C), RoundedCornerShape(12.dp))

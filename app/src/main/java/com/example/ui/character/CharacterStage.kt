@@ -87,9 +87,11 @@ fun InteractiveCharacterStage(
     bubbleText: String,
     isJumping: Boolean,
     isScanningRf: Boolean,
+    isWaveActive: Boolean,
     activeMode: AvatarInteractionMode,
     interactionCount: Int,
     hasUnsavedChanges: Boolean,
+    onToggleWave: () -> Unit,
     onReset: () -> Unit,
     onSave: () -> Unit,
     onAvatarTap: () -> Unit,
@@ -186,7 +188,7 @@ fun InteractiveCharacterStage(
             accentPalette = accentPalette,
             glowPulse = glowPulse,
             rfWavePhase = rfWavePhase,
-            isScanningRf = isScanningRf,
+            isScanningRf = isScanningRf || isWaveActive,
             isHoloPose = activeMode == AvatarInteractionMode.HOLO_POSE
         )
 
@@ -220,11 +222,51 @@ fun InteractiveCharacterStage(
                         )
                     }
 
-                    // Tombol Ikon Reset & Toggle Ikon Simpan (Disket) Tanpa Tulisan di Dalam Kartu Ruang Karakter
+                    // Tombol Ikon Gelombang RF, Reset & Toggle Ikon Simpan (Disket) Tanpa Tulisan di Dalam Kartu Ruang Karakter
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Toggle Kecil Ikon Gelombang di Dalam Kartu Ruang Karakter
+                        Box(
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(
+                                    if (isWaveActive) accentPalette.primaryColor.copy(alpha = 0.28f)
+                                    else CharCardSurface.copy(alpha = 0.88f)
+                                )
+                                .border(
+                                    width = if (isWaveActive) 1.5.dp else 1.dp,
+                                    color = if (isWaveActive) accentPalette.primaryColor else CharBorderSlate,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .clickable { onToggleWave() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val waveIconDesc = stringResource(R.string.char_wave_toggle_desc)
+                            Canvas(
+                                modifier = Modifier.size(20.dp)
+                            ) {
+                                val w = size.width
+                                val h = size.height
+                                val cy = h / 2f
+                                val wavePath = Path().apply {
+                                    moveTo(0f, cy)
+                                    cubicTo(w * 0.16f, cy - h * 0.40f, w * 0.34f, cy - h * 0.40f, w * 0.50f, cy)
+                                    cubicTo(w * 0.66f, cy + h * 0.40f, w * 0.84f, cy + h * 0.40f, w, cy)
+                                }
+                                drawPath(
+                                    path = wavePath,
+                                    color = if (isWaveActive) accentPalette.glowColor else CharTextPrimary,
+                                    style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                        width = 2.4.dp.toPx(),
+                                        cap = androidx.compose.ui.graphics.StrokeCap.Round
+                                    )
+                                )
+                            }
+                        }
+
                         Box(
                             modifier = Modifier
                                 .size(38.dp)
