@@ -1,7 +1,6 @@
 package com.example.ui.character
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -13,8 +12,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -38,8 +35,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -74,13 +72,11 @@ import com.example.ui.theme.CharAccentCyan
 import com.example.ui.theme.CharAccentMint
 import com.example.ui.theme.CharAccentSky
 import com.example.ui.theme.CharAccentTeal
+import com.example.ui.theme.CharActionDarkText
 import com.example.ui.theme.CharActionOrange
-import com.example.ui.theme.CharActionPillBg
 import com.example.ui.theme.CharActionYellow
 import com.example.ui.theme.CharBorderSlate
 import com.example.ui.theme.CharCardSurface
-import com.example.ui.theme.CharClockBg
-import com.example.ui.theme.CharClockRed
 import com.example.ui.theme.CharSpeechBubbleBg
 import com.example.ui.theme.CharSpeechBubbleText
 import com.example.ui.theme.CharStageBase
@@ -108,12 +104,12 @@ fun InteractiveCharacterStage(
     isScanningRf: Boolean,
     activeMode: AvatarInteractionMode,
     interactionCount: Int,
-    showActionPanel: Boolean,
-    onToggleActionPanel: () -> Unit,
+    hasUnsavedChanges: Boolean,
+    onReset: () -> Unit,
+    onSave: () -> Unit,
     onAvatarTap: () -> Unit,
     onPrevAvatar: () -> Unit,
     onNextAvatar: () -> Unit,
-    onSelectMode: (AvatarInteractionMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "stage_idle")
@@ -171,16 +167,11 @@ fun InteractiveCharacterStage(
 
     // Pilih varian ekspresi apabila avatar adalah Radiografer MRI
     val resolvedAvatarRes = if (currentAvatar.id == "radiografer_mri") {
-        when (activeMode) {
-            AvatarInteractionMode.GREET -> when (interactionCount % 4) {
-                1 -> R.drawable.avatar_radiografer_senang
-                2 -> R.drawable.avatar_radiografer_bangga
-                3 -> R.drawable.avatar_radiografer_semangat
-                else -> R.drawable.avatar_radiografer_mri
-            }
-            AvatarInteractionMode.RF_SCAN -> R.drawable.avatar_radiografer_berpikir
-            AvatarInteractionMode.SAFETY_CHECK -> R.drawable.avatar_radiografer_bangga
-            AvatarInteractionMode.HOLO_POSE -> R.drawable.avatar_radiografer_semangat
+        when (interactionCount % 4) {
+            1 -> R.drawable.avatar_radiografer_senang
+            2 -> R.drawable.avatar_radiografer_bangga
+            3 -> R.drawable.avatar_radiografer_semangat
+            else -> R.drawable.avatar_radiografer_mri
         }
     } else {
         currentAvatar.drawableRes
@@ -189,7 +180,7 @@ fun InteractiveCharacterStage(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(420.dp)
+            .height(376.dp)
             .clip(RoundedCornerShape(22.dp))
             .background(CharStageBase)
             .border(1.5.dp, CharBorderSlate, RoundedCornerShape(22.dp))
@@ -208,69 +199,80 @@ fun InteractiveCharacterStage(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
+                .padding(horizontal = 14.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Bagian Atas: Label Ruangan, Jam Digital, & Toggle Aksi + Balon Ucapan di Atas Avatar
+            // Bagian Atas: Judul "Ruang Karakter", Subjudul Latar, serta Simbol Reset & Simbol Simpan (Disket) di Dalam Card
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = bgItem?.let { "${it.name} · ${it.badgeLabel}" }
-                            ?: stringResource(R.string.char_stage_default_bg),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = CharTextSecondary
-                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.char_room_title),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = CharTextPrimary
+                        )
+                        Text(
+                            text = bgItem?.let { "${it.name} · ${it.badgeLabel}" }
+                                ?: stringResource(R.string.char_stage_default_bg),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = CharTextSecondary
+                        )
+                    }
 
+                    // Tombol Ikon Reset & Toggle Ikon Simpan (Disket) Tanpa Tulisan di Dalam Kartu Ruang Karakter
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(CharClockBg.copy(alpha = 0.88f))
-                                .border(1.dp, CharClockRed.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
-                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                                .size(38.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(CharCardSurface.copy(alpha = 0.88f))
+                                .border(1.dp, CharBorderSlate, RoundedCornerShape(12.dp))
+                                .clickable { onReset() },
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = if (workingState.backgroundId == "bg_scanner_suite") {
-                                    stringResource(R.string.char_stage_clock_3t)
-                                } else {
-                                    stringResource(R.string.char_stage_clock_15t)
-                                },
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = CharClockRed
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = stringResource(R.string.char_room_reset_desc),
+                                tint = CharTextPrimary,
+                                modifier = Modifier.size(19.dp)
                             )
                         }
 
-                        // Toggle Pembuka/Penutup Tombol Aksi Kiri
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(if (showActionPanel) accentPalette.primaryColor else CharCardSurface)
-                                .border(1.dp, accentPalette.primaryColor, RoundedCornerShape(8.dp))
-                                .clickable { onToggleActionPanel() }
-                                .padding(horizontal = 9.dp, vertical = 3.dp)
+                                .size(38.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (hasUnsavedChanges) CharActionOrange else CharAccentMint)
+                                .border(
+                                    width = 1.dp,
+                                    color = if (hasUnsavedChanges) CharActionYellow else CharAccentCyan,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .clickable { onSave() },
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = stringResource(R.string.char_stage_action_toggle),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (showActionPanel) CharStageDeep else CharTextPrimary
+                            Icon(
+                                imageVector = Icons.Default.Save,
+                                contentDescription = stringResource(R.string.char_room_save_floating),
+                                tint = CharActionDarkText,
+                                modifier = Modifier.size(19.dp)
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-                // Balon Ucapan di Atas Avatar (Tidak Menimpa Tombol Aksi di Sisi Kiri)
+                // Awan Chat (Balon Ucapan) Agak Transparan di Atas Avatar
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -284,48 +286,71 @@ fun InteractiveCharacterStage(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(CharSpeechBubbleBg)
-                                .border(1.dp, accentPalette.primaryColor.copy(alpha = 0.45f), RoundedCornerShape(16.dp))
+                                .background(CharSpeechBubbleBg.copy(alpha = 0.74f))
+                                .border(
+                                    width = 1.dp,
+                                    color = accentPalette.primaryColor.copy(alpha = 0.45f),
+                                    shape = RoundedCornerShape(16.dp)
+                                )
                                 .clickable { onAvatarTap() }
-                                .padding(horizontal = 14.dp, vertical = 10.dp)
+                                .padding(horizontal = 14.dp, vertical = 8.dp)
                         ) {
                             Text(
                                 text = text,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = CharSpeechBubbleText,
-                                lineHeight = 16.sp,
+                                lineHeight = 15.sp,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
-                    // Segitiga Penunjuk Balon Ucapan ke Arah Kepala Avatar
-                    Canvas(modifier = Modifier.size(width = 18.dp, height = 9.dp)) {
+                    // Segitiga Penunjuk Awan Chat Transparan
+                    Canvas(modifier = Modifier.size(width = 18.dp, height = 8.dp)) {
                         val triangle = Path().apply {
                             moveTo(0f, 0f)
                             lineTo(size.width, 0f)
                             lineTo(size.width / 2f, size.height)
                             close()
                         }
-                        drawPath(path = triangle, color = CharSpeechBubbleBg)
+                        drawPath(path = triangle, color = CharSpeechBubbleBg.copy(alpha = 0.74f))
                     }
                 }
             }
 
-            // Bagian Tengah: Tombol Aksi Vertikal di Sisi Kiri + Avatar 220dp di Tengah + Navigasi Karakter di Kanan
+            // Bagian Tengah: Panah < di Kiri (Tanpa Kotak Toggle), Avatar 220dp di Tengah, & Panah > di Kanan (Tanpa Kotak Toggle)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(232.dp)
+                    .height(216.dp)
             ) {
-                // Avatar 220dp + Overlay Item Kustomisasi (Berdiri Lebar Tanpa Lingkaran)
+                // Panah Kiri `<` Tanpa Latar/Kotak Toggle
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .size(48.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = onPrevAvatar
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = stringResource(R.string.char_prev_avatar_desc),
+                        tint = CharTextPrimary.copy(alpha = 0.90f),
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+
+                // Avatar 220dp + Overlay Item Kustomisasi di Tengah
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .offset(x = if (showActionPanel) 18.dp else 0.dp)
                         .width(235.dp)
-                        .height(225.dp)
+                        .height(216.dp)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
@@ -345,7 +370,7 @@ fun InteractiveCharacterStage(
                         contentDescription = stringResource(R.string.char_avatar_tap_desc, currentAvatar.label),
                         modifier = Modifier
                             .width(230.dp)
-                            .height(220.dp)
+                            .height(216.dp)
                             .offset(y = (floatOffset + jumpOffsetY).dp)
                             .graphicsLayer {
                                 scaleX = jumpScale
@@ -356,88 +381,28 @@ fun InteractiveCharacterStage(
                     )
                 }
 
-                // Panel Aksi Vertikal di Sisi Kiri Panggung dengan AnimatedVisibility (slide + fade)
-                // Lebar 64dp, Tinggi 44dp per tombol; menonjolkan Sapa & Pindai RF serta menjaga keempat aksi
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = showActionPanel,
-                    enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(),
-                    exit = slideOutHorizontally(targetOffsetX = { -it }) + fadeOut(),
-                    modifier = Modifier.align(Alignment.CenterStart)
+                // Panah Kanan `>` Tanpa Latar/Kotak Toggle
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .size(48.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = onNextAvatar
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        AvatarInteractionMode.entries.forEach { mode ->
-                            val isSelected = activeMode == mode
-                            Box(
-                                modifier = Modifier
-                                    .width(64.dp)
-                                    .height(44.dp)
-                                    .clip(RoundedCornerShape(14.dp))
-                                    .background(
-                                        if (isSelected) CharCardSurface
-                                        else CharActionPillBg.copy(alpha = 0.90f)
-                                    )
-                                    .border(
-                                        width = if (isSelected) 1.5.dp else 1.dp,
-                                        color = if (isSelected) accentPalette.primaryColor else CharBorderSlate,
-                                        shape = RoundedCornerShape(14.dp)
-                                    )
-                                    .clickable { onSelectMode(mode) },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = stringResource(mode.labelRes),
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (isSelected) accentPalette.glowColor else CharTextPrimary,
-                                    textAlign = TextAlign.Center,
-                                    maxLines = 1
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Tombol Navigasi Cepat Karakter Sebelumnya / Berikutnya di Sisi Kanan Panggung
-                Column(
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalAlignment = Alignment.End
-                ) {
-                    IconButton(
-                        onClick = onPrevAvatar,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(CharActionPillBg.copy(alpha = 0.88f))
-                            .border(1.dp, CharBorderSlate, RoundedCornerShape(12.dp))
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = stringResource(R.string.char_prev_avatar_desc),
-                            tint = CharTextPrimary
-                        )
-                    }
-                    IconButton(
-                        onClick = onNextAvatar,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(CharActionPillBg.copy(alpha = 0.88f))
-                            .border(1.dp, CharBorderSlate, RoundedCornerShape(12.dp))
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = stringResource(R.string.char_next_avatar_desc),
-                            tint = CharTextPrimary
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = stringResource(R.string.char_next_avatar_desc),
+                        tint = CharTextPrimary.copy(alpha = 0.90f),
+                        modifier = Modifier.size(36.dp)
+                    )
                 }
             }
 
-            // Bagian Bawah Panggung: Gelar Spesialis & Sekuens Favorit (Baris Tombol Mode Bawah Dihapus)
+            // Bagian Bawah Panggung: Gelar Spesialis & Sekuens Favorit (Hanya Muncul di Ruang Karakter)
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -448,17 +413,16 @@ fun InteractiveCharacterStage(
                     } else {
                         specialistRole
                     },
-                    fontSize = 16.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = CharTextPrimary,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = stringResource(R.string.char_fav_sequence_fmt, favoriteSequence),
-                    fontSize = 12.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                     color = CharTextSecondary,
                     textAlign = TextAlign.Center,
@@ -480,7 +444,7 @@ fun AvatarEquippedVisualOverlay(
     Canvas(
         modifier = Modifier
             .width(235.dp)
-            .height(220.dp)
+            .height(216.dp)
             .offset(y = floatOffset.dp)
     ) {
         val cx = size.width / 2f
@@ -513,13 +477,13 @@ fun AvatarEquippedVisualOverlay(
         if (workingState.equippedUniform == "uniform_apron_shield") {
             drawRoundRect(
                 color = CharActionOrange.copy(alpha = 0.85f),
-                topLeft = Offset(cx - 46f, cy + 58f),
+                topLeft = Offset(cx - 46f, cy + 56f),
                 size = Size(92f, 12f),
                 cornerRadius = CornerRadius(6f, 6f)
             )
             drawRoundRect(
                 color = CharActionYellow,
-                topLeft = Offset(cx - 30f, cy + 60f),
+                topLeft = Offset(cx - 30f, cy + 58f),
                 size = Size(60f, 8f),
                 cornerRadius = CornerRadius(4f, 4f)
             )
@@ -527,7 +491,7 @@ fun AvatarEquippedVisualOverlay(
             drawCircle(
                 color = CharAccentCyan.copy(alpha = 0.8f * glowPulse),
                 radius = 18f,
-                center = Offset(cx, cy + 44f),
+                center = Offset(cx, cy + 42f),
                 style = Stroke(width = 3.5f)
             )
         }
@@ -634,7 +598,7 @@ fun AvatarEquippedVisualOverlay(
             "acc_coil_surface" -> CharTextPrimary
             else -> CharAccentCyan
         }
-        val badgeCenter = Offset(cx + 78f, cy + 48f)
+        val badgeCenter = Offset(cx + 78f, cy + 46f)
         drawCircle(
             color = CharStageDeep.copy(alpha = 0.85f),
             radius = 18f,

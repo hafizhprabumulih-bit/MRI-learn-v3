@@ -144,6 +144,7 @@ data class MriUiState(
     val showInfoDialog: Boolean = false,
     val isLoading: Boolean = false,
     val loadingMessage: String? = null,
+    val canNavigateBack: Boolean = false,
     val matrixNy: Int = 256,
     val nexCount: Int = 1,
     val etlCount: Int = 4
@@ -275,6 +276,29 @@ class MriViewModel(
     val uiState: StateFlow<MriUiState> = _uiState.asStateFlow()
 
     private var latestStudyDays: List<StudyDayEntity> = emptyList()
+
+    private data class NavSession(
+        val tab: MainTab,
+        val moduleId: String?,
+        val simType: SimType
+    )
+
+    private val navigationHistory = ArrayDeque<NavSession>()
+
+    private fun pushCurrentSession() {
+        val current = _uiState.value
+        val snap = NavSession(
+            tab = current.currentTab,
+            moduleId = current.selectedModule?.id,
+            simType = current.selectedSimType
+        )
+        if (navigationHistory.lastOrNull() != snap) {
+            navigationHistory.addLast(snap)
+            if (navigationHistory.size > 24) {
+                navigationHistory.removeFirst()
+            }
+        }
+    }
 
     companion object {
         private const val KEY_CURRENT_TAB = "saved_current_tab"
@@ -521,6 +545,7 @@ class MriViewModel(
 
     fun selectTab(tab: MainTab) {
         if (_uiState.value.currentTab == tab && _uiState.value.selectedModule == null && !_uiState.value.isLoading) return
+        pushCurrentSession()
         val tabName = when (tab) {
             MainTab.BERANDA -> "Beranda"
             MainTab.ANIMASI -> "Animasi Belajar"
@@ -538,6 +563,7 @@ class MriViewModel(
                 it.copy(
                     currentTab = tab,
                     selectedModule = null,
+                    canNavigateBack = navigationHistory.isNotEmpty(),
                     isModuleFlashcardMode = false,
                     currentFlashcardIndex = it.glossaryFlashcardIndex,
                     isFlashcardFlipped = it.isGlossaryFlashcardFlipped,
@@ -694,11 +720,15 @@ class MriViewModel(
     // --- Simpul Kurikulum & Progress ---
     fun openModuleDetail(module: MriModule) {
         val resolvedModule = _uiState.value.modulesList.find { it.id == module.id } ?: module
+        if (_uiState.value.selectedModule?.id != resolvedModule.id) {
+            pushCurrentSession()
+        }
         savedStateHandle[KEY_SELECTED_MODULE_ID] = resolvedModule.id
         triggerSectionTransition("Modul ${resolvedModule.code}: ${resolvedModule.title}") {
             _uiState.update {
                 it.copy(
                     selectedModule = resolvedModule,
+                    canNavigateBack = navigationHistory.isNotEmpty(),
                     nodeLevelFilter = 0,
                     onlyBookmarkedNodes = false,
                     isModuleFlashcardMode = false,
@@ -716,19 +746,74 @@ class MriViewModel(
         }
     }
 
-    fun closeModuleDetail() {
-        savedStateHandle[KEY_SELECTED_MODULE_ID] = null
-        triggerSectionTransition("Menu Beranda") {
-            _uiState.update {
-                it.copy(
-                    selectedModule = null,
-                    isModuleFlashcardMode = false,
-                    currentFlashcardIndex = it.glossaryFlashcardIndex,
-                    isFlashcardFlipped = it.isGlossaryFlashcardFlipped,
-                    flashcardShuffleSeed = it.glossaryFlashcardShuffleSeed
-                )
+    fun navigateBack() {
+        if (navigationHistory.isNotEmpty()) {
+            val prev = navigationHistory.removeLast()
+            val prevModule = prev.moduleId?.let { id ->
+                _uiState.value.modulesList.find { it.id == id }
+                    ?: MriRepository.modules.find { it.id == id }
+            }
+            savedStateHandle[KEY_CURRENT_TAB] = prev.tab.name
+            savedStateHandle[KEY_SELECTED_MODULE_ID] = prevModule?.id
+            savedStateHandle[KEY_SELECTED_SIM_TYPE] = prev.simType.name
+            val destLabel = when {
+                prevModule != null -> "Modul ${prevModule.code}: ${prevModule.title}"
+                prev.tab == MainTab.BERANDA -> "Menu Beranda"
+                prev.tab == MainTab.SIMULASI -> "Laboratorium Simulasi"
+                prev.tab == MainTab.CATATAN -> "Catatan Klinis"
+                prev.tab == MainTab.KUIS -> "Uji Kompetensi"
+                prev.tab == MainTab.KARAKTER -> "Ruang Karakter"
+                prev.tab == MainTab.ANIMASI -> "Animasi Belajar"
+                prev.tab == MainTab.TERSIMPAN -> "Materi & Glosarium Tersimpan"
+                prev.tab == MainTab.GLOSARIUM -> "Glosarium Radiologi"
+                else -> "Sesi Sebelumnya"
+            }
+            triggerSectionTransition(destLabel) {
+                _uiState.update {
+                    it.copy(
+                        currentTab = prev.tab,
+                        selectedModule = prevModule,
+                        selectedSimType = prev.simType,
+                        canNavigateBack = navigationHistory.isNotEmpty(),
+                        isModuleFlashcardMode = false,
+                        currentFlashcardIndex = it.glossaryFlashcardIndex,
+                        isFlashcardFlipped = it.isGlossaryFlashcardFlipped,
+                        flashcardShuffleSeed = it.glossaryFlashcardShuffleSeed
+                    )
+                }
+            }
+        } else if (_uiState.value.selectedModule != null) {
+            savedStateHandle[KEY_SELECTED_MODULE_ID] = null
+            triggerSectionTransition("Menu Beranda") {
+                _uiState.update {
+                    it.copy(
+                        selectedModule = null,
+                        canNavigateBack = false,
+                        isModuleFlashcardMode = false,
+                        currentFlashcardIndex = it.glossaryFlashcardIndex,
+                        isFlashcardFlipped = it.isGlossaryFlashcardFlipped,
+                        flashcardShuffleSeed = it.glossaryFlashcardShuffleSeed
+                    )
+                }
+            }
+        } else if (_uiState.value.currentTab != MainTab.BERANDA) {
+            savedStateHandle[KEY_CURRENT_TAB] = MainTab.BERANDA.name
+            savedStateHandle[KEY_SELECTED_MODULE_ID] = null
+            triggerSectionTransition("Menu Beranda") {
+                _uiState.update {
+                    it.copy(
+                        currentTab = MainTab.BERANDA,
+                        selectedModule = null,
+                        canNavigateBack = false,
+                        isModuleFlashcardMode = false
+                    )
+                }
             }
         }
+    }
+
+    fun closeModuleDetail() {
+        navigateBack()
     }
 
     fun resumeStudy() {
@@ -773,6 +858,7 @@ class MriViewModel(
     }
 
     fun openModuleQuiz(moduleId: String, level: Int = 0) {
+        pushCurrentSession()
         savedStateHandle[KEY_SELECTED_MODULE_ID] = null
         savedStateHandle[KEY_CURRENT_TAB] = MainTab.KUIS.name
         savedStateHandle[KEY_QUIZ_MOD_FILTER] = moduleId
@@ -781,6 +867,7 @@ class MriViewModel(
             it.copy(
                 selectedModule = null,
                 currentTab = MainTab.KUIS,
+                canNavigateBack = navigationHistory.isNotEmpty(),
                 quizModuleFilter = moduleId,
                 quizLevelFilter = level,
                 currentQuizIndex = 0,
@@ -1098,6 +1185,7 @@ class MriViewModel(
 
     // --- Simulator ---
     fun selectSimType(simType: SimType) {
+        pushCurrentSession()
         val simName = when (simType) {
             SimType.SPIN_LARMOR -> "Simulator Presesi Larmor"
             SimType.KONTRAS_TR_TE -> "Simulator Kontras TR/TE"
@@ -1119,7 +1207,8 @@ class MriViewModel(
                 it.copy(
                     currentTab = MainTab.SIMULASI,
                     selectedModule = null,
-                    selectedSimType = simType
+                    selectedSimType = simType,
+                    canNavigateBack = navigationHistory.isNotEmpty()
                 )
             }
         }

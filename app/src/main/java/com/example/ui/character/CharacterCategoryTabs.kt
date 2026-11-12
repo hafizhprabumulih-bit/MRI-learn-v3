@@ -163,20 +163,12 @@ fun CharacterCategoryTabs(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.char_accent_color_label),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = CharTextSecondary
-                    )
-                    Text(
-                        text = accentPalette.label,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = accentPalette.primaryColor
-                    )
-                }
+                Text(
+                    text = stringResource(R.string.char_accent_color_label),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = CharTextSecondary
+                )
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),

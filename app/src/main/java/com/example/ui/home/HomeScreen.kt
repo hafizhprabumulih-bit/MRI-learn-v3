@@ -502,19 +502,19 @@ fun HeroProgressCard(
 @Composable
 fun SimInteractiveCard(
     title: String,
-    subtitle: String,
+    subtitle: String = "",
     icon: ImageVector,
     iconColor: Color,
     onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
-            .width(145.dp)
-            .height(120.dp)
+            .width(138.dp)
+            .height(114.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = DarkNavySlate),
-        border = androidx.compose.foundation.BorderStroke(1.dp, CardSlateBorder)
+        border = androidx.compose.foundation.BorderStroke(1.5.dp, iconColor.copy(alpha = 0.78f))
     ) {
         Column(
             modifier = Modifier
@@ -524,35 +524,27 @@ fun SimInteractiveCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(14.dp))
                     .background(DeepObsidian)
-                    .border(1.dp, CardSlateBorder, RoundedCornerShape(10.dp)),
+                    .border(1.dp, iconColor.copy(alpha = 0.55f), RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = null,
+                    contentDescription = title,
                     tint = iconColor,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             }
 
-            Column {
-                Text(
-                    text = title,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary,
-                    maxLines = 1
-                )
-                Text(
-                    text = subtitle,
-                    fontSize = 10.sp,
-                    color = TextSecondary,
-                    maxLines = 1
-                )
-            }
+            Text(
+                text = title,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary,
+                maxLines = 1
+            )
         }
     }
 }
@@ -572,13 +564,21 @@ fun ModuleCard(
         0f
     }
 
+    val moduleAccentColor = when {
+        isComplete -> EmeraldSuccess
+        module.code.endsWith("1") || module.code.endsWith("5") || module.code.endsWith("9") -> CyanBright
+        module.code.endsWith("2") || module.code.endsWith("6") -> Color(0xFF2DD4BF)
+        module.code.endsWith("3") || module.code.endsWith("7") -> AmberWarning
+        else -> Color(0xFF38BDF8)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = DarkNavySlate),
-        border = androidx.compose.foundation.BorderStroke(1.dp, CardSlateBorder)
+        border = androidx.compose.foundation.BorderStroke(1.5.dp, moduleAccentColor.copy(alpha = 0.78f))
     ) {
         Row(
             modifier = Modifier
@@ -594,10 +594,10 @@ fun ModuleCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
+                        .size(46.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(if (isComplete) EmeraldDark else CyanDark)
-                        .border(1.dp, if (isComplete) EmeraldSuccess else CyanPrimary, RoundedCornerShape(12.dp)),
+                        .border(1.dp, moduleAccentColor, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -640,7 +640,7 @@ fun ModuleCard(
                             .fillMaxWidth()
                             .height(6.dp)
                             .clip(RoundedCornerShape(3.dp)),
-                        color = if (isComplete) EmeraldSuccess else CyanBright,
+                        color = if (isComplete) EmeraldSuccess else moduleAccentColor,
                         trackColor = CardSlate
                     )
                 }
@@ -648,35 +648,23 @@ fun ModuleCard(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Lingkaran progres dengan angka progres di dalamnya + ikon panah
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            // Lingkaran progres yang diperbesar tanpa lambang panah (>)
+            Box(
+                modifier = Modifier.size(54.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier.size(42.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        progress = { moduleProgress },
-                        modifier = Modifier.fillMaxSize(),
-                        color = if (isComplete) EmeraldSuccess else CyanBright,
-                        trackColor = CardSlate,
-                        strokeWidth = 3.5.dp
-                    )
-                    Text(
-                        text = "$completedCount/$totalNodes",
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = if (isComplete) EmeraldSuccess else TextPrimary
-                    )
-                }
-
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = null,
-                    tint = CardSlateBorder,
-                    modifier = Modifier.size(20.dp)
+                CircularProgressIndicator(
+                    progress = { moduleProgress },
+                    modifier = Modifier.fillMaxSize(),
+                    color = if (isComplete) EmeraldSuccess else moduleAccentColor,
+                    trackColor = CardSlate,
+                    strokeWidth = 4.5.dp
+                )
+                Text(
+                    text = "$completedCount/$totalNodes",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = if (isComplete) EmeraldSuccess else TextPrimary
                 )
             }
         }

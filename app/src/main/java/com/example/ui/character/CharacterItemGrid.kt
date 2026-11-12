@@ -18,9 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -77,20 +76,18 @@ fun SpecialistAvatarGrid(
     onSelectAvatar: (MedicalAvatar) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(bottom = 72.dp),
-        modifier = modifier.fillMaxSize()
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 4.dp),
+        modifier = modifier.fillMaxWidth()
     ) {
         items(avatars, key = { it.id }) { av ->
             val isSelected = selectedAvatarId == av.id
-            val profile = CharacterCatalog.getSpecialistProfile(av.id)
 
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .width(114.dp)
                     .clickable { onSelectAvatar(av) },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
@@ -110,7 +107,7 @@ fun SpecialistAvatarGrid(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(72.dp)
+                            .height(78.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(CharRoomBg.copy(alpha = 0.68f)),
                         contentAlignment = Alignment.Center
@@ -151,13 +148,6 @@ fun SpecialistAvatarGrid(
                         fontWeight = FontWeight.ExtraBold,
                         color = if (isSelected) accentPalette.glowColor else CharTextPrimary,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = profile.favoriteSequence,
-                        fontSize = 11.sp,
-                        color = CharTextSecondary,
-                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         textAlign = TextAlign.Center
                     )
@@ -181,7 +171,7 @@ fun CharacterItemCard(
 
     Card(
         modifier = modifier
-            .fillMaxWidth()
+            .width(196.dp)
             .clickable(enabled = isUnlocked, onClick = onClick),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(

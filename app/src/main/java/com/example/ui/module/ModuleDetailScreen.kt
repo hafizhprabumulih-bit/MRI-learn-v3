@@ -2,6 +2,9 @@ package com.example.ui.module
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,6 +43,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -50,6 +54,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -61,6 +66,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.coroutines.delay
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -106,11 +113,18 @@ fun ModuleDetailScreen(
     modifier: Modifier = Modifier
 ) {
     BackHandler {
-        viewModel.closeModuleDetail()
+        viewModel.navigateBack()
     }
 
     val moduleBookmarkedCount = module.nodes.count { state.bookmarkedNodeCodes.contains(it.code) }
     val moduleCompletedCount = module.nodes.count { state.completedNodeCodes.contains(it.code) }
+    val totalModuleNodes = module.nodes.size
+    val isModuleComplete = moduleCompletedCount == totalModuleNodes && totalModuleNodes > 0
+    val moduleProgress = if (totalModuleNodes > 0) {
+        (moduleCompletedCount.toFloat() / totalModuleNodes.toFloat()).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
 
     Column(
         modifier = modifier
@@ -119,102 +133,98 @@ fun ModuleDetailScreen(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Top Back Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Surface(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .clickable { viewModel.closeModuleDetail() }
-                    .testTag("back_to_home_button"),
-                color = DarkNavySlate,
-                shape = CircleShape,
-                border = androidx.compose.foundation.BorderStroke(1.dp, CardSlateBorder)
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Kembali",
-                        tint = CyanBright,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Text("Kembali ke Beranda", fontSize = 12.sp, color = CyanBright, fontWeight = FontWeight.SemiBold)
-                }
-            }
-
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = EmeraldDark.copy(alpha = 0.6f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, EmeraldSuccess.copy(alpha = 0.6f))
-            ) {
-                Text(
-                    text = "$moduleCompletedCount/${module.nodes.size} Selesai",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = EmeraldSuccess,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                )
-            }
-        }
-
-        // Header Modul
+        // Header Modul dengan Indikator Lingkaran Progres Belajar di Dalam Kartu Penjelasan
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = DarkNavySlate),
-            border = androidx.compose.foundation.BorderStroke(1.dp, CardSlateBorder)
+            border = androidx.compose.foundation.BorderStroke(
+                1.5.dp,
+                if (isModuleComplete) EmeraldSuccess.copy(alpha = 0.8f) else CyanPrimary.copy(alpha = 0.7f)
+            )
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(6.dp),
-                        color = CyanDark,
-                        border = androidx.compose.foundation.BorderStroke(1.dp, CyanPrimary)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = CyanDark,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, CyanPrimary)
+                        ) {
+                            Text(
+                                text = module.code,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = CyanBright,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                fontFamily = FontFamily.Monospace
+                            )
+                        }
                         Text(
-                            text = module.code,
+                            text = module.levelBadge,
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = CyanBright,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                            fontFamily = FontFamily.Monospace
+                            color = TextSecondary,
+                            fontWeight = FontWeight.Medium
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = module.levelBadge,
-                        fontSize = 11.sp,
+                        text = module.title,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = module.description,
+                        fontSize = 12.sp,
                         color = TextSecondary,
-                        fontWeight = FontWeight.Medium
+                        lineHeight = 18.sp
                     )
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = module.title,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = module.description,
-                    fontSize = 12.sp,
-                    color = TextSecondary,
-                    lineHeight = 18.sp
-                )
+                Spacer(modifier = Modifier.width(14.dp))
+
+                // Lingkaran Progres Belajar di Dalam Kartu Penjelasan Modul
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(
+                        modifier = Modifier.size(58.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            progress = { moduleProgress },
+                            modifier = Modifier.fillMaxSize(),
+                            color = if (isModuleComplete) EmeraldSuccess else CyanBright,
+                            trackColor = CardSlate,
+                            strokeWidth = 5.dp
+                        )
+                        Text(
+                            text = "$moduleCompletedCount/$totalModuleNodes",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = if (isModuleComplete) EmeraldSuccess else TextPrimary
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Selesai",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (isModuleComplete) EmeraldSuccess else CyanBright
+                    )
+                }
             }
         }
 
@@ -561,16 +571,63 @@ fun NodeCard(
                         unsavedContentDescription = "Simpan Bookmark Materi"
                     )
 
+                    var isCompleteAnimTriggered by remember { mutableStateOf(false) }
+                    LaunchedEffect(isCompleteAnimTriggered) {
+                        if (isCompleteAnimTriggered) {
+                            delay(340)
+                            isCompleteAnimTriggered = false
+                        }
+                    }
+
+                    val completeScale by animateFloatAsState(
+                        targetValue = when {
+                            isCompleteAnimTriggered -> 1.24f
+                            isCompleted -> 1.04f
+                            else -> 1f
+                        },
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMedium
+                        ),
+                        label = "complete_pill_scale"
+                    )
+                    val completeRotation by animateFloatAsState(
+                        targetValue = if (isCompleteAnimTriggered) -8f else 0f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMedium
+                        ),
+                        label = "complete_pill_rotation"
+                    )
+                    val completeBgColor by animateColorAsState(
+                        targetValue = if (isCompleted) EmeraldDark else CardSlate,
+                        animationSpec = tween(durationMillis = 240),
+                        label = "complete_pill_bg"
+                    )
+                    val completeBorderColor by animateColorAsState(
+                        targetValue = if (isCompleted) EmeraldSuccess else CardSlateBorder,
+                        animationSpec = tween(durationMillis = 240),
+                        label = "complete_pill_border"
+                    )
+
                     Surface(
                         modifier = Modifier
+                            .graphicsLayer {
+                                scaleX = completeScale
+                                scaleY = completeScale
+                                rotationZ = completeRotation
+                            }
                             .clip(CircleShape)
-                            .clickable(onClick = onToggleCompleted)
+                            .clickable {
+                                isCompleteAnimTriggered = true
+                                onToggleCompleted()
+                            }
                             .testTag("complete_node_${node.code}"),
                         shape = CircleShape,
-                        color = if (isCompleted) EmeraldDark else CardSlate,
+                        color = completeBgColor,
                         border = androidx.compose.foundation.BorderStroke(
                             1.dp,
-                            if (isCompleted) EmeraldSuccess else CardSlateBorder
+                            completeBorderColor
                         )
                     ) {
                         Row(
@@ -579,10 +636,10 @@ fun NodeCard(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Icon(
-                                imageVector = if (isCompleted) Icons.Default.Check else Icons.Default.Circle,
+                                imageVector = if (isCompleted) Icons.Default.CheckCircle else Icons.Default.Circle,
                                 contentDescription = null,
                                 tint = if (isCompleted) EmeraldSuccess else TextMuted,
-                                modifier = Modifier.size(10.dp)
+                                modifier = Modifier.size(12.dp)
                             )
                             Text(
                                 text = if (isCompleted) "Selesai" else "Tandai",

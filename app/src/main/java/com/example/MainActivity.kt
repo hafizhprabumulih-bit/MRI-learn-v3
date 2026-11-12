@@ -153,9 +153,9 @@ class MainActivity : ComponentActivity() {
                 }
 
                 androidx.activity.compose.BackHandler(
-                    enabled = !state.isLoading && state.selectedModule == null && state.currentTab != MainTab.BERANDA
+                    enabled = !state.isLoading && (state.canNavigateBack || state.selectedModule != null || state.currentTab != MainTab.BERANDA)
                 ) {
-                    viewModel.selectTab(MainTab.BERANDA)
+                    viewModel.navigateBack()
                 }
 
                 Scaffold(
@@ -164,11 +164,12 @@ class MainActivity : ComponentActivity() {
                         .background(DeepObsidian),
                     contentWindowInsets = WindowInsets.statusBars,
                     bottomBar = {
-                        // Hanya tampilkan bottom navigation ketika tidak berada di detail modul sub-screen dan tidak sedang loading
-                        if (state.selectedModule == null && !state.isLoading) {
+                        // Tampilkan bottom navigation di semua layar termasuk di dalam simpul materi (selama tidak loading)
+                        if (!state.isLoading) {
                             val savedCount = state.bookmarkedNodeCodes.size + state.bookmarkedGlossaryTerms.size
                             MriBottomNavigationBar(
                                 currentTab = state.currentTab,
+                                isModuleDetailOpen = state.selectedModule != null,
                                 savedCount = savedCount,
                                 onTabSelected = { viewModel.selectTab(it) }
                             )
@@ -178,7 +179,7 @@ class MainActivity : ComponentActivity() {
                     val baseModifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                    val contentModifier = if (state.selectedModule != null || state.isLoading) {
+                    val contentModifier = if (state.isLoading) {
                         baseModifier.windowInsetsPadding(WindowInsets.navigationBars)
                     } else {
                         baseModifier
@@ -242,6 +243,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MriBottomNavigationBar(
     currentTab: MainTab,
+    isModuleDetailOpen: Boolean = false,
     savedCount: Int = 0,
     onTabSelected: (MainTab) -> Unit
 ) {
@@ -289,34 +291,35 @@ fun MriBottomNavigationBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 2.dp, vertical = 6.dp),
+                .padding(horizontal = 8.dp, vertical = 5.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
             items.forEach { item ->
-                val isSelected = currentTab == item.tab
+                val isSelected = !isModuleDetailOpen && currentTab == item.tab
                 Column(
                     modifier = Modifier
                         .weight(1f)
+                        .padding(horizontal = 3.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .clickable { onTabSelected(item.tab) }
-                        .padding(vertical = 4.dp, horizontal = 1.dp)
+                        .padding(vertical = 3.dp, horizontal = 2.dp)
                         .testTag("nav_tab_${item.tab.name.lowercase()}"),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(14.dp))
+                            .clip(RoundedCornerShape(12.dp))
                             .background(if (isSelected) CyanDark else Color.Transparent)
-                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                            .padding(horizontal = 7.dp, vertical = 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
                             contentDescription = item.label,
                             tint = if (isSelected) CyanBright else TextMuted,
-                            modifier = Modifier.size(19.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                         if (item.tab == MainTab.TERSIMPAN && savedCount > 0) {
                             Box(
@@ -340,8 +343,8 @@ fun MriBottomNavigationBar(
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = item.label,
-                        fontSize = 9.sp,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        fontSize = 10.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                         color = if (isSelected) CyanBright else TextMuted,
                         maxLines = 1,
                         softWrap = false,

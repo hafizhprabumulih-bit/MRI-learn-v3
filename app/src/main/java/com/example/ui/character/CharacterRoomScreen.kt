@@ -1,33 +1,17 @@
 package com.example.ui.character
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,25 +22,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.data.CharacterCatalog
 import com.example.data.CharacterCategory
 import com.example.data.CharacterCustomizationState
 import com.example.data.MriRepository
-import com.example.ui.theme.CharAccentMint
-import com.example.ui.theme.CharActionDarkText
-import com.example.ui.theme.CharActionOrange
-import com.example.ui.theme.CharBorderSlate
-import com.example.ui.theme.CharCardSurface
 import com.example.ui.theme.CharRoomBg
-import com.example.ui.theme.CharStageDeep
-import com.example.ui.theme.CharTextPrimary
-import com.example.ui.theme.CharTextSecondary
 import com.example.viewmodel.MriUiState
 import com.example.viewmodel.MriViewModel
 import kotlinx.coroutines.delay
@@ -99,7 +72,6 @@ fun CharacterRoomScreen(
     val hasUnsavedChanges = workingState != state.characterCustomization
 
     var selectedCategory by rememberSaveable { mutableStateOf(CharacterCategory.RAMBUT) }
-    var showActionPanel by rememberSaveable { mutableStateOf(true) }
     var interactionCount by rememberSaveable { mutableIntStateOf(0) }
     var greetingIndex by rememberSaveable { mutableIntStateOf(0) }
     var activeMode by rememberSaveable { mutableStateOf(AvatarInteractionMode.GREET) }
@@ -153,53 +125,9 @@ fun CharacterRoomScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(horizontal = 14.dp, vertical = 8.dp)
         ) {
-            // 1. Header Ruang Karakter + Tombol Reset (Sesuai Gambar PNG)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.char_room_title),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = CharTextPrimary
-                )
-
-                OutlinedButton(
-                    onClick = {
-                        val def = CharacterCustomizationState()
-                        avatarId = def.avatarId
-                        equippedHair = def.equippedHair
-                        equippedUniform = def.equippedUniform
-                        equippedHeadset = def.equippedHeadset
-                        equippedAccessory = def.equippedAccessory
-                        backgroundId = def.backgroundId
-                        accentColor = def.accentColor
-                        viewModel.resetCharacterCustomization()
-                        triggerAvatarTap(resetMsg)
-                    },
-                    shape = RoundedCornerShape(14.dp),
-                    border = BorderStroke(1.dp, CharBorderSlate),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = CharCardSurface,
-                        contentColor = CharTextPrimary
-                    ),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.char_room_reset),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // 2. Panggung Interaktif 420dp & Avatar 220dp
+            // 1. Panggung Interaktif Ruang Karakter (diangkat sedikit ke atas, menyatu dengan judul, tombol Reset & Simpan ikon saja)
             InteractiveCharacterStage(
                 workingState = workingState,
                 currentAvatar = currentAvatar,
@@ -212,8 +140,23 @@ fun CharacterRoomScreen(
                 isScanningRf = isScanningRf,
                 activeMode = activeMode,
                 interactionCount = interactionCount,
-                showActionPanel = showActionPanel,
-                onToggleActionPanel = { showActionPanel = !showActionPanel },
+                hasUnsavedChanges = hasUnsavedChanges,
+                onReset = {
+                    val def = CharacterCustomizationState()
+                    avatarId = def.avatarId
+                    equippedHair = def.equippedHair
+                    equippedUniform = def.equippedUniform
+                    equippedHeadset = def.equippedHeadset
+                    equippedAccessory = def.equippedAccessory
+                    backgroundId = def.backgroundId
+                    accentColor = def.accentColor
+                    viewModel.resetCharacterCustomization()
+                    triggerAvatarTap(resetMsg)
+                },
+                onSave = {
+                    viewModel.updateCharacterCustomization(workingState)
+                    triggerAvatarTap("Kustomisasi karakter berhasil disimpan!")
+                },
                 onAvatarTap = { triggerAvatarTap() },
                 onPrevAvatar = {
                     val prevIndex = if (currentAvatarIndex - 1 < 0) avatars.lastIndex else currentAvatarIndex - 1
@@ -228,38 +171,12 @@ fun CharacterRoomScreen(
                     avatarId = newAv.id
                     val prof = CharacterCatalog.getSpecialistProfile(newAv.id)
                     triggerAvatarTap("${newAv.label} siap bertugas: ${prof.zoneSpecialty}!")
-                },
-                onSelectMode = { mode ->
-                    activeMode = mode
-                    when (mode) {
-                        AvatarInteractionMode.GREET -> {
-                            triggerAvatarTap()
-                        }
-                        AvatarInteractionMode.RF_SCAN -> {
-                            isScanningRf = true
-                            val b0Text = if (workingState.backgroundId == "bg_scanner_suite") {
-                                "3,0T (f₀ = 127,74 MHz)"
-                            } else {
-                                "1,5T (f₀ = 63,87 MHz)"
-                            }
-                            triggerAvatarTap("Pulsa RF 90° dipancarkan! Resonansi spin ¹H terdeteksi pada $b0Text.")
-                        }
-                        AvatarInteractionMode.SAFETY_CHECK -> {
-                            val hairName = CharacterCatalog.getItem(workingState.equippedHair)?.name ?: "Standar"
-                            val uniformName = CharacterCatalog.getItem(workingState.equippedUniform)?.name ?: "Scrub"
-                            val accName = CharacterCatalog.getItem(workingState.equippedAccessory)?.name ?: "Detektor"
-                            triggerAvatarTap("Skrining Zona IV Lulus ✅ [$hairName · $uniformName · $accName] 100% MR-Safe!")
-                        }
-                        AvatarInteractionMode.HOLO_POSE -> {
-                            triggerAvatarTap("Mode Fokus Aktif ✨ Menampilkan telemetri sekuens unggulan: ${specialistProfile.favoriteSequence}.")
-                        }
-                    }
                 }
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 3. Navigasi Tab Segmen (Karakter | Tampilan | Latar & Warna) + Sub-Tab
+            // 2. Navigasi Tab Segmen (Karakter | Tampilan | Latar & Warna) + Sub-Tab
             CharacterCategoryTabs(
                 selectedCategory = selectedCategory,
                 selectedAccentId = workingState.accentColor,
@@ -267,17 +184,17 @@ fun CharacterRoomScreen(
                 onSelectCategory = { category -> selectedCategory = category },
                 onSelectAccent = { palette ->
                     accentColor = palette.id
-                    triggerAvatarTap("Warna aksen panggung diubah ke ${palette.label}!")
                 }
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 4. Grid Item Kustomisasi
+            // 3. Pilihan Item yang Sliding ke Samping (LazyRow Horizontal)
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.TopStart
             ) {
                 if (selectedCategory == CharacterCategory.KARAKTER) {
                     SpecialistAvatarGrid(
@@ -300,12 +217,11 @@ fun CharacterRoomScreen(
                         CharacterCategory.LATAR -> CharacterCatalog.backgroundItems
                     }
 
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
+                    LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = PaddingValues(bottom = 72.dp),
-                        modifier = Modifier.fillMaxSize()
+                        verticalAlignment = Alignment.CenterVertically,
+                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 4.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         items(currentItems, key = { it.id }) { item ->
                             val isSelected = when (selectedCategory) {
@@ -340,87 +256,6 @@ fun CharacterRoomScreen(
                                 }
                             )
                         }
-                    }
-                }
-            }
-        }
-
-        // 5. Bar & Toggle Simpan Melayang dengan Simbol Disket Penyimpanan (Icons.Default.Save)
-        Surface(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 8.dp),
-            shape = RoundedCornerShape(18.dp),
-            color = CharStageDeep.copy(alpha = 0.94f),
-            border = BorderStroke(
-                width = 1.dp,
-                color = if (hasUnsavedChanges) CharActionOrange.copy(alpha = 0.65f) else CharBorderSlate
-            ),
-            shadowElevation = 10.dp
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(9.dp)
-                            .clip(CircleShape)
-                            .background(if (hasUnsavedChanges) CharActionOrange else CharAccentMint)
-                    )
-                    Text(
-                        text = if (hasUnsavedChanges) {
-                            stringResource(R.string.char_room_unsaved_hint)
-                        } else {
-                            stringResource(R.string.char_room_saved_hint)
-                        },
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = CharTextSecondary
-                    )
-                }
-
-                // Toggle Melayang Simpan dengan Simbol Disket
-                Box(
-                    modifier = Modifier
-                        .height(44.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(if (hasUnsavedChanges) CharActionOrange else CharAccentMint)
-                        .clickable {
-                            viewModel.updateCharacterCustomization(workingState)
-                            triggerAvatarTap("Kustomisasi karakter berhasil disimpan ke DataStore!")
-                        }
-                        .padding(horizontal = 18.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Save,
-                            contentDescription = stringResource(R.string.char_room_save_floating),
-                            tint = CharActionDarkText,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Text(
-                            text = if (hasUnsavedChanges) {
-                                stringResource(R.string.char_room_save_floating)
-                            } else {
-                                stringResource(R.string.char_room_saved_floating)
-                            },
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = CharActionDarkText
-                        )
                     }
                 }
             }
