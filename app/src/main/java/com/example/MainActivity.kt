@@ -253,34 +253,16 @@ fun MriBottomNavigationBar(
             unselectedIcon = Icons.Outlined.Home
         ),
         NavigationItem(
-            tab = MainTab.ANIMASI,
-            label = "Animasi",
-            selectedIcon = Icons.Filled.PlayCircle,
-            unselectedIcon = Icons.Outlined.PlayCircle
-        ),
-        NavigationItem(
             tab = MainTab.SIMULASI,
             label = "Simulasi",
             selectedIcon = Icons.Filled.Tune,
             unselectedIcon = Icons.Outlined.Tune
         ),
         NavigationItem(
-            tab = MainTab.TERSIMPAN,
-            label = "Tersimpan",
-            selectedIcon = Icons.Filled.Bookmark,
-            unselectedIcon = Icons.Outlined.BookmarkBorder
-        ),
-        NavigationItem(
             tab = MainTab.CATATAN,
             label = "Catatan",
             selectedIcon = Icons.Filled.EditNote,
             unselectedIcon = Icons.Outlined.EditNote
-        ),
-        NavigationItem(
-            tab = MainTab.GLOSARIUM,
-            label = "Glosarium",
-            selectedIcon = Icons.Filled.MenuBook,
-            unselectedIcon = Icons.Outlined.MenuBook
         ),
         NavigationItem(
             tab = MainTab.KUIS,

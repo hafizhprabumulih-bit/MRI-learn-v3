@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000">
+  <defs>
+    <linearGradient id="wa" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14365D"/>
+      <stop offset="1" stop-color="#0B2240"/>
+    </linearGradient>
+    <linearGradient id="fa" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#163B63"/>
+      <stop offset="1" stop-color="#0D2542"/>
+    </linearGradient>
+    <pattern id="dta" width="70" height="70" patternUnits="userSpaceOnUse">
+      <circle cx="35" cy="35" r="5" fill="#7FDCD6" opacity=".12"/>
+    </pattern>
+  </defs>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <rect width="1600" height="760" fill="url(#wa)"/>
+    <rect width="1600" height="760" fill="url(#dta)"/>
+    <rect x="-20" y="760" width="1640" height="260" fill="url(#fa)" stroke="#0A2A6B" stroke-width="8"/>
+    <line x1="0" y1="830" x2="1600" y2="830" stroke="#1FB6E8" opacity=".18" stroke-width="4"/>
+    <line x1="0" y1="910" x2="1600" y2="910" stroke="#1FB6E8" opacity=".18" stroke-width="4"/>
+    <!-- Left Side: Dual-Head Contrast Injector with Articulated Arm (x: 80..410) -->
+    <ellipse cx="230" cy="840" rx="120" ry="26" fill="#071A2B" opacity=".45"/>
+    <rect x="195" y="540" width="70" height="280" rx="22" fill="#E6F2FB" stroke="#0A2A6B" stroke-width="8"/>
+    <rect x="209" y="560" width="14" height="180" rx="7" fill="#FFFFFF" opacity=".85"/>
+    <rect x="135" y="790" width="190" height="44" rx="20" fill="#2F66CC" stroke="#0A2A6B" stroke-width="8"/>
+    <circle cx="165" cy="842" r="22" fill="#0F2A45" stroke="#0A2A6B" stroke-width="8"/>
+    <circle cx="295" cy="842" r="22" fill="#0F2A45" stroke="#0A2A6B" stroke-width="8"/>
+    <!-- Articulated Arm & Dual Syringe Heads -->
+    <path d="M230 540 L160 410 L250 310" fill="none" stroke="#DCEBFF" stroke-width="26"/>
+    <path d="M230 540 L160 410 L250 310" fill="none" stroke="#0A2A6B" stroke-width="8"/>
+    <circle cx="160" cy="410" r="24" fill="#FF8A1F" stroke="#0A2A6B" stroke-width="8"/>
+    <rect x="190" y="230" width="175" height="96" rx="28" fill="#FFFFFF" stroke="#0A2A6B" stroke-width="8"/>
+    <rect x="208" y="135" width="54" height="95" rx="18" fill="#DCEBFF" stroke="#0A2A6B" stroke-width="8"/>
+    <rect x="216" y="165" width="38" height="55" rx="10" fill="#1FB6E8"/>
+    <rect x="292" y="135" width="54" height="95" rx="18" fill="#DCEBFF" stroke="#0A2A6B" stroke-width="8"/>
+    <rect x="300" y="175" width="38" height="45" rx="10" fill="#3CC4A3"/>
+    <!-- Side Patient Prep Table (Left-Back, outside 450..1150) -->
+    <rect x="60" y="620" width="340" height="36" rx="18" fill="#E8F4FF" stroke="#0A2A6B" stroke-width="8"/>
+    <rect x="100" y="656" width="90" height="130" rx="18" fill="#2F66CC" stroke="#0A2A6B" stroke-width="8"/>
+    <!-- Right Side: Gadolinium Ampoule Cabinet & Prep Station (x: 1180..1520) -->
+    <rect x="1190" y="180" width="320" height="420" rx="28" fill="#13385C" stroke="#0A2A6B" stroke-width="8"/>
+    <rect x="1215" y="210" width="270" height="360" rx="18" fill="#0F2A45" stroke="#0A2A6B" stroke-width="6"/>
+    <line x1="1215" y1="330" x2="1485" y2="330" stroke="#0A2A6B" stroke-width="8"/>
+    <line x1="1215" y1="450" x2="1485" y2="450" stroke="#0A2A6B" stroke-width="8"/>
+    <!-- Ampoules on shelves -->
+    <rect x="1245" y="250" width="36" height="72" rx="12" fill="#1FB6E8" stroke="#0A2A6B" stroke-width="6"/>
+    <rect x="1253" y="232" width="20" height="18" rx="6" fill="#FF8A1F" stroke="#0A2A6B" stroke-width="5"/>
+    <rect x="1305" y="250" width="36" height="72" rx="12" fill="#1FB6E8" stroke="#0A2A6B" stroke-width="6"/>
+    <rect x="1313" y="232" width="20" height="18" rx="6" fill="#FF8A1F" stroke="#0A2A6B" stroke-width="5"/>
+    <rect x="1365" y="250" width="36" height="72" rx="12" fill="#3CC4A3" stroke="#0A2A6B" stroke-width="6"/>
+    <rect x="1373" y="232" width="20" height="18" rx="6" fill="#FFC93C" stroke="#0A2A6B" stroke-width="5"/>
+    <rect x="1255" y="370" width="42" height="72" rx="12" fill="#FFC93C" stroke="#0A2A6B" stroke-width="6"/>
+    <rect x="1325" y="370" width="42" height="72" rx="12" fill="#FF8A1F" stroke="#0A2A6B" stroke-width="6"/>
+    <rect x="1395" y="370" width="42" height="72" rx="12" fill="#1FB6E8" stroke="#0A2A6B" stroke-width="6"/>
+    <!-- Lower cabinet base -->
+    <rect x="1210" y="600" width="280" height="190" rx="22" fill="#2F66CC" stroke="#0A2A6B" stroke-width="8"/>
+    <!-- Top Overhead Ceiling Lamp (y < 220) -->
+    <rect x="520" y="55" width="560" height="44" rx="22" fill="#FFFFFF" stroke="#0A2A6B" stroke-width="8"/>
+    <rect x="550" y="67" width="220" height="12" rx="6" fill="#7FDCD6" opacity=".8"/>
+  </g>
+</svg>

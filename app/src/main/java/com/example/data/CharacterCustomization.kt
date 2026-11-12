@@ -1,6 +1,7 @@
 package com.example.data
 
 import androidx.compose.ui.graphics.Color
+import com.example.R
 
 /**
  * Aturan buka-kunci berbasis kurikulum.
@@ -477,6 +478,7 @@ object CharacterCatalog {
             badgeLabel = "Zona III",
             previewColorHex = 0xFF1FB6E8,
             secondaryColorHex = 0xFF0E5F86,
+            drawableRes = R.drawable.bg_control_room,
             unlockRequirement = UnlockRequirement(null, null, 0, "Terbuka sejak awal")
         ),
         CharacterItem(
@@ -488,6 +490,7 @@ object CharacterCatalog {
             badgeLabel = "Zona II",
             previewColorHex = 0xFF3CC4A3,
             secondaryColorHex = 0xFF0F2A45,
+            drawableRes = R.drawable.bg_changing_room,
             unlockRequirement = UnlockRequirement(null, null, 0, "Terbuka sejak awal")
         ),
         CharacterItem(
@@ -499,6 +502,7 @@ object CharacterCatalog {
             badgeLabel = "Zona IV • 3T",
             previewColorHex = 0xFF1F4FB5,
             secondaryColorHex = 0xFF55BBDC,
+            drawableRes = R.drawable.bg_scanner_suite,
             unlockRequirement = UnlockRequirement("m02", "MO2: Relaksasi & Kontras", 5, "Syarat rencana: Selesaikan MO2")
         ),
         CharacterItem(
@@ -510,6 +514,7 @@ object CharacterCatalog {
             badgeLabel = "Diagnostik",
             previewColorHex = 0xFFFF8A1F,
             secondaryColorHex = 0xFF1F4FB5,
+            drawableRes = R.drawable.bg_reading_room,
             unlockRequirement = UnlockRequirement("m03a", "MO3A: Sekuens Spin Echo", 8, "Syarat rencana: Selesaikan MO3A")
         ),
         CharacterItem(
@@ -521,6 +526,7 @@ object CharacterCatalog {
             badgeLabel = "Lab NMR",
             previewColorHex = 0xFF7FDCD6,
             secondaryColorHex = 0xFF3CC4A3,
+            drawableRes = R.drawable.bg_physics_lab,
             unlockRequirement = UnlockRequirement("m04", "MO4: Pengkodean Spasial & K-Space", 8, "Syarat rencana: Selesaikan MO4")
         ),
         CharacterItem(
@@ -532,7 +538,32 @@ object CharacterCatalog {
             badgeLabel = "Holografik",
             previewColorHex = 0xFF55BBDC,
             secondaryColorHex = 0xFF7FDCD6,
+            drawableRes = R.drawable.bg_led_stage,
             unlockRequirement = UnlockRequirement("m07", "MO7: Koil RF & Parallel Imaging", 8, "Syarat rencana: Selesaikan MO7")
+        ),
+        CharacterItem(
+            id = "bg_contrast_room",
+            name = "Ruang Persiapan Kontras",
+            category = CharacterCategory.LATAR,
+            description = "Ruang injektor kontras otomatis berlengan ganda, meja persiapan, & rak ampul Gadolinium.",
+            clinicalBenefit = "Persiapan protokol T1 Post-Kontras, MRA CE & Perfusi",
+            badgeLabel = "Injektor Gd",
+            previewColorHex = 0xFF1FB6E8,
+            secondaryColorHex = 0xFF3CC4A3,
+            drawableRes = R.drawable.bg_contrast_room,
+            unlockRequirement = UnlockRequirement("m03b", "MO3B: Gradient Echo", 6, "Syarat rencana: 6 simpul MO3B")
+        ),
+        CharacterItem(
+            id = "bg_chiller_room",
+            name = "Ruang Mesin & Chiller 4K",
+            category = CharacterCategory.LATAR,
+            description = "Instalasi tangki kriogenik Helium cair, kabinet daya gradien, & pipa rambu Quench.",
+            clinicalBenefit = "Pemeliharaan superkonduktivitas kumparan NbTi pada 4,2 K",
+            badgeLabel = "Teknis • 4,2K",
+            previewColorHex = 0xFFFFC93C,
+            secondaryColorHex = 0xFF1F4FB5,
+            drawableRes = R.drawable.bg_chiller_room,
+            unlockRequirement = UnlockRequirement("m05", "MO5: Komponen Pesawat MRI", 6, "Syarat rencana: 6 simpul MO5")
         )
     )
 

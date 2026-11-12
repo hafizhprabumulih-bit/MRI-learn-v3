@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -565,6 +566,11 @@ fun ModuleCard(
 ) {
     val totalNodes = module.nodes.size
     val isComplete = completedCount == totalNodes && totalNodes > 0
+    val moduleProgress = if (totalNodes > 0) {
+        (completedCount.toFloat() / totalNodes.toFloat()).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
 
     Card(
         modifier = Modifier
@@ -605,51 +611,74 @@ fun ModuleCard(
 
                 Column(modifier = Modifier.weight(1f)) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Surface(
-                            shape = RoundedCornerShape(4.dp),
-                            color = DeepObsidian
-                        ) {
-                            Text(
-                                text = module.levelBadge,
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextMuted,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
-                        }
                         Text(
-                            text = "$completedCount/$totalNodes selesai",
-                            fontSize = 10.sp,
-                            color = if (isComplete) EmeraldSuccess else TextMuted
+                            text = module.title,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
                         if (bookmarkedCount > 0) {
                             Text(
-                                text = "• ★ $bookmarkedCount",
+                                text = "★ $bookmarkedCount",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = AmberWarning
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = module.title,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Bar progres dinamis yang menyesuaikan dengan progres modul
+                    LinearProgressIndicator(
+                        progress = { moduleProgress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(3.dp)),
+                        color = if (isComplete) EmeraldSuccess else CyanBright,
+                        trackColor = CardSlate
                     )
                 }
             }
 
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = CardSlateBorder,
-                modifier = Modifier.size(20.dp)
-            )
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Lingkaran progres dengan angka progres di dalamnya + ikon panah
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier.size(42.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        progress = { moduleProgress },
+                        modifier = Modifier.fillMaxSize(),
+                        color = if (isComplete) EmeraldSuccess else CyanBright,
+                        trackColor = CardSlate,
+                        strokeWidth = 3.5.dp
+                    )
+                    Text(
+                        text = "$completedCount/$totalNodes",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = if (isComplete) EmeraldSuccess else TextPrimary
+                    )
+                }
+
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = CardSlateBorder,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
