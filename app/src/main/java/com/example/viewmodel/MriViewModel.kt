@@ -562,14 +562,7 @@ class MriViewModel(
     fun resetCharacterCustomization() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val defaultState = com.example.data.CharacterCustomizationState(
-                    avatarId = "radiografer_mri",
-                    equippedHair = "hair_default",
-                    equippedUniform = "uniform_standard",
-                    equippedHeadset = "headset_none",
-                    backgroundId = "bg_control_room",
-                    accentColor = "cyan"
-                )
+                val defaultState = com.example.data.CharacterCustomizationState()
                 repository.updateCharacterCustomization(defaultState)
             } catch (e: CancellationException) {
                 throw e

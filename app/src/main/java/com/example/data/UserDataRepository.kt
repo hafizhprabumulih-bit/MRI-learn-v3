@@ -52,6 +52,7 @@ class UserDataRepository(
         val EQUIPPED_HAIR = stringPreferencesKey("equipped_hair")
         val EQUIPPED_UNIFORM = stringPreferencesKey("equipped_uniform")
         val EQUIPPED_HEADSET = stringPreferencesKey("equipped_headset")
+        val EQUIPPED_ACCESSORY = stringPreferencesKey("equipped_accessory")
         val BACKGROUND_ID = stringPreferencesKey("background_id")
         val ACCENT_COLOR = stringPreferencesKey("accent_color")
     }
@@ -89,8 +90,9 @@ class UserDataRepository(
         CharacterCustomizationState(
             avatarId = prefs[PreferencesKeys.USER_AVATAR_ID] ?: "radiografer_mri",
             equippedHair = prefs[PreferencesKeys.EQUIPPED_HAIR] ?: "hair_default",
-            equippedUniform = prefs[PreferencesKeys.EQUIPPED_UNIFORM] ?: "uniform_standard",
-            equippedHeadset = prefs[PreferencesKeys.EQUIPPED_HEADSET] ?: "headset_none",
+            equippedUniform = prefs[PreferencesKeys.EQUIPPED_UNIFORM] ?: "uniform_scrub_mint",
+            equippedHeadset = prefs[PreferencesKeys.EQUIPPED_HEADSET] ?: "headset_radio",
+            equippedAccessory = prefs[PreferencesKeys.EQUIPPED_ACCESSORY] ?: "acc_magnet_detector",
             backgroundId = prefs[PreferencesKeys.BACKGROUND_ID] ?: "bg_control_room",
             accentColor = prefs[PreferencesKeys.ACCENT_COLOR] ?: "cyan"
         )
@@ -102,6 +104,7 @@ class UserDataRepository(
             prefs[PreferencesKeys.EQUIPPED_HAIR] = state.equippedHair
             prefs[PreferencesKeys.EQUIPPED_UNIFORM] = state.equippedUniform
             prefs[PreferencesKeys.EQUIPPED_HEADSET] = state.equippedHeadset
+            prefs[PreferencesKeys.EQUIPPED_ACCESSORY] = state.equippedAccessory
             prefs[PreferencesKeys.BACKGROUND_ID] = state.backgroundId
             prefs[PreferencesKeys.ACCENT_COLOR] = state.accentColor
         }
