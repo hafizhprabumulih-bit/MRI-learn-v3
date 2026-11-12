@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -47,6 +48,7 @@ class UserDataRepository(
         val LAST_VISITED_NODE_CODE = stringPreferencesKey("last_visited_node_code")
         val LEGACY_CODES_V1 = booleanPreferencesKey("legacy_node_codes_normalized_v1")
         val CURRICULUM_FINGERPRINT = stringPreferencesKey("curriculum_seed_fingerprint")
+        val CURRICULUM_VERSION = intPreferencesKey("curriculum_version")
         val EQUIPPED_HAIR = stringPreferencesKey("equipped_hair")
         val EQUIPPED_UNIFORM = stringPreferencesKey("equipped_uniform")
         val EQUIPPED_HEADSET = stringPreferencesKey("equipped_headset")
@@ -216,14 +218,20 @@ class UserDataRepository(
                 return
             }
             val fingerprint = snapshot.fingerprint()
-            val stored = dataStore.data.first()[PreferencesKeys.CURRICULUM_FINGERPRINT]
-            if (stored == fingerprint && database.isCurriculumPresent(snapshot)) {
-                Log.i("CurriculumSeed", "seed dilewati (fingerprint sama)")
+            val prefs = dataStore.data.first()
+            val stored = prefs[PreferencesKeys.CURRICULUM_FINGERPRINT]
+            val storedVersion = prefs[PreferencesKeys.CURRICULUM_VERSION] ?: 0
+            val targetVersion = 3
+            if (storedVersion >= targetVersion && stored == fingerprint && database.isCurriculumPresent(snapshot)) {
+                Log.i("CurriculumSeed", "seed dilewati (versi & fingerprint sama)")
                 return
             }
             database.replaceCurriculum(snapshot)
-            dataStore.edit { it[PreferencesKeys.CURRICULUM_FINGERPRINT] = fingerprint }
-            Log.i("CurriculumSeed", "seed selesai")
+            dataStore.edit {
+                it[PreferencesKeys.CURRICULUM_FINGERPRINT] = fingerprint
+                it[PreferencesKeys.CURRICULUM_VERSION] = targetVersion
+            }
+            Log.i("CurriculumSeed", "seed selesai / diperbarui ke versi $targetVersion")
         }
     }
 

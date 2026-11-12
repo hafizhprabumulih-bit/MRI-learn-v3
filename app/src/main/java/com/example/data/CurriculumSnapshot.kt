@@ -29,7 +29,7 @@ class CurriculumSnapshot(
 
     companion object {
         /** Ubah hanya jika SKEMA/CARA seed berubah (bukan isi materi; isi sudah tercakup fingerprint). */
-        const val SEED_TAG = "2"
+        const val SEED_TAG = "3"
 
         fun build() = CurriculumSnapshot(
             modules = MriRepository.toMriModuleEntities(),
