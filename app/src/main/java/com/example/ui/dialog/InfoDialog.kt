@@ -1,6 +1,5 @@
 package com.example.ui.dialog
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -29,21 +27,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.ui.theme.AmberDark
 import com.example.ui.theme.AmberWarning
-import com.example.ui.theme.CardSlate
 import com.example.ui.theme.CardSlateBorder
 import com.example.ui.theme.CyanBright
-import com.example.ui.theme.CyanDark
 import com.example.ui.theme.CyanPrimary
 import com.example.ui.theme.DarkNavySlate
 import com.example.ui.theme.DeepObsidian
-import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 
@@ -102,7 +97,7 @@ fun InfoDialog(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    color = ColorAmberDark,
+                    color = AmberDark,
                     border = androidx.compose.foundation.BorderStroke(1.dp, AmberWarning.copy(alpha = 0.6f))
                 ) {
                     Row(
@@ -136,7 +131,7 @@ fun InfoDialog(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Info Ekspor ZIP untuk Pengembangan Pribadi
+                // Info Fitur Kurikulum Offline Android
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -149,13 +144,13 @@ fun InfoDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Download,
+                                imageVector = Icons.Default.Info,
                                 contentDescription = null,
                                 tint = CyanBright,
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
-                                text = "Paket Web & ZIP Siap Pakai",
+                                text = "Arsitektur Belajar Luring (Android Native)",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = CyanBright
@@ -163,7 +158,7 @@ fun InfoDialog(
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Seluruh source code HTML5, CSS3 Tailwind, JS, dan kurikulum lengkap telah dirangkum dalam folder terkompresi:\n• File: public/belajar_mri_web.zip\n• Ekspor Project: Gunakan menu Settings di AI Studio untuk mengekspor ZIP project Android lengkap.",
+                            text = "• Kurikulum: 18 modul terstruktur (M01–M09) dengan 186 simpul materi.\n• Evaluasi & Catatan: Bank kuis 228 soal, riwayat belajar Room DB, serta ekspor logbook JSON.",
                             fontSize = 11.sp,
                             color = TextSecondary,
                             lineHeight = 16.sp,
@@ -186,5 +181,3 @@ fun InfoDialog(
         }
     }
 }
-
-private val ColorAmberDark = androidx.compose.ui.graphics.Color(0xFF451A03)

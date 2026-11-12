@@ -84,8 +84,7 @@ object AvatarLayerRegistry {
      */
     fun defaultLoadoutForRole(
         avatarId: String,
-        currentBackgroundId: String = "bg_control_room",
-        currentAccentColor: String = "cyan"
+        currentBackgroundId: String = "bg_control_room"
     ): CharacterCustomizationState {
         return when (avatarId) {
             "radiografer_mri" -> CharacterCustomizationState(
@@ -94,8 +93,7 @@ object AvatarLayerRegistry {
                 equippedUniform = "uniform_scrub_mint",
                 equippedHeadset = "headset_radio",
                 equippedAccessory = "acc_magnet_detector",
-                backgroundId = currentBackgroundId,
-                accentColor = currentAccentColor
+                backgroundId = currentBackgroundId
             )
             "radiolog" -> CharacterCustomizationState(
                 avatarId = avatarId,
@@ -103,8 +101,7 @@ object AvatarLayerRegistry {
                 equippedUniform = "uniform_standard",
                 equippedHeadset = "headset_none",
                 equippedAccessory = "acc_clipboard",
-                backgroundId = currentBackgroundId,
-                accentColor = currentAccentColor
+                backgroundId = currentBackgroundId
             )
             "ahli_neuro_mri" -> CharacterCustomizationState(
                 avatarId = avatarId,
@@ -112,8 +109,7 @@ object AvatarLayerRegistry {
                 equippedUniform = "uniform_scrub_blue",
                 equippedHeadset = "headset_pneumatic",
                 equippedAccessory = "acc_coil_surface",
-                backgroundId = currentBackgroundId,
-                accentColor = currentAccentColor
+                backgroundId = currentBackgroundId
             )
             "fisikawan_medis" -> CharacterCustomizationState(
                 avatarId = avatarId,
@@ -121,8 +117,7 @@ object AvatarLayerRegistry {
                 equippedUniform = "uniform_standard",
                 equippedHeadset = "headset_holo",
                 equippedAccessory = "acc_phantom",
-                backgroundId = currentBackgroundId,
-                accentColor = currentAccentColor
+                backgroundId = currentBackgroundId
             )
             "petugas_proteksi_radiasi" -> CharacterCustomizationState(
                 avatarId = avatarId,
@@ -130,8 +125,7 @@ object AvatarLayerRegistry {
                 equippedUniform = "uniform_apron_shield",
                 equippedHeadset = "headset_holo",
                 equippedAccessory = "acc_magnet_detector",
-                backgroundId = currentBackgroundId,
-                accentColor = currentAccentColor
+                backgroundId = currentBackgroundId
             )
             "ahli_jantung" -> CharacterCustomizationState(
                 avatarId = avatarId,
@@ -139,8 +133,7 @@ object AvatarLayerRegistry {
                 equippedUniform = "uniform_scrub_teal",
                 equippedHeadset = "headset_neural",
                 equippedAccessory = "acc_oximeter",
-                backgroundId = currentBackgroundId,
-                accentColor = currentAccentColor
+                backgroundId = currentBackgroundId
             )
             "perawat" -> CharacterCustomizationState(
                 avatarId = avatarId,
@@ -148,8 +141,7 @@ object AvatarLayerRegistry {
                 equippedUniform = "uniform_scrub_teal",
                 equippedHeadset = "headset_none",
                 equippedAccessory = "acc_oximeter",
-                backgroundId = currentBackgroundId,
-                accentColor = currentAccentColor
+                backgroundId = currentBackgroundId
             )
             "dokter_bedah" -> CharacterCustomizationState(
                 avatarId = avatarId,
@@ -157,8 +149,7 @@ object AvatarLayerRegistry {
                 equippedUniform = "uniform_scrub_blue",
                 equippedHeadset = "headset_none",
                 equippedAccessory = "acc_badge_zona4",
-                backgroundId = currentBackgroundId,
-                accentColor = currentAccentColor
+                backgroundId = currentBackgroundId
             )
             "dokter_robot" -> CharacterCustomizationState(
                 avatarId = avatarId,
@@ -166,13 +157,27 @@ object AvatarLayerRegistry {
                 equippedUniform = "uniform_armor",
                 equippedHeadset = "headset_holo",
                 equippedAccessory = "acc_clipboard",
-                backgroundId = currentBackgroundId,
-                accentColor = currentAccentColor
+                backgroundId = currentBackgroundId
+            )
+            "dosen" -> CharacterCustomizationState(
+                avatarId = avatarId,
+                equippedHair = "hair_mortarboard",
+                equippedUniform = "uniform_dosen",
+                equippedHeadset = "headset_lecture",
+                equippedAccessory = "acc_laser_pointer",
+                backgroundId = currentBackgroundId
+            )
+            "mahasiswa" -> CharacterCustomizationState(
+                avatarId = avatarId,
+                equippedHair = "hair_beanie_mri",
+                equippedUniform = "uniform_mahasiswa",
+                equippedHeadset = "headset_comm_pro",
+                equippedAccessory = "acc_handbook_mri",
+                backgroundId = currentBackgroundId
             )
             else -> CharacterCustomizationState(
                 avatarId = avatarId,
-                backgroundId = currentBackgroundId,
-                accentColor = currentAccentColor
+                backgroundId = currentBackgroundId
             )
         }
     }
@@ -211,6 +216,9 @@ object AvatarLayerRegistry {
             "hair_goggles" -> R.drawable.nano_head_goggles to "m03a"
             "hair_cyber" -> R.drawable.nano_head_cyber to "m05"
             "hair_crown_rf" -> R.drawable.nano_head_coil64 to "m07"
+            "hair_mortarboard" -> R.drawable.nano_head_mortarboard to null
+            "hair_beanie_mri" -> R.drawable.nano_head_beanie_mri to null
+            "hair_loupe" -> R.drawable.nano_head_loupe to null
             else -> R.drawable.nano_head_larmor to null
         }
         return AvatarItem(
@@ -231,6 +239,9 @@ object AvatarLayerRegistry {
             "uniform_scrub_teal" -> R.drawable.nano_uniform_scrub_teal to "m04"
             "uniform_apron_shield" -> R.drawable.nano_uniform_vest_mrso to "m09"
             "uniform_armor" -> R.drawable.nano_uniform_cryo to "m05"
+            "uniform_dosen" -> R.drawable.nano_uniform_dosen to null
+            "uniform_mahasiswa" -> R.drawable.nano_uniform_mahasiswa to null
+            "uniform_leadfree" -> R.drawable.nano_uniform_leadfree to null
             else -> R.drawable.nano_uniform_scrub_mint to null
         }
         return AvatarItem(
@@ -250,6 +261,8 @@ object AvatarLayerRegistry {
             "headset_neural" -> R.drawable.nano_headset_intercom to "m06"
             "headset_pneumatic" -> R.drawable.nano_headset_pneumatic to "m08"
             "headset_holo" -> R.drawable.nano_headset_sar to "m09"
+            "headset_lecture" -> R.drawable.nano_headset_lecture to null
+            "headset_comm_pro" -> R.drawable.nano_headset_comm_pro to null
             else -> R.drawable.nano_headset_radio to null
         }
         return AvatarItem(
@@ -270,6 +283,8 @@ object AvatarLayerRegistry {
             "acc_clipboard" -> R.drawable.nano_tool_tablet to "m02"
             "acc_oximeter" -> R.drawable.nano_tool_oximeter to "m09"
             "acc_coil_surface" -> R.drawable.nano_tool_coil to "m07"
+            "acc_laser_pointer" -> R.drawable.nano_tool_pointer to null
+            "acc_handbook_mri" -> R.drawable.nano_tool_handbook to null
             else -> R.drawable.nano_tool_detector to null
         }
         return AvatarItem(

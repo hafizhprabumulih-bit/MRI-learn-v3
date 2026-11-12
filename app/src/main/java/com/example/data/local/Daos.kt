@@ -149,53 +149,8 @@ interface MriCurriculumDao {
     @Query("SELECT COUNT(*) FROM mri_modules")
     suspend fun getModulesCount(): Int
 
-    @Query("SELECT * FROM mri_nodes ORDER BY moduleId ASC, sortOrder ASC, level ASC, code ASC")
-    fun observeAllNodes(): Flow<List<MriNodeEntity>>
-
-    @Query("SELECT * FROM mri_nodes WHERE moduleId = :moduleId ORDER BY sortOrder ASC, level ASC, code ASC")
-    fun observeNodesByModule(moduleId: String): Flow<List<MriNodeEntity>>
-
-    @Query("SELECT * FROM mri_nodes WHERE moduleId = :moduleId AND level = :level ORDER BY sortOrder ASC, code ASC")
-    fun observeNodesByModuleAndLevel(moduleId: String, level: Int): Flow<List<MriNodeEntity>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertNodes(nodes: List<MriNodeEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertNode(node: MriNodeEntity)
-
-    @Query("SELECT COUNT(*) FROM mri_nodes")
-    suspend fun getNodesCount(): Int
-
-    @Query("SELECT * FROM quiz_questions ORDER BY moduleId ASC, level ASC, id ASC")
-    fun observeAllQuizQuestions(): Flow<List<QuizQuestionEntity>>
-
-    @Query("SELECT * FROM quiz_questions ORDER BY moduleId ASC, level ASC, id ASC")
-    fun observeAllQuizzes(): Flow<List<QuizQuestionEntity>>
-
-    @Query("SELECT * FROM quiz_questions WHERE moduleId = :moduleId ORDER BY level ASC, id ASC")
-    fun observeQuizQuestionsByModule(moduleId: String): Flow<List<QuizQuestionEntity>>
-
-    @Query("SELECT * FROM quiz_questions WHERE moduleId = :moduleId AND level = :level ORDER BY id ASC")
-    fun observeQuizQuestionsByModuleAndLevel(moduleId: String, level: Int): Flow<List<QuizQuestionEntity>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertQuizQuestions(questions: List<QuizQuestionEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertQuizQuestion(question: QuizQuestionEntity)
-
-    @Query("SELECT COUNT(*) FROM quiz_questions")
-    suspend fun getQuizQuestionsCount(): Int
-
     @Query("DELETE FROM mri_modules")
     suspend fun clearModules()
-
-    @Query("DELETE FROM mri_nodes")
-    suspend fun clearNodes()
-
-    @Query("DELETE FROM quiz_questions")
-    suspend fun clearQuizQuestions()
 }
 
 @Dao

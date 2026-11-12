@@ -90,56 +90,6 @@ data class MriModuleEntity(
 )
 
 @Entity(
-    tableName = "mri_nodes",
-    indices = [
-        Index(value = ["code"]),
-        Index(value = ["moduleId"]),
-        Index(value = ["level"]),
-        Index(value = ["sortOrder"])
-    ]
-)
-data class MriNodeEntity(
-    @PrimaryKey val code: String,
-    val moduleId: String,
-    val level: Int,
-    val title: String,
-    val summaryShort: String,
-    val detailFull: String,
-    val analogi: String,
-    val prerequisite: String? = null,
-    val learningGoal: String? = null,
-    val crossLinks: String? = null,
-    val labType: String? = null,
-    val sortOrder: Int = 0,
-    val htmlSimulationAsset: String? = null
-)
-
-@Entity(
-    tableName = "quiz_questions",
-    indices = [
-        Index(value = ["id"]),
-        Index(value = ["moduleId"]),
-        Index(value = ["nodeCode"]),
-        Index(value = ["level"])
-    ]
-)
-data class QuizQuestionEntity(
-    @PrimaryKey val id: String,
-    val moduleId: String,
-    val nodeCode: String,
-    val level: Int = 1,
-    val levelBadge: String = "Dasar",
-    val question: String,
-    val optionA: String = "",
-    val optionB: String = "",
-    val optionC: String = "",
-    val optionD: String = "",
-    val optionsJson: String = "",
-    val correctIndex: Int,
-    val explanation: String
-)
-
-@Entity(
     tableName = "curriculum_nodes",
     indices = [
         Index(value = ["code"]),

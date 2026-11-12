@@ -1,6 +1,5 @@
 package com.example.ui.simulators
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,16 +27,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
-import java.util.Locale
 import kotlin.math.*
 
 private fun fmtId(v: Double, decimals: Int = 1): String =
-    String.format(Locale("id", "ID"), "%.${decimals}f", v)
+    String.format(ID_LOCALE, "%.${decimals}f", v)
 
 // ============================================================================
 // SUITE UTAMA MODUL 7 (M07A, M07B, M07C) - 100% NATIVE JETPACK COMPOSE
@@ -132,38 +129,38 @@ fun Module7SafetyLabSuite(
                     }
                 }
                 Spacer(modifier = Modifier.height(6.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    filteredCards.chunked(2).forEach { pair ->
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            pair.forEach { item ->
-                                val isSel = item.id == activeCard.id
-                                Surface(
-                                    onClick = { onSelectActivity(item.id) },
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(10.dp),
-                                    color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                    border = androidx.compose.foundation.BorderStroke(
-                                        width = if (isSel) 1.5.dp else 1.dp,
-                                        color = if (isSel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-                                    )
-                                ) {
-                                    Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
-                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                            Text("${item.subModule}·${item.code}", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                                            Text(item.nodeTag, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        }
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Text(
-                                            text = item.title,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            maxLines = 1,
-                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                                        )
-                                    }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    filteredCards.forEach { item ->
+                        val isSel = item.id == activeCard.id
+                        Surface(
+                            onClick = { onSelectActivity(item.id) },
+                            modifier = Modifier.width(156.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            border = androidx.compose.foundation.BorderStroke(
+                                width = if (isSel) 1.5.dp else 1.dp,
+                                color = if (isSel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text("${item.subModule}·${item.code}", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                    Text(item.nodeTag, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = item.title,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                )
                             }
-                            if (pair.size == 1) Spacer(modifier = Modifier.weight(1f))
                         }
                     }
                 }
@@ -1819,7 +1816,7 @@ fun M07BOxygenAndHeliumExpansionSimulator() {
             HorizontalDivider()
 
             Text(
-                "Volume Helium Cair di Kriostat: ${liquidHeliumL.toInt()} L → Mengembang menjadi ${String.format(Locale("id", "ID"), "%,d", gasLiters)} L gas (${fmtId(gasMillionLiters, 2)} juta liter, rasio 1:754)",
+                "Volume Helium Cair di Kriostat: ${liquidHeliumL.toInt()} L → Mengembang menjadi ${String.format(ID_LOCALE, "%,d", gasLiters)} L gas (${fmtId(gasMillionLiters, 2)} juta liter, rasio 1:754)",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold
             )

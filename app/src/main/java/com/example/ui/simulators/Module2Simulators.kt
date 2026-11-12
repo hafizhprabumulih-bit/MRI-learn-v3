@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,7 +26,6 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,12 +34,12 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -67,7 +67,6 @@ import kotlin.math.abs
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.exp
-import kotlin.math.ln
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -185,57 +184,54 @@ fun Module2LabHub(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                val rows = M02SimulationType.entries.chunked(2)
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    rows.forEach { pair ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    M02SimulationType.entries.forEach { item ->
+                        val isSelected = item == activeType
+                        Surface(
+                            onClick = { onSelectActivity(item.id) },
+                            modifier = Modifier.width(164.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (isSelected) CyanDark else DeepObsidian,
+                            border = BorderStroke(
+                                width = if (isSelected) 1.5.dp else 1.dp,
+                                color = if (isSelected) CyanBright else CardSlateBorder
+                            )
                         ) {
-                            pair.forEach { item ->
-                                val isSelected = item == activeType
-                                Surface(
-                                    onClick = { onSelectActivity(item.id) },
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = if (isSelected) CyanDark else DeepObsidian,
-                                    border = BorderStroke(
-                                        width = if (isSelected) 1.5.dp else 1.dp,
-                                        color = if (isSelected) CyanBright else CardSlateBorder
-                                    )
+                            Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween
-                                        ) {
-                                            Text(
-                                                text = item.shortCode,
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = if (isSelected) CyanBright else AmberWarning,
-                                                fontFamily = FontFamily.Monospace
-                                            )
-                                            Text(item.nodeTag, fontSize = 9.sp, color = TextMuted)
-                                        }
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Text(
-                                            text = item.title,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = if (isSelected) CyanBright else TextPrimary,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Text(
-                                            text = item.subtitle,
-                                            fontSize = 10.sp,
-                                            color = TextSecondary,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
+                                    Text(
+                                        text = item.shortCode,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isSelected) CyanBright else AmberWarning,
+                                        fontFamily = FontFamily.Monospace
+                                    )
+                                    Text(item.nodeTag, fontSize = 9.sp, color = TextMuted)
                                 }
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = item.title,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (isSelected) CyanBright else TextPrimary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = item.subtitle,
+                                    fontSize = 10.sp,
+                                    color = TextSecondary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
                         }
                     }
@@ -276,11 +272,11 @@ private fun M02CardShell(
 
 @Composable
 private fun M02FantomOtakSim() {
-    var seqType by remember { mutableStateOf("se") } // se, ir, gre
-    var tr by remember { mutableFloatStateOf(500f) }
-    var te by remember { mutableFloatStateOf(15f) }
-    var ti by remember { mutableFloatStateOf(2200f) }
-    var fa by remember { mutableFloatStateOf(90f) }
+    var seqType by rememberSaveable { mutableStateOf("se") } // se, ir, gre
+    var tr by rememberSaveable { mutableFloatStateOf(500f) }
+    var te by rememberSaveable { mutableFloatStateOf(15f) }
+    var ti by rememberSaveable { mutableFloatStateOf(2200f) }
+    var fa by rememberSaveable { mutableFloatStateOf(90f) }
 
     fun signalFor(t: M02Tissue): Double {
         val e1 = exp(-tr / t.t1)
@@ -360,16 +356,18 @@ private fun M02FantomOtakSim() {
         ) {
             val cx = size.width / 2f
             val cy = size.height / 2f
+            val rx = (size.width * 0.34f).coerceAtMost(size.height * 0.62f)
+            val ry = rx * 0.72f
             fun gray(sig: Double): Color {
                 val g = (sig / maxSig).toFloat().coerceIn(0f, 1f)
                 return Color(g, g, g, 1f)
             }
             // Lemak (kulit kepala), GM (korteks), WM (inti dalam), CSF (ventrikel)
-            drawOval(gray(signals[0]), Offset(cx - 110f, cy - 78f), Size(220f, 156f))
-            drawOval(gray(signals[1]), Offset(cx - 94f, cy - 64f), Size(188f, 128f))
-            drawOval(gray(signals[2]), Offset(cx - 70f, cy - 46f), Size(140f, 92f))
-            drawOval(gray(signals[3]), Offset(cx - 24f, cy - 22f), Size(18f, 44f))
-            drawOval(gray(signals[3]), Offset(cx + 6f, cy - 22f), Size(18f, 44f))
+            drawOval(gray(signals[0]), Offset(cx - rx, cy - ry), Size(rx * 2f, ry * 2f))
+            drawOval(gray(signals[1]), Offset(cx - rx * 0.85f, cy - ry * 0.82f), Size(rx * 1.70f, ry * 1.64f))
+            drawOval(gray(signals[2]), Offset(cx - rx * 0.64f, cy - ry * 0.59f), Size(rx * 1.28f, ry * 1.18f))
+            drawOval(gray(signals[3]), Offset(cx - rx * 0.22f, cy - ry * 0.28f), Size(rx * 0.16f, ry * 0.56f))
+            drawOval(gray(signals[3]), Offset(cx + rx * 0.06f, cy - ry * 0.28f), Size(rx * 0.16f, ry * 0.56f))
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(weightLabel, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = EmeraldSuccess)
@@ -399,8 +397,8 @@ private fun M02FantomOtakSim() {
 
 @Composable
 private fun M02PeluruhanT2Sim() {
-    var te by remember { mutableFloatStateOf(100f) }
-    var tissueIdx by remember { mutableIntStateOf(3) } // CSF default
+    var te by rememberSaveable { mutableFloatStateOf(100f) }
+    var tissueIdx by rememberSaveable { mutableIntStateOf(3) } // CSF default
     val fat = M02_TISSUES[0]
     val comp = M02_TISSUES[tissueIdx]
     val ampFat = exp(-te / fat.t2).toFloat()
@@ -434,11 +432,15 @@ private fun M02PeluruhanT2Sim() {
         ) {
             val leftW = size.width * 0.56f
             val h = size.height
-            fun xOf(t: Float) = 18f + (t / 400f) * (leftW - 28f)
-            fun yOf(v: Float) = h - 22f - v * (h - 42f)
+            val padLeft = 14.dp.toPx()
+            val padTop = 12.dp.toPx()
+            val padBottom = 14.dp.toPx()
+            val padRight = 8.dp.toPx()
+            fun xOf(t: Float) = padLeft + (t / 400f) * (leftW - padLeft - padRight)
+            fun yOf(v: Float) = h - padBottom - v * (h - padTop - padBottom)
 
-            drawLine(CardSlateBorder, Offset(18f, h - 22f), Offset(leftW - 10f, h - 22f), 1.5f)
-            drawLine(CardSlateBorder, Offset(18f, 16f), Offset(18f, h - 22f), 1.5f)
+            drawLine(CardSlateBorder, Offset(padLeft, h - padBottom), Offset(leftW - padRight, h - padBottom), 1.dp.toPx())
+            drawLine(CardSlateBorder, Offset(padLeft, padTop), Offset(padLeft, h - padBottom), 1.dp.toPx())
 
             listOf(fat to AmberWarning, comp to CyanBright).forEach { (tissue, col) ->
                 val path = Path()
@@ -447,19 +449,19 @@ private fun M02PeluruhanT2Sim() {
                     val y = yOf(exp(-t / tissue.t2).toFloat())
                     if (t == 0) path.moveTo(x, y) else path.lineTo(x, y)
                 }
-                drawPath(path, col, style = Stroke(2.5f))
+                drawPath(path, col, style = Stroke(2.dp.toPx()))
             }
             val xTe = xOf(te)
-            drawLine(TextMuted, Offset(xTe, 16f), Offset(xTe, h - 22f), 1.5f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f), 0f))
+            drawLine(TextMuted, Offset(xTe, padTop), Offset(xTe, h - padBottom), 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 3.dp.toPx()), 0f))
 
             // Kipas dephasing di sisi kanan
             val fanX = size.width * 0.78f
-            val fanR = 38f
+            val fanR = min(h * 0.16f, 24.dp.toPx())
             listOf(Triple(ampFat, AmberWarning, h * 0.30f), Triple(ampComp, CyanBright, h * 0.74f)).forEach { (amp, col, cy) ->
                 val spread = PI.toFloat() * (1f - amp)
                 for (i in 0 until 13) {
                     val a = (i / 12f - 0.5f) * 2f * spread
-                    drawLine(col, Offset(fanX, cy), Offset(fanX + fanR * cos(a), cy - fanR * sin(a)), 1.8f)
+                    drawLine(col, Offset(fanX, cy), Offset(fanX + fanR * cos(a), cy - fanR * sin(a)), 1.2.dp.toPx())
                 }
             }
         }
@@ -476,8 +478,8 @@ private fun M02PeluruhanT2Sim() {
 
 @Composable
 private fun M02KomporKontrasSim() {
-    var tr by remember { mutableFloatStateOf(500f) }
-    var te by remember { mutableFloatStateOf(15f) }
+    var tr by rememberSaveable { mutableFloatStateOf(500f) }
+    var te by rememberSaveable { mutableFloatStateOf(15f) }
     val fat = M02_TISSUES[0]
     val csf = M02_TISSUES[3]
 
@@ -513,17 +515,17 @@ private fun M02KomporKontrasSim() {
                 .background(Color(0xFF0E1420))
                 .clipToBounds()
         ) {
-            val baseY = size.height - 28f
+            val baseY = size.height - 16.dp.toPx()
             val x1 = size.width * 0.28f
             val x2 = size.width * 0.72f
             fun drawFlame(cx: Float, norm: Float, color: Color) {
-                val fh = 18f + norm * 85f
-                val fw = 26f + norm * 16f
-                drawRect(TextMuted, Offset(cx - 42f, baseY), Size(84f, 6f))
+                val fh = 12.dp.toPx() + norm * (size.height * 0.52f).coerceAtLeast(24.dp.toPx())
+                val fw = 14.dp.toPx() + norm * 10.dp.toPx()
+                drawRect(TextMuted, Offset(cx - 24.dp.toPx(), baseY), Size(48.dp.toPx(), 4.dp.toPx()))
                 val p = Path().apply {
                     moveTo(cx - fw, baseY)
-                    quadraticBezierTo(cx - fw * 0.7f, baseY - fh * 0.5f, cx, baseY - fh)
-                    quadraticBezierTo(cx + fw * 0.7f, baseY - fh * 0.5f, cx + fw, baseY)
+                    quadraticTo(cx - fw * 0.7f, baseY - fh * 0.5f, cx, baseY - fh)
+                    quadraticTo(cx + fw * 0.7f, baseY - fh * 0.5f, cx + fw, baseY)
                     close()
                 }
                 drawPath(p, color.copy(alpha = 0.85f))
@@ -554,7 +556,7 @@ private fun M02ParameterSekuensSim() {
             "DWI (Difusi)" to setOf("TR", "TE", "b")
         )
     }
-    var selectedIdx by remember { mutableIntStateOf(0) }
+    var selectedIdx by rememberSaveable { mutableIntStateOf(0) }
     val allKeys = listOf("TR", "TE", "TI", "FA", "TF", "b")
     val activeKeys = sequences[selectedIdx].second
 

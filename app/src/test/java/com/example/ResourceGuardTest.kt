@@ -44,7 +44,7 @@ class ResourceGuardTest {
             "avatar_radiografer_mri.png", "avatar_radiolog.png", "avatar_ahli_neuro_mri.png",
             "avatar_fisikawan_medis.png", "avatar_petugas_proteksi_radiasi.png",
             "avatar_ahli_jantung.png", "avatar_perawat.png", "avatar_dokter_bedah.png",
-            "avatar_dokter_robot.png"
+            "avatar_dokter_robot.png", "avatar_dosen.png", "avatar_mahasiswa.png"
         )
         val hilang = wajib.filter { !File(dir, it).isFile }
         assertTrue("Drawable wajib hilang: $hilang", hilang.isEmpty())

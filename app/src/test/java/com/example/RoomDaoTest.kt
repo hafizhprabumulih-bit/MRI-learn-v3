@@ -806,9 +806,9 @@ class RoomDaoTest {
 
         // NB-03: Pastikan fungsi observer di UserDataRepository membaca tabel aktif curriculum_nodes & curriculum_quizzes
         db.seedCurriculumIfNeeded()
-        assertTrue(repo.observeAllCurriculumNodes().first().isNotEmpty())
-        assertTrue(repo.observeNodesByModule("M01").first().isNotEmpty())
-        assertTrue(repo.observeAllQuizQuestions().first().isNotEmpty())
+        assertTrue(repo.observeCurriculumNodes().first().isNotEmpty())
+        assertTrue(repo.observeCurriculumNodesByModule("M01").first().isNotEmpty())
+        assertTrue(repo.observeCurriculumQuizzes().first().isNotEmpty())
     }
 
     @Test
@@ -849,13 +849,13 @@ class RoomDaoTest {
 
         // K-09: Pastikan CurriculumQuizEntity.toDomainModel() mempertahankan lencana Capstone khusus
         db.seedCurriculumIfNeeded()
-        val m08cQuizzes = repo.observeQuizQuestionsByModule("M08C").first().map { it.toDomainModel() }
+        val m08cQuizzes = repo.observeCurriculumQuizzesByModule("M08C").first().map { it.toDomainModel() }
         val capstoneQuiz = m08cQuizzes.find { it.id == "M08C_Q16" }
         assertTrue(capstoneQuiz != null)
         assertTrue("Lencana Capstone harus dipertahankan", capstoneQuiz?.levelBadge?.contains("Capstone") == true)
 
         // P2: Pastikan QuizShuffle menghasilkan distribusi indeks jawaban benar yang bervariasi dan tetap menunjuk teks jawaban benar yang sama
-        val allQuizzes = repo.observeAllQuizQuestions().first().map { it.toDomainModel() }
+        val allQuizzes = repo.observeCurriculumQuizzes().first().map { it.toDomainModel() }
         val shuffledQuizzes = allQuizzes.map { com.example.util.QuizShuffle.shuffled(it) }
         allQuizzes.zip(shuffledQuizzes).forEach { (orig, shuf) ->
             assertEquals(orig.options[orig.correctIndex], shuf.options[shuf.correctIndex])

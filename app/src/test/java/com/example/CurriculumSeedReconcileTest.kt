@@ -7,10 +7,8 @@ import com.example.data.MriRepository
 import com.example.data.local.CurriculumNodeEntity
 import com.example.data.local.CurriculumQuizEntity
 import com.example.data.local.MriDatabase
-import com.example.data.local.MriNodeEntity
 import com.example.data.local.NodeProgressEntity
 import com.example.data.local.QuizAttemptEntity
-import com.example.data.local.QuizQuestionEntity
 import com.example.data.local.StudyDayEntity
 import com.example.data.local.StudyNoteEntity
 import kotlinx.coroutines.flow.first
@@ -48,14 +46,10 @@ class CurriculumSeedReconcileTest {
         db.seedCurriculumIfNeeded()
 
         val expectedModulesCount = MriRepository.toMriModuleEntities().size
-        val expectedMriNodesCount = MriRepository.toMriNodeEntities().size
-        val expectedMriQuizzesCount = MriRepository.toQuizQuestionEntities().size
         val expectedCurrNodesCount = MriRepository.toCurriculumNodeEntities().size
         val expectedCurrQuizzesCount = MriRepository.toCurriculumQuizEntities().size
 
         assertEquals(expectedModulesCount, db.mriCurriculumDao().getModulesCount())
-        assertEquals(0, db.mriCurriculumDao().getNodesCount())
-        assertEquals(0, db.mriCurriculumDao().getQuizQuestionsCount())
         assertEquals(expectedCurrNodesCount, db.curriculumDao().getNodesCount())
         assertEquals(expectedCurrQuizzesCount, db.curriculumDao().getQuizzesCount())
     }
@@ -71,12 +65,6 @@ class CurriculumSeedReconcileTest {
         db.curriculumDao().insertQuiz(
             CurriculumQuizEntity("ZZ99_Q1", "M01", "ZZ99.GHOST", 1, "Ghost?", "[]", 0, "")
         )
-        db.mriCurriculumDao().insertNode(
-            MriNodeEntity("ZZ99.GHOST", "M01", 1, "Ghost Node", "", "", "")
-        )
-        db.mriCurriculumDao().insertQuizQuestion(
-            QuizQuestionEntity("ZZ99_Q1", "M01", "ZZ99.GHOST", 1, "Dasar", "Ghost?", "", "", "", "", "[]", 0, "")
-        )
 
         // Seed ulang
         db.seedCurriculumIfNeeded()
@@ -88,17 +76,9 @@ class CurriculumSeedReconcileTest {
         val currQuizzes = db.curriculumDao().observeAllQuizzes().first()
         assertTrue(currQuizzes.none { it.id == "ZZ99_Q1" })
 
-        val mriNodes = db.mriCurriculumDao().observeAllNodes().first()
-        assertTrue(mriNodes.none { it.code == "ZZ99.GHOST" })
-
-        val mriQuizzes = db.mriCurriculumDao().observeAllQuizQuestions().first()
-        assertTrue(mriQuizzes.none { it.id == "ZZ99_Q1" })
-
         // Pastikan jumlah kembali sama seperti sumber
         assertEquals(MriRepository.toCurriculumNodeEntities().size, db.curriculumDao().getNodesCount())
         assertEquals(MriRepository.toCurriculumQuizEntities().size, db.curriculumDao().getQuizzesCount())
-        assertEquals(0, db.mriCurriculumDao().getNodesCount())
-        assertEquals(0, db.mriCurriculumDao().getQuizQuestionsCount())
     }
 
     @Test
@@ -108,8 +88,6 @@ class CurriculumSeedReconcileTest {
         db.seedCurriculumIfNeeded()
 
         assertEquals(MriRepository.toMriModuleEntities().size, db.mriCurriculumDao().getModulesCount())
-        assertEquals(0, db.mriCurriculumDao().getNodesCount())
-        assertEquals(0, db.mriCurriculumDao().getQuizQuestionsCount())
         assertEquals(MriRepository.toCurriculumNodeEntities().size, db.curriculumDao().getNodesCount())
         assertEquals(MriRepository.toCurriculumQuizEntities().size, db.curriculumDao().getQuizzesCount())
     }

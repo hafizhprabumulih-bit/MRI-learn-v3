@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,14 +19,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.util.Locale
 import kotlin.math.*
 
 // ============================================================================
@@ -109,38 +105,38 @@ fun Module8ArtifactsFlowQaSuite(
                     }
                 }
                 Spacer(modifier = Modifier.height(6.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    filteredCards.chunked(2).forEach { pair ->
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            pair.forEach { item ->
-                                val isSel = item.id == activeCard.id
-                                Surface(
-                                    onClick = { onSelectActivity(item.id) },
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(10.dp),
-                                    color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                    border = androidx.compose.foundation.BorderStroke(
-                                        width = if (isSel) 1.5.dp else 1.dp,
-                                        color = if (isSel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-                                    )
-                                ) {
-                                    Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
-                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                            Text("${item.subModule}·${item.code}", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                                            Text(item.nodeTag, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        }
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Text(
-                                            text = item.title,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            maxLines = 1,
-                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                                        )
-                                    }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    filteredCards.forEach { item ->
+                        val isSel = item.id == activeCard.id
+                        Surface(
+                            onClick = { onSelectActivity(item.id) },
+                            modifier = Modifier.width(156.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            border = androidx.compose.foundation.BorderStroke(
+                                width = if (isSel) 1.5.dp else 1.dp,
+                                color = if (isSel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text("${item.subModule}·${item.code}", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                    Text(item.nodeTag, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = item.title,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                )
                             }
-                            if (pair.size == 1) Spacer(modifier = Modifier.weight(1f))
                         }
                     }
                 }
@@ -283,7 +279,7 @@ private fun M08AOutOfPhaseAndDixonTab(onNodeComplete: (String) -> Unit) {
             )
         }
 
-        Text("Waktu Gema TE: ${String.format(Locale("id", "ID"), "%.2f", teMs)} ms", style = MaterialTheme.typography.labelMedium)
+        Text("Waktu Gema TE: ${String.format(ID_LOCALE, "%.2f", teMs)} ms", style = MaterialTheme.typography.labelMedium)
         Slider(
             value = teMs,
             onValueChange = { teMs = it },
@@ -294,13 +290,13 @@ private fun M08AOutOfPhaseAndDixonTab(onNodeComplete: (String) -> Unit) {
             val halfT = (periodMs / 2.0).toFloat()
             val fullT = periodMs.toFloat()
             OutlinedButton(onClick = { teMs = halfT; onNodeComplete("M08A.T2.3") }) {
-                Text("Luar-Fase 1 (${String.format(Locale("id", "ID"), "%.2f", halfT)} ms)", fontSize = 11.sp)
+                Text("Luar-Fase 1 (${String.format(ID_LOCALE, "%.2f", halfT)} ms)", fontSize = 11.sp)
             }
             OutlinedButton(onClick = { teMs = fullT; onNodeComplete("M08A.T3.1") }) {
-                Text("In-Phase 1 (${String.format(Locale("id", "ID"), "%.2f", fullT)} ms)", fontSize = 11.sp)
+                Text("In-Phase 1 (${String.format(ID_LOCALE, "%.2f", fullT)} ms)", fontSize = 11.sp)
             }
             OutlinedButton(onClick = { teMs = halfT * 3f }) {
-                Text("Luar-Fase 2 (${String.format(Locale("id", "ID"), "%.2f", halfT * 3f)} ms)", fontSize = 11.sp)
+                Text("Luar-Fase 2 (${String.format(ID_LOCALE, "%.2f", halfT * 3f)} ms)", fontSize = 11.sp)
             }
         }
 
@@ -390,12 +386,12 @@ private fun M08AOutOfPhaseAndDixonTab(onNodeComplete: (String) -> Unit) {
         ) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    "Beda Fase Air–Lemak: ${String.format(Locale("id", "ID"), "%.0f", phaseDeg)}° · Sinyal Voksel Campuran: ${String.format(Locale("id", "ID"), "%.1f", netSignal * 100)}%",
+                    "Beda Fase Air–Lemak: ${String.format(ID_LOCALE, "%.0f", phaseDeg)}° · Sinyal Voksel Campuran: ${String.format(ID_LOCALE, "%.1f", netSignal * 100)}%",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    "Rekonstruksi Dixon: Citra Air W = ½(In-Phase + Out-of-Phase) ≈ ${String.format(Locale("id", "ID"), "%.0f", w * 100)}% | Citra Lemak F = ½(In-Phase − Out-of-Phase) ≈ ${String.format(Locale("id", "ID"), "%.0f", f * 100)}%.",
+                    "Rekonstruksi Dixon: Citra Air W = ½(In-Phase + Out-of-Phase) ≈ ${String.format(ID_LOCALE, "%.0f", w * 100)}% | Citra Lemak F = ½(In-Phase − Out-of-Phase) ≈ ${String.format(ID_LOCALE, "%.0f", f * 100)}%.",
                     style = MaterialTheme.typography.bodySmall
                 )
                 if (!isSpinEcho && netSignal < 0.25) {
@@ -458,7 +454,7 @@ private fun M08AMagicAngleTab(onNodeComplete: (String) -> Unit) {
             }
         }
 
-        Text("Sudut Serat Kolagen terhadap B₀ (θ): ${String.format(Locale("id", "ID"), "%.1f", thetaDeg)}°", style = MaterialTheme.typography.labelMedium)
+        Text("Sudut Serat Kolagen terhadap B₀ (θ): ${String.format(ID_LOCALE, "%.1f", thetaDeg)}°", style = MaterialTheme.typography.labelMedium)
         Slider(value = thetaDeg, onValueChange = { thetaDeg = it }, valueRange = 0f..90f)
 
         Text("Waktu Gema (TE): ${teRel.toInt()} ms", style = MaterialTheme.typography.labelMedium)
@@ -523,11 +519,11 @@ private fun M08AMagicAngleTab(onNodeComplete: (String) -> Unit) {
         ) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    "Faktor Dipolar (3·cos²θ − 1) = ${String.format(Locale("id", "ID"), "%.3f", dipolarTerm)}",
+                    "Faktor Dipolar (3·cos²θ − 1) = ${String.format(ID_LOCALE, "%.3f", dipolarTerm)}",
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    "Sinyal Tendon: ${String.format(Locale("id", "ID"), "%.0f", tendonSignal * 100)}% vs Cairan Robekan Sejati: ${String.format(Locale("id", "ID"), "%.0f", fluidSignal * 100)}%",
+                    "Sinyal Tendon: ${String.format(ID_LOCALE, "%.0f", tendonSignal * 100)}% vs Cairan Robekan Sejati: ${String.format(ID_LOCALE, "%.0f", fluidSignal * 100)}%",
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
@@ -595,7 +591,7 @@ private fun M08AGhostingAndGatingTab(onNodeComplete: (String) -> Unit) {
             )
         }
 
-        Text("TR: ${trMs.toInt()} ms · Matriks Fase: ${nPhase.toInt()} · NSA: ${nsa.toInt()} · Periode Gerak: ${String.format(Locale("id", "ID"), "%.1f", motionPeriodSec)} dtk", style = MaterialTheme.typography.labelMedium)
+        Text("TR: ${trMs.toInt()} ms · Matriks Fase: ${nPhase.toInt()} · NSA: ${nsa.toInt()} · Periode Gerak: ${String.format(ID_LOCALE, "%.1f", motionPeriodSec)} dtk", style = MaterialTheme.typography.labelMedium)
         Slider(value = trMs, onValueChange = { trMs = it }, valueRange = 200f..3000f)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf(1f, 2f, 4f).forEach { v ->
@@ -626,7 +622,7 @@ private fun M08AGhostingAndGatingTab(onNodeComplete: (String) -> Unit) {
                 label = { Text("Respiratory Gating (${gateWidthPct.toInt()}%)") }
             )
         }
-        Text("Laju Napas: ${respRateBpm.toInt()} napas/menit (TR efektif ≈ ${String.format(Locale("id", "ID"), "%.1f", respPeriodSec)} dtk) · Lebar Jendela Akuisisi: ${gateWidthPct.toInt()}%", style = MaterialTheme.typography.labelMedium)
+        Text("Laju Napas: ${respRateBpm.toInt()} napas/menit (TR efektif ≈ ${String.format(ID_LOCALE, "%.1f", respPeriodSec)} dtk) · Lebar Jendela Akuisisi: ${gateWidthPct.toInt()}%", style = MaterialTheme.typography.labelMedium)
         Slider(value = gateWidthPct, onValueChange = { gateWidthPct = it }, valueRange = 15f..80f)
 
         Canvas(
@@ -693,12 +689,12 @@ private fun M08AGhostingAndGatingTab(onNodeComplete: (String) -> Unit) {
         Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(10.dp)) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    "Jarak Antar-Hantu Relatif: ${String.format(Locale("id", "ID"), "%.0f", ghostSpacingRatio * 100)}% FOV (Meningkat bersama TR, N_fase, dan NSA).",
+                    "Jarak Antar-Hantu Relatif: ${String.format(ID_LOCALE, "%.0f", ghostSpacingRatio * 100)}% FOV (Meningkat bersama TR, N_fase, dan NSA).",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    "Mode $gatingMode: Waktu akuisisi efektif memanjang ~${String.format(Locale("id", "ID"), "%.1f", effectiveTaScale)}× karena data hanya direkam saat dinding dada tenang (akhir ekspirasi).",
+                    "Mode $gatingMode: Waktu akuisisi efektif memanjang ~${String.format(ID_LOCALE, "%.1f", effectiveTaScale)}× karena data hanya direkam saat dinding dada tenang (akhir ekspirasi).",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -762,13 +758,13 @@ private fun M08AAliasingAndNyquistTab(onNodeComplete: (String) -> Unit) {
         HorizontalDivider()
 
         Text(
-            "A6 · Kalkulator Nyquist Frekuensi: BW Total = ${bwTotalKhz.toInt()} kHz (f_Nyquist = ±${String.format(Locale("id", "ID"), "%.1f", fNyquist)} kHz)",
+            "A6 · Kalkulator Nyquist Frekuensi: BW Total = ${bwTotalKhz.toInt()} kHz (f_Nyquist = ±${String.format(ID_LOCALE, "%.1f", fNyquist)} kHz)",
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold
         )
         Slider(value = bwTotalKhz, onValueChange = { bwTotalKhz = it }, valueRange = 16f..100f)
 
-        Text("Frekuensi Spin Sebenarnya di Luar FOV: ${String.format(Locale("id", "ID"), "%.1f", actualFreqKhz)} kHz", style = MaterialTheme.typography.labelMedium)
+        Text("Frekuensi Spin Sebenarnya di Luar FOV: ${String.format(ID_LOCALE, "%.1f", actualFreqKhz)} kHz", style = MaterialTheme.typography.labelMedium)
         Slider(value = actualFreqKhz, onValueChange = { actualFreqKhz = it }, valueRange = -50f..50f)
 
         FilterChip(
@@ -845,11 +841,11 @@ private fun M08AAliasingAndNyquistTab(onNodeComplete: (String) -> Unit) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     if (isFreqAliased)
-                        "ALIASING FREKUENSI: f_sebenarnya (${String.format(Locale("id", "ID"), "%.1f", actualFreqKhz)} kHz) melampaui f_Nyquist (±${String.format(Locale("id", "ID"), "%.1f", fNyquist)} kHz) → Terlipat ke f_terbaca = ${String.format(Locale("id", "ID"), "%.1f", apparentFreqKhz)} kHz!"
+                        "ALIASING FREKUENSI: f_sebenarnya (${String.format(ID_LOCALE, "%.1f", actualFreqKhz)} kHz) melampaui f_Nyquist (±${String.format(ID_LOCALE, "%.1f", fNyquist)} kHz) → Terlipat ke f_terbaca = ${String.format(ID_LOCALE, "%.1f", apparentFreqKhz)} kHz!"
                     else if (lowPassActive && abs(actualFreqKhz) > fNyquist)
-                        "Filter Low-Pass Analog menyaring sinyal di luar ±${String.format(Locale("id", "ID"), "%.1f", fNyquist)} kHz sebelum pencuplikan ADC."
+                        "Filter Low-Pass Analog menyaring sinyal di luar ±${String.format(ID_LOCALE, "%.1f", fNyquist)} kHz sebelum pencuplikan ADC."
                     else
-                        "Aman (Memenuhi Teorema Nyquist): f_terbaca = ${String.format(Locale("id", "ID"), "%.1f", apparentFreqKhz)} kHz.",
+                        "Aman (Memenuhi Teorema Nyquist): f_terbaca = ${String.format(ID_LOCALE, "%.1f", apparentFreqKhz)} kHz.",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -985,12 +981,12 @@ private fun M08AChemShiftAndGibbsTab(onNodeComplete: (String) -> Unit) {
         Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(10.dp)) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    "BW/piksel = ${String.format(Locale("id", "ID"), "%.1f", hzPerPixel)} Hz/piksel → Pergeseran Kimia = ${String.format(Locale("id", "ID"), "%.2f", shiftPixels)} piksel (${String.format(Locale("id", "ID"), "%.2f", shiftMm)} mm).",
+                    "BW/piksel = ${String.format(ID_LOCALE, "%.1f", hzPerPixel)} Hz/piksel → Pergeseran Kimia = ${String.format(ID_LOCALE, "%.2f", shiftPixels)} piksel (${String.format(ID_LOCALE, "%.2f", shiftMm)} mm).",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    "Gibbs Overshoot: ~${String.format(Locale("id", "ID"), "%.1f", gibbsOvershootPct)}% di dekat antarmuka kontras tinggi (mis. CSF–korda spinalis menyerupai syrinx).",
+                    "Gibbs Overshoot: ~${String.format(ID_LOCALE, "%.1f", gibbsOvershootPct)}% di dekat antarmuka kontras tinggi (mis. CSF–korda spinalis menyerupai syrinx).",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -1123,12 +1119,12 @@ private fun M08BEntrySliceTab(onNodeComplete: (String) -> Unit) {
         Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(10.dp)) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    "Kecepatan Penggantian Penuh (v = d / TR): ${String.format(Locale("id", "ID"), "%.1f", vReplacementCmS)} cm/dtk · Fraksi Spin Segar Irisan #1: ${String.format(Locale("id", "ID"), "%.0f", replacementFraction * 100)}%",
+                    "Kecepatan Penggantian Penuh (v = d / TR): ${String.format(ID_LOCALE, "%.1f", vReplacementCmS)} cm/dtk · Fraksi Spin Segar Irisan #1: ${String.format(ID_LOCALE, "%.0f", replacementFraction * 100)}%",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    "Irisan Pertama = ${String.format(Locale("id", "ID"), "%.0f", sliceSignals.first() * 100)}% vs Irisan #6 = ${String.format(Locale("id", "ID"), "%.0f", sliceSignals.last() * 100)}% (Aorta vs Vena Kava Inferior tampak terang di pintu masuk masing-masing).",
+                    "Irisan Pertama = ${String.format(ID_LOCALE, "%.0f", sliceSignals.first() * 100)}% vs Irisan #6 = ${String.format(ID_LOCALE, "%.0f", sliceSignals.last() * 100)}% (Aorta vs Vena Kava Inferior tampak terang di pintu masuk masing-masing).",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -1170,7 +1166,7 @@ private fun M08BTofAndReynoldsTab(onNodeComplete: (String) -> Unit) {
         )
         Slider(value = teMs, onValueChange = { teMs = it }, valueRange = 10f..120f)
 
-        Text("Diameter Pembuluh (D): ${diameterMm.toInt()} mm · Viskositas (μ): ${String.format(Locale("id", "ID"), "%.1f", viscosityMpas)} mPa·s", style = MaterialTheme.typography.labelMedium)
+        Text("Diameter Pembuluh (D): ${diameterMm.toInt()} mm · Viskositas (μ): ${String.format(ID_LOCALE, "%.1f", viscosityMpas)} mPa·s", style = MaterialTheme.typography.labelMedium)
         Slider(
             value = diameterMm,
             onValueChange = {
@@ -1217,12 +1213,12 @@ private fun M08BTofAndReynoldsTab(onNodeComplete: (String) -> Unit) {
         Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(10.dp)) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    "TOF Spin-Echo: Jarak tempuh saat TE/2 = ${String.format(Locale("id", "ID"), "%.2f", dMovedMm)} mm → Sisa Sinyal Lumen = ${String.format(Locale("id", "ID"), "%.0f", tofSignalRemaining * 100)}% (${if (tofSignalRemaining == 0f) "FLOW VOID LENGKAP" else "Sinyal Parsial"}).",
+                    "TOF Spin-Echo: Jarak tempuh saat TE/2 = ${String.format(ID_LOCALE, "%.2f", dMovedMm)} mm → Sisa Sinyal Lumen = ${String.format(ID_LOCALE, "%.0f", tofSignalRemaining * 100)}% (${if (tofSignalRemaining == 0f) "FLOW VOID LENGKAP" else "Sinyal Parsial"}).",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    "Bilangan Reynolds Re = ${String.format(Locale("id", "ID"), "%.0f", reynolds)} (Ambang = 2100) → Pola Aliran: ${if (isTurbulent) "TURBULEN (Dephasing Acak, Tidak Bisa Dikompensasi GMN)" else "LAMINAR PARABOLA (v(r) = v_maks(1 − r²/R²))"}.",
+                    "Bilangan Reynolds Re = ${String.format(ID_LOCALE, "%.0f", reynolds)} (Ambang = 2100) → Pola Aliran: ${if (isTurbulent) "TURBULEN (Dephasing Acak, Tidak Bisa Dikompensasi GMN)" else "LAMINAR PARABOLA (v(r) = v_maks(1 − r²/R²))"}.",
                     style = MaterialTheme.typography.bodySmall,
                     color = if (isTurbulent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1327,7 +1323,7 @@ private fun M08BGmnTab(onNodeComplete: (String) -> Unit) {
         Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(10.dp)) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    "Koherensi Fase Vektor Netto: ${String.format(Locale("id", "ID"), "%.0f", netCoherence * 100)}% · M₀ = 0, M₁ = ${if (gmnEnabled) "0 (Terkompensasi)" else "≠ 0 (Dephasing)"}",
+                    "Koherensi Fase Vektor Netto: ${String.format(ID_LOCALE, "%.0f", netCoherence * 100)}% · M₀ = 0, M₁ = ${if (gmnEnabled) "0 (Terkompensasi)" else "≠ 0 (Dephasing)"}",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -1612,7 +1608,7 @@ private fun M08CQaPhantomTab(onNodeComplete: (String) -> Unit) {
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    "• SNR = ${String.format(Locale("id", "ID"), "%.1f", snrValue)} | Uniformitas = ${String.format(Locale("id", "ID"), "%.1f", uniformityPct)}% | Rasio Ghosting = ${String.format(Locale("id", "ID"), "%.1f", ghostRatioPct)}% | Distorsi Geometri = ${String.format(Locale("id", "ID"), "%.1f", geomErrorPct)}%",
+                    "• SNR = ${String.format(ID_LOCALE, "%.1f", snrValue)} | Uniformitas = ${String.format(ID_LOCALE, "%.1f", uniformityPct)}% | Rasio Ghosting = ${String.format(ID_LOCALE, "%.1f", ghostRatioPct)}% | Distorsi Geometri = ${String.format(ID_LOCALE, "%.1f", geomErrorPct)}%",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -1709,7 +1705,7 @@ private fun M08CSliceGapCrossTalkTab(onNodeComplete: (String) -> Unit) {
         Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(10.dp)) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    "Tingkat Tumpang-Tindih Eksitasi Silang: ${String.format(Locale("id", "ID"), "%.0f", overlapFactor * 100)}% · Penurunan SNR Relatif: ~${String.format(Locale("id", "ID"), "%.0f", overlapFactor * 32)}%",
+                    "Tingkat Tumpang-Tindih Eksitasi Silang: ${String.format(ID_LOCALE, "%.0f", overlapFactor * 100)}% · Penurunan SNR Relatif: ~${String.format(ID_LOCALE, "%.0f", overlapFactor * 32)}%",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -1829,7 +1825,7 @@ private fun M08CSpikeAndMetalSusceptibilityTab(onNodeComplete: (String) -> Unit)
         Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(10.dp)) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    "Sekuens $seqType (${if (is3T) "3,0 T" else "1,5 T"}): Pergeseran Piksel Maks ≈ ${String.format(Locale("id", "ID"), "%.1f", maxPixelShift)} piksel · Area Kehilangan Sinyal (>50%) ≈ ${String.format(Locale("id", "ID"), "%.0f", signalLossAreaMm2)} mm².",
+                    "Sekuens $seqType (${if (is3T) "3,0 T" else "1,5 T"}): Pergeseran Piksel Maks ≈ ${String.format(ID_LOCALE, "%.1f", maxPixelShift)} piksel · Area Kehilangan Sinyal (>50%) ≈ ${String.format(ID_LOCALE, "%.0f", signalLossAreaMm2)} mm².",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodySmall
                 )

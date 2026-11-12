@@ -3,7 +3,6 @@ package com.example.ui.simulators
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -20,14 +19,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -65,7 +61,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.AmberAccent
-import com.example.ui.theme.AmberDark
 import com.example.ui.theme.AmberWarning
 import com.example.ui.theme.CardSlate
 import com.example.ui.theme.CardSlateBorder
@@ -74,7 +69,6 @@ import com.example.ui.theme.CyanDark
 import com.example.ui.theme.CyanPrimary
 import com.example.ui.theme.DarkNavySlate
 import com.example.ui.theme.DeepObsidian
-import com.example.ui.theme.EmeraldDark
 import com.example.ui.theme.EmeraldSuccess
 import com.example.ui.theme.RoseDanger
 import com.example.ui.theme.RoseDark
@@ -148,39 +142,39 @@ fun Module6GradientRfLabSuite(
                     color = TextSecondary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    M06_SUB_CARDS.chunked(2).forEach { pair ->
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            pair.forEach { item ->
-                                val isSel = item.id == activeCard.id
-                                androidx.compose.material3.Surface(
-                                    onClick = { onSelectActivity(item.id) },
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(10.dp),
-                                    color = if (isSel) CyanDark else DeepObsidian,
-                                    border = androidx.compose.foundation.BorderStroke(
-                                        width = if (isSel) 1.5.dp else 1.dp,
-                                        color = if (isSel) CyanBright else CardSlateBorder
-                                    )
-                                ) {
-                                    Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
-                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                            Text(item.code, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = if (isSel) CyanBright else AmberAccent)
-                                            Text(item.nodeTag, fontSize = 9.sp, color = TextMuted)
-                                        }
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Text(
-                                            text = item.title,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = if (isSel) CyanBright else TextPrimary,
-                                            maxLines = 1,
-                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                                        )
-                                    }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    M06_SUB_CARDS.forEach { item ->
+                        val isSel = item.id == activeCard.id
+                        androidx.compose.material3.Surface(
+                            onClick = { onSelectActivity(item.id) },
+                            modifier = Modifier.width(156.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (isSel) CyanDark else DeepObsidian,
+                            border = androidx.compose.foundation.BorderStroke(
+                                width = if (isSel) 1.5.dp else 1.dp,
+                                color = if (isSel) CyanBright else CardSlateBorder
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(item.code, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = if (isSel) CyanBright else AmberAccent)
+                                    Text(item.nodeTag, fontSize = 9.sp, color = TextMuted)
                                 }
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = item.title,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (isSel) CyanBright else TextPrimary,
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                )
                             }
-                            if (pair.size == 1) Spacer(modifier = Modifier.weight(1f))
                         }
                     }
                 }

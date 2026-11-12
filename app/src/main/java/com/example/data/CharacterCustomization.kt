@@ -64,8 +64,7 @@ data class CharacterCustomizationState(
     val equippedUniform: String = "uniform_scrub_mint",
     val equippedHeadset: String = "headset_radio",
     val equippedAccessory: String = "acc_magnet_detector",
-    val backgroundId: String = "bg_control_room",
-    val accentColor: String = "cyan"
+    val backgroundId: String = "bg_control_room"
 )
 
 object CharacterCatalog {
@@ -196,6 +195,30 @@ object CharacterCatalog {
                 "Compressed Sensing memanfaatkan sifat sparsity citra untuk memangkas waktu pemindaian hingga 50%.",
                 "Ketuk item kustomisasi di bawah untuk menguji perlengkapan ruang kontrol MRI milikmu!"
             )
+        ),
+        "dosen" to SpecialistProfile(
+            avatarId = "dosen",
+            roleTitle = "Dosen Pembimbing Radiologi MRI",
+            zoneSpecialty = "Kurikulum Fisika MRI, Riset & Evaluasi Klinis",
+            favoriteSequence = "SE / TSE Klasik, DWI & Spektroskopi",
+            greetings = listOf(
+                "Selamat datang di sesi kuliah MRI! Pastikan konsep dasar presesi Larmor (M01) sudah mantap.",
+                "Ingat hubungan T1 dan T2 jaringan: CSF terang di T2w karena T2 sangat panjang, namun gelap di T1w.",
+                "Keselamatan Zona I–IV ACR adalah kompetensi wajib sebelum mahasiswa memegang konsol klinis.",
+                "Ketuk item di bawah untuk mencocokkan perlengkapan ajar dosen atau uji dirimu lewat Mode Tanya Nano!"
+            )
+        ),
+        "mahasiswa" to SpecialistProfile(
+            avatarId = "mahasiswa",
+            roleTitle = "Mahasiswa Radiologi Semester Klinis",
+            zoneSpecialty = "Praktikum Konsol Dasar, Skrining Zona II & Anatomi",
+            favoriteSequence = "T1 SE Dasar & FLAIR Praktikum",
+            greetings = listOf(
+                "Hai rekan belajar! Ayo taklukkan simpul M01 sampai M09 bersama step-by-step.",
+                "Jangan lupa cek buku saku MRI sebelum mengatur parameter TR, TE, dan Flip Angle di simulator!",
+                "Kalau ragu soal kuis yang masih salah, coba ketuk chip Tanya Nano di gelembung atasku ya!",
+                "Semangat jaga streak belajar harian biar target kelulusan modul tercapai!"
+            )
         )
     )
 
@@ -275,6 +298,42 @@ object CharacterCatalog {
             secondaryColorHex = 0xFF1FB6E8,
             drawableRes = R.drawable.nano_head_coil64,
             unlockRequirement = UnlockRequirement("m07", "MO7: Koil RF & Parallel Imaging", 8, "Syarat rencana: 8 simpul MO7")
+        ),
+        CharacterItem(
+            id = "hair_mortarboard",
+            name = "Topi Toga Akademik",
+            category = CharacterCategory.RAMBUT,
+            description = "Topi toga dosen pengampu mata kuliah pencitraan diagnostik MRI.",
+            clinicalBenefit = "Simbol bimbingan akademik & penguasaan kurikulum M01–M09",
+            badgeLabel = "Akademik",
+            previewColorHex = 0xFF1E3A5F,
+            secondaryColorHex = 0xFF22D3EE,
+            drawableRes = R.drawable.nano_head_mortarboard,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+        ),
+        CharacterItem(
+            id = "hair_beanie_mri",
+            name = "Beanie Kampus MRI",
+            category = CharacterCategory.RAMBUT,
+            description = "Topi rajut hangat non-logam aman dibawa di sekitar ruang kontrol dingin.",
+            clinicalBenefit = "Kenyamanan belajar mahasiswa tanpa komponen feromagnetik",
+            badgeLabel = "Non-Logam",
+            previewColorHex = 0xFF14B8D4,
+            secondaryColorHex = 0xFFF97316,
+            drawableRes = R.drawable.nano_head_beanie_mri,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+        ),
+        CharacterItem(
+            id = "hair_loupe",
+            name = "Loupe Kalibrasi Optik",
+            category = CharacterCategory.RAMBUT,
+            description = "Kaca pembesar presisi bebas besi untuk inspeksi konektor koil & fantom QA.",
+            clinicalBenefit = "Deteksi mikro-artefak konektor RF & presisi alignment",
+            badgeLabel = "QA Optik",
+            previewColorHex = 0xFF334155,
+            secondaryColorHex = 0xFF22D3EE,
+            drawableRes = R.drawable.nano_head_loupe,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
         )
     )
 
@@ -350,6 +409,42 @@ object CharacterCatalog {
             secondaryColorHex = 0xFF1F4FB5,
             drawableRes = R.drawable.nano_uniform_cryo,
             unlockRequirement = UnlockRequirement("m05", "MO5: Komponen Pesawat MRI", 10, "Syarat rencana: Selesaikan MO5")
+        ),
+        CharacterItem(
+            id = "uniform_dosen",
+            name = "Blazer Akademik Dosen",
+            category = CharacterCategory.SERAGAM,
+            description = "Blazer navy rapi dengan dasi cyan dan kartu pengajar fakultas radiologi.",
+            clinicalBenefit = "Seragam presentasi kuliah, ujian OSCE & supervisi residen",
+            badgeLabel = "Dosen",
+            previewColorHex = 0xFF1E3A5F,
+            secondaryColorHex = 0xFF06B6D4,
+            drawableRes = R.drawable.nano_uniform_dosen,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+        ),
+        CharacterItem(
+            id = "uniform_mahasiswa",
+            name = "Rompi Praktikum Kampus",
+            category = CharacterCategory.SERAGAM,
+            description = "Rompi praktikum biru cerah berbahan katun aman untuk mahasiswa radiologi.",
+            clinicalBenefit = "Mobilitas nyaman saat rotasi praktik konsol Zona II–III",
+            badgeLabel = "Mahasiswa",
+            previewColorHex = 0xFF38BDF8,
+            secondaryColorHex = 0xFFBFDBFE,
+            drawableRes = R.drawable.nano_uniform_mahasiswa,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+        ),
+        CharacterItem(
+            id = "uniform_leadfree",
+            name = "Rompi Fisika MR-Safe",
+            category = CharacterCategory.SERAGAM,
+            description = "Rompi kalibrasi bebas bahan feromagnetik beremblem hijau MR Safe.",
+            clinicalBenefit = "Standar nol-tarikan magnetik saat pengukuran medan tepi 5G",
+            badgeLabel = "MR Safe",
+            previewColorHex = 0xFF115E59,
+            secondaryColorHex = 0xFF34D399,
+            drawableRes = R.drawable.nano_uniform_leadfree,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
         )
     )
 
@@ -413,6 +508,30 @@ object CharacterCatalog {
             secondaryColorHex = 0xFF1FB6E8,
             drawableRes = R.drawable.nano_headset_sar,
             unlockRequirement = UnlockRequirement("m09", "MO9: Keselamatan MRI", 8, "Syarat rencana: 8 simpul MO9")
+        ),
+        CharacterItem(
+            id = "headset_lecture",
+            name = "Mic Klip Kuliah Dosen",
+            category = CharacterCategory.HEADSET,
+            description = "Mikrofon boom ringkas untuk penjelasan teori fisika & demonstrasi ruang baca.",
+            clinicalBenefit = "Suara jernih tanpa mengganggu komunikasi konsol klinis",
+            badgeLabel = "Kuliah",
+            previewColorHex = 0xFF94A3B8,
+            secondaryColorHex = 0xFF06B6D4,
+            drawableRes = R.drawable.nano_headset_lecture,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+        ),
+        CharacterItem(
+            id = "headset_comm_pro",
+            name = "Headset Dual-Channel Pro",
+            category = CharacterCategory.HEADSET,
+            description = "Pelindung akustik 33 dB berkanal ganda untuk bising gradien EPI & DWI cepat.",
+            clinicalBenefit = "Redam kebisingan tinggi sekaligus komunikasi interkom konsol–gantry",
+            badgeLabel = "-33 dB Pro",
+            previewColorHex = 0xFF1E3A5F,
+            secondaryColorHex = 0xFF06B6D4,
+            drawableRes = R.drawable.nano_headset_comm_pro,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
         )
     )
 
@@ -488,6 +607,30 @@ object CharacterCatalog {
             secondaryColorHex = 0xFF1FB6E8,
             drawableRes = R.drawable.nano_tool_coil,
             unlockRequirement = UnlockRequirement("m07", "MO7: Koil RF & Parallel Imaging", 5, "Syarat rencana: 5 simpul MO7")
+        ),
+        CharacterItem(
+            id = "acc_laser_pointer",
+            name = "Pointer Presentasi MRI",
+            category = CharacterCategory.AKSESORIS,
+            description = "Tongkat penunjuk kuliah polimer non-magnetik untuk menunjuk spektrum K-Space.",
+            clinicalBenefit = "Memperjelas ajaran proyeksi diagram Larmor & artefak klinis",
+            badgeLabel = "Ajar",
+            previewColorHex = 0xFFE2E8F0,
+            secondaryColorHex = 0xFFF43F5E,
+            drawableRes = R.drawable.nano_tool_pointer,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+        ),
+        CharacterItem(
+            id = "acc_handbook_mri",
+            name = "Buku Saku Fisika MRI",
+            category = CharacterCategory.AKSESORIS,
+            description = "Panduan ringkas parameter TR/TE, rasio giromagnetik, dan aturan ACR Zona I–IV.",
+            clinicalBenefit = "Rujukan cepat mahasiswa saat menyusun protokol T1w, T2w & FLAIR",
+            badgeLabel = "Referensi",
+            previewColorHex = 0xFF06B6D4,
+            secondaryColorHex = 0xFF0E7490,
+            drawableRes = R.drawable.nano_tool_handbook,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
         )
     )
 
@@ -587,6 +730,30 @@ object CharacterCatalog {
             secondaryColorHex = 0xFF1F4FB5,
             drawableRes = R.drawable.bg_chiller_room,
             unlockRequirement = UnlockRequirement("m05", "MO5: Komponen Pesawat MRI", 6, "Syarat rencana: 6 simpul MO5")
+        ),
+        CharacterItem(
+            id = "bg_lecture_hall",
+            name = "Ruang Kuliah Radiologi",
+            category = CharacterCategory.LATAR,
+            description = "Auditorium kuliah interaktif lengkap dengan proyektor skema gantry MRI & podium dosen.",
+            clinicalBenefit = "Suasana diskusi akademik fisika MRI & pembahasan kasus klinis",
+            badgeLabel = "Zona I • Kuliah",
+            previewColorHex = 0xFF29598A,
+            secondaryColorHex = 0xFF22D3EE,
+            drawableRes = R.drawable.bg_lecture_hall,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+        ),
+        CharacterItem(
+            id = "bg_simulation_center",
+            name = "Pusat Simulasi & Riset",
+            category = CharacterCategory.LATAR,
+            description = "Laboratorium riset modern dengan kapsul fantom otak k-space & konsol gelombang gradien.",
+            clinicalBenefit = "Eksperimen rekonstruksi k-space, parallel imaging & riset sekuens",
+            badgeLabel = "Riset • Lab",
+            previewColorHex = 0xFF1F4975,
+            secondaryColorHex = 0xFF06B6D4,
+            drawableRes = R.drawable.bg_simulation_center,
+            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
         )
     )
 

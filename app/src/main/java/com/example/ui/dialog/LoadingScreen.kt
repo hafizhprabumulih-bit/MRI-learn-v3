@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -81,7 +83,7 @@ fun LoadingScreen(
     }
 
     // B-20: Gunakan customMessage dan sessionKey sebagai kunci LaunchedEffect agar timer selalu di-reset
-    val sessionKey = remember(customMessage) { System.nanoTime() }
+    val sessionKey = rememberSaveable(customMessage) { System.nanoTime() }
     LaunchedEffect(customMessage, sessionKey) {
         progress = 0f
         val startTime = System.currentTimeMillis()
@@ -173,13 +175,16 @@ fun LoadingScreen(
         label = "alpha2"
     )
 
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val gradientRadiusPx = remember(density) { with(density) { 420.dp.toPx() } }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.radialGradient(
                     colors = listOf(Color(0xFF0F3A44), DeepObsidian),
-                    radius = 1100f
+                    radius = gradientRadiusPx
                 )
             ),
         contentAlignment = Alignment.Center
@@ -208,10 +213,14 @@ fun LoadingScreen(
                     )
                 }
 
-                // Pulse 1 ring - concentric with logo, radiating outward from 1.0x to 1.44x
+                // Pulse 1 ring - concentric with logo, scaled on GPU layer without relayout
                 Box(
                     modifier = Modifier
-                        .size((172 * pulseScale1).dp)
+                        .size(172.dp)
+                        .graphicsLayer {
+                            scaleX = pulseScale1
+                            scaleY = pulseScale1
+                        }
                         .border(
                             width = 2.dp,
                             color = Color(0xFF2DD4BF).copy(alpha = pulseAlpha1),
@@ -222,7 +231,11 @@ fun LoadingScreen(
                 // Pulse 2 ring - concentric with logo, delayed by 1.4s
                 Box(
                     modifier = Modifier
-                        .size((172 * pulseScale2).dp)
+                        .size(172.dp)
+                        .graphicsLayer {
+                            scaleX = pulseScale2
+                            scaleY = pulseScale2
+                        }
                         .border(
                             width = 2.dp,
                             color = Color(0xFF2DD4BF).copy(alpha = pulseAlpha2),
@@ -271,23 +284,23 @@ fun LoadingScreen(
                 ) {
                     Text(
                         text = "Belajar ",
-                        fontSize = 28.sp,
+                        fontSize = 21.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
-                        letterSpacing = 0.3.sp
+                        letterSpacing = 0.2.sp
                     )
                     Text(
                         text = "MRI",
-                        fontSize = 28.sp,
+                        fontSize = 21.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF2DD4BF),
-                        letterSpacing = 0.3.sp
+                        letterSpacing = 0.2.sp
                     )
                 }
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Radiologi Medis · MRI EDU",
-                    fontSize = 14.sp,
+                    fontSize = 11.sp,
                     color = Color(0xFF8FA3B5),
                     fontWeight = FontWeight.Normal
                 )

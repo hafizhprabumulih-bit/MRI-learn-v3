@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,20 +30,12 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.EditNote
-import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.MenuBook
-import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Icon
@@ -55,7 +48,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -229,6 +229,7 @@ class MainActivity : ComponentActivity() {
                             AvatarDialog(
                                 currentAvatarId = state.userAvatarId,
                                 currentName = state.userName,
+                                characterCustomization = state.characterCustomization,
                                 onDismiss = { viewModel.setAvatarDialogVisible(false) },
                                 onSave = { avatarId, name -> viewModel.updateAvatar(avatarId, name) }
                             )
@@ -275,8 +276,8 @@ fun MriBottomNavigationBar(
         NavigationItem(
             tab = MainTab.KARAKTER,
             label = "Karakter",
-            selectedIcon = Icons.Filled.Face,
-            unselectedIcon = Icons.Outlined.Face
+            selectedIcon = null,
+            unselectedIcon = null
         )
     )
 
@@ -317,12 +318,24 @@ fun MriBottomNavigationBar(
                     Box(
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
-                            contentDescription = item.label,
-                            tint = if (isSelected) CyanBright else TextMuted,
-                            modifier = Modifier.size(26.dp)
-                        )
+                        val iconTint = if (isSelected) CyanBright else TextMuted
+                        if (item.tab == MainTab.KARAKTER) {
+                            NanoHeadNavIcon(
+                                isSelected = isSelected,
+                                tint = iconTint,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        } else {
+                            val iconVec = if (isSelected) item.selectedIcon else item.unselectedIcon
+                            if (iconVec != null) {
+                                Icon(
+                                    imageVector = iconVec,
+                                    contentDescription = item.label,
+                                    tint = iconTint,
+                                    modifier = Modifier.size(26.dp)
+                                )
+                            }
+                        }
                         if (item.tab == MainTab.TERSIMPAN && savedCount > 0) {
                             Box(
                                 modifier = Modifier
@@ -362,6 +375,128 @@ fun MriBottomNavigationBar(
 private data class NavigationItem(
     val tab: MainTab,
     val label: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector
+    val selectedIcon: ImageVector?,
+    val unselectedIcon: ImageVector?
 )
+
+@Composable
+private fun NanoHeadNavIcon(
+    isSelected: Boolean,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val strokeW = 1.85.dp.toPx()
+
+        // Antena kepala Nano
+        val antCenter = Offset(w * 0.50f, h * 0.145f)
+        val antRadius = w * 0.068f
+        if (isSelected) {
+            drawCircle(color = tint, radius = antRadius, center = antCenter)
+        } else {
+            drawCircle(color = tint, radius = antRadius, center = antCenter, style = Stroke(width = strokeW))
+        }
+        drawLine(
+            color = tint,
+            start = Offset(w * 0.50f, h * 0.21f),
+            end = Offset(w * 0.50f, h * 0.27f),
+            strokeWidth = strokeW,
+            cap = StrokeCap.Round
+        )
+
+        // Kuping kiri & kanan
+        val earW = w * 0.085f
+        val earH = h * 0.21f
+        val earY = h * 0.45f
+        if (isSelected) {
+            drawRoundRect(
+                color = tint,
+                topLeft = Offset(w * 0.065f, earY),
+                size = Size(earW, earH),
+                cornerRadius = CornerRadius(earW, earW)
+            )
+            drawRoundRect(
+                color = tint,
+                topLeft = Offset(w * 0.85f, earY),
+                size = Size(earW, earH),
+                cornerRadius = CornerRadius(earW, earW)
+            )
+        } else {
+            drawRoundRect(
+                color = tint,
+                topLeft = Offset(w * 0.065f, earY),
+                size = Size(earW, earH),
+                cornerRadius = CornerRadius(earW, earW),
+                style = Stroke(width = strokeW)
+            )
+            drawRoundRect(
+                color = tint,
+                topLeft = Offset(w * 0.85f, earY),
+                size = Size(earW, earH),
+                cornerRadius = CornerRadius(earW, earW),
+                style = Stroke(width = strokeW)
+            )
+        }
+
+        // Kepala kapsul bulat Nano
+        val headLeft = w * 0.16f
+        val headTop = h * 0.27f
+        val headW = w * 0.68f
+        val headH = h * 0.59f
+        val headCorner = CornerRadius(w * 0.25f, w * 0.25f)
+        val visorLeft = w * 0.265f
+        val visorTop = h * 0.395f
+        val visorW = w * 0.47f
+        val visorH = h * 0.33f
+        val visorCorner = CornerRadius(w * 0.13f, w * 0.13f)
+
+        if (isSelected) {
+            drawRoundRect(
+                color = tint,
+                topLeft = Offset(headLeft, headTop),
+                size = Size(headW, headH),
+                cornerRadius = headCorner
+            )
+            drawRoundRect(
+                color = CyanDark,
+                topLeft = Offset(visorLeft, visorTop),
+                size = Size(visorW, visorH),
+                cornerRadius = visorCorner
+            )
+            // Mata ceria ^_^ senada maskot Nano
+            val eyeStroke = Stroke(width = 1.7.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+            val leftEyePath = Path().apply {
+                moveTo(w * 0.34f, h * 0.59f)
+                lineTo(w * 0.405f, h * 0.515f)
+                lineTo(w * 0.47f, h * 0.59f)
+            }
+            val rightEyePath = Path().apply {
+                moveTo(w * 0.53f, h * 0.59f)
+                lineTo(w * 0.595f, h * 0.515f)
+                lineTo(w * 0.66f, h * 0.59f)
+            }
+            drawPath(leftEyePath, color = tint, style = eyeStroke)
+            drawPath(rightEyePath, color = tint, style = eyeStroke)
+        } else {
+            drawRoundRect(
+                color = tint,
+                topLeft = Offset(headLeft, headTop),
+                size = Size(headW, headH),
+                cornerRadius = headCorner,
+                style = Stroke(width = strokeW)
+            )
+            drawRoundRect(
+                color = tint,
+                topLeft = Offset(visorLeft, visorTop),
+                size = Size(visorW, visorH),
+                cornerRadius = visorCorner,
+                style = Stroke(width = strokeW * 0.85f)
+            )
+            val eyeRadius = 1.4.dp.toPx()
+            drawCircle(color = tint, radius = eyeRadius, center = Offset(w * 0.41f, h * 0.56f))
+            drawCircle(color = tint, radius = eyeRadius, center = Offset(w * 0.59f, h * 0.56f))
+        }
+    }
+}

@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import com.example.ui.components.rememberRestorableScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,7 +25,6 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -83,7 +81,6 @@ import com.example.ui.theme.TextSecondary
 import com.example.viewmodel.MainTab
 import com.example.viewmodel.MriUiState
 import com.example.viewmodel.MriViewModel
-import com.example.viewmodel.SimType
 
 @Composable
 fun SavedScreen(
@@ -339,11 +336,12 @@ fun SavedScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         // Scrollable Content
+        val savedScrollState = rememberRestorableScrollState("tab_tersimpan", viewModel)
         Column(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(savedScrollState)
         ) {
             val showNodes = selectedCategory == 0 || selectedCategory == 1
             val showGlossary = selectedCategory == 0 || selectedCategory == 2
@@ -472,20 +470,7 @@ fun SavedScreen(
                                     onToggleCompleted = { viewModel.toggleNodeCompletion(node.code) },
                                     onMarkNodeCompleted = { code -> viewModel.markNodeCompleted(code.ifBlank { node.code }) },
                                     onToggleBookmark = { viewModel.removeNodeBookmark(node.code) },
-                                    onLaunchLab = { lab ->
-                                        when {
-                                            lab == "ta_snr" || lab == "console_tabs" || lab.startsWith("m9_") -> viewModel.launchM09Lab(lab)
-                                            lab.startsWith("m3_") || lab.startsWith("m3a_") || lab.startsWith("m3b_") || lab.startsWith("m3c_") -> viewModel.launchM03Lab(lab)
-                                            lab == "kspace" || lab.startsWith("m4_") || lab.startsWith("m4a_") || lab.startsWith("m4b_") || lab.startsWith("m4c_") -> viewModel.launchM04Lab(lab)
-                                            lab.startsWith("m5_") -> viewModel.launchM05Lab(lab)
-                                            lab.startsWith("m6_") || lab.startsWith("m6a_") || lab.startsWith("m6b_") -> viewModel.launchM06Lab(lab)
-                                            lab == "sar" || lab.startsWith("m7_") || lab.startsWith("m7a_") || lab.startsWith("m7b_") || lab.startsWith("m7c_") -> viewModel.launchM07Lab(lab)
-                                            lab.startsWith("m8_") || lab.startsWith("m8a_") || lab.startsWith("m8b_") || lab.startsWith("m8c_") -> viewModel.launchM08Lab(lab)
-                                            lab == "contrast" || lab.startsWith("m2_") -> viewModel.launchM02Lab(lab)
-                                            lab.startsWith("m1_") || lab in listOf("presesi", "larmor", "atom_h", "cek_inti", "populasi_spin", "spektrum_em", "nmv_3d", "sudut_flip", "fase_fid", "bola_bloch", "tr_berulang") -> viewModel.launchM01Lab(lab)
-                                            else -> viewModel.selectSimType(SimType.RUANG_K)
-                                        }
-                                    }
+                                    onLaunchLab = viewModel::launchLab
                                 )
                             }
                         }

@@ -213,7 +213,8 @@ fun CharacterItemCard(
     isUnlocked: Boolean,
     accentPalette: CharacterAccentPalette,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    unlockProgress: Float = 0f
 ) {
     val itemPrimary = Color(item.previewColorHex)
     val itemSecondary = Color(item.secondaryColorHex)
@@ -394,7 +395,7 @@ fun CharacterItemCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth(0.25f)
+                            .fillMaxWidth(unlockProgress.coerceIn(0f, 1f))
                             .height(4.dp)
                             .clip(RoundedCornerShape(2.dp))
                             .background(CharActionOrange)

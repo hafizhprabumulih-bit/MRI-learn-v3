@@ -3,13 +3,9 @@
 
     <!-- Ruang Karakter -->
     <string name="char_room_title">Ruang Karakter</string>
-    <string name="char_room_reset">Reset</string>
     <string name="char_room_reset_desc">Reset Kustomisasi</string>
     <string name="char_room_reset_msg">Perlengkapan dikembalikan ke setelan standar Ruang Kontrol MRI!</string>
     <string name="char_room_save_floating">Simpan</string>
-    <string name="char_room_saved_floating">Tersimpan</string>
-    <string name="char_room_unsaved_hint">Perubahan belum disimpan</string>
-    <string name="char_room_saved_hint">Semua perubahan tersimpan</string>
 
     <!-- Tab Utama & Sub-Tab -->
     <string name="char_tab_group_karakter">Karakter</string>
@@ -19,28 +15,16 @@
     <string name="char_subtab_seragam">Seragam</string>
     <string name="char_subtab_headset">Headset</string>
     <string name="char_subtab_alat">Alat Klinis</string>
-    <string name="char_accent_color_label">Warna Aksen Panggung</string>
-    <string name="char_background_section_label">Pilih Latar Ruangan MRI</string>
 
     <!-- Panggung & Aksi Interaktif -->
-    <string name="char_stage_clock_3t">07:23 • B₀ 3,0T</string>
-    <string name="char_stage_clock_15t">07:23 • B₀ 1,5T</string>
     <string name="char_stage_default_bg">Ruang Kontrol MRI • Zona III</string>
-    <string name="char_stage_action_toggle">Aksi</string>
-    <string name="char_action_sapa">Sapa</string>
-    <string name="char_action_pindai">Pindai RF</string>
-    <string name="char_action_zona4">Zona IV</string>
-    <string name="char_action_fokus">Fokus</string>
     <string name="char_fav_sequence_fmt">Sekuens favorit: %1$s</string>
     <string name="char_prev_avatar_desc">Karakter Sebelumnya</string>
     <string name="char_next_avatar_desc">Karakter Berikutnya</string>
     <string name="char_wave_toggle_desc">Animasi Gelombang RF</string>
-    <string name="char_avatar_tap_desc">Karakter %1$s - Ketuk untuk berinteraksi</string>
 
     <!-- Kartu Item -->
     <string name="char_item_equipped">Dipakai</string>
-    <string name="char_item_standard">Standar</string>
-    <string name="char_item_module_fmt">Modul %1$s</string>
     <string name="char_item_unlock_fmt">Buka: %1$d simpul %2$s</string>
     <string name="status_locked">Terkunci</string>
 </resources>

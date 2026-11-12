@@ -55,7 +55,6 @@ enum class SimType {
     KONTRAS_TR_TE,
     RUANG_K,
     SAR_SAFETY,
-    SCAN_TIME_ESTIMATOR,
     PROTOKOL_TA_SNR,
     KONSOL_VENDOR,
     PESAWAT_MAGNET_M05,
@@ -290,17 +289,66 @@ class MriViewModel(
     private data class NavSession(
         val tab: MainTab,
         val moduleId: String?,
-        val simType: SimType
+        val simType: SimType,
+        val nodeLevelFilter: Int,
+        val onlyBookmarkedNodes: Boolean,
+        val quizModuleFilter: String,
+        val quizLevelFilter: Int,
+        val currentQuizIndex: Int,
+        val selectedM01ActivityId: String,
+        val selectedM02ActivityId: String,
+        val selectedM03ActivityId: String,
+        val selectedM04ActivityId: String,
+        val selectedM05ActivityId: String,
+        val selectedM06ActivityId: String,
+        val selectedM07ActivityId: String,
+        val selectedM08ActivityId: String,
+        val selectedM09ActivityId: String,
+        val screenKey: String,
+        val scrollOffset: Int
     )
 
     private val navigationHistory = ArrayDeque<NavSession>()
+    private val screenScrollOffsets = mutableMapOf<String, Int>()
+
+    private fun resolveScreenKey(state: MriUiState): String {
+        val mod = state.selectedModule
+        return when {
+            mod != null -> "module_${mod.id}"
+            state.currentTab == MainTab.SIMULASI -> "sim_${state.selectedSimType.name}"
+            else -> "tab_${state.currentTab.name.lowercase()}"
+        }
+    }
+
+    fun getSavedScrollOffset(screenKey: String): Int = screenScrollOffsets[screenKey] ?: 0
+
+    fun updateScrollOffset(screenKey: String, offset: Int) {
+        screenScrollOffsets[screenKey] = offset
+    }
 
     private fun pushCurrentSession() {
         val current = _uiState.value
+        val key = resolveScreenKey(current)
         val snap = NavSession(
             tab = current.currentTab,
             moduleId = current.selectedModule?.id,
-            simType = current.selectedSimType
+            simType = current.selectedSimType,
+            nodeLevelFilter = current.nodeLevelFilter,
+            onlyBookmarkedNodes = current.onlyBookmarkedNodes,
+            quizModuleFilter = current.quizModuleFilter,
+            quizLevelFilter = current.quizLevelFilter,
+            currentQuizIndex = current.currentQuizIndex,
+            selectedM01ActivityId = current.selectedM01ActivityId,
+            selectedM02ActivityId = current.selectedM02ActivityId,
+            selectedM03ActivityId = current.selectedM03ActivityId,
+            selectedM04ActivityId = current.selectedM04ActivityId,
+            selectedM05ActivityId = current.selectedM05ActivityId,
+            selectedM06ActivityId = current.selectedM06ActivityId,
+            selectedM07ActivityId = current.selectedM07ActivityId,
+            selectedM08ActivityId = current.selectedM08ActivityId,
+            selectedM09ActivityId = current.selectedM09ActivityId,
+            screenKey = key,
+            scrollOffset = screenScrollOffsets[key] ?: 0
         )
         if (navigationHistory.lastOrNull() != snap) {
             navigationHistory.addLast(snap)
@@ -766,6 +814,9 @@ class MriViewModel(
             savedStateHandle[KEY_CURRENT_TAB] = prev.tab.name
             savedStateHandle[KEY_SELECTED_MODULE_ID] = prevModule?.id
             savedStateHandle[KEY_SELECTED_SIM_TYPE] = prev.simType.name
+            savedStateHandle[KEY_QUIZ_MOD_FILTER] = prev.quizModuleFilter
+            savedStateHandle[KEY_QUIZ_LEVEL_FILTER] = prev.quizLevelFilter
+            screenScrollOffsets[prev.screenKey] = prev.scrollOffset
             val destLabel = when {
                 prevModule != null -> "Modul ${prevModule.code}: ${prevModule.title}"
                 prev.tab == MainTab.BERANDA -> "Menu Beranda"
@@ -784,6 +835,20 @@ class MriViewModel(
                         currentTab = prev.tab,
                         selectedModule = prevModule,
                         selectedSimType = prev.simType,
+                        nodeLevelFilter = prev.nodeLevelFilter,
+                        onlyBookmarkedNodes = prev.onlyBookmarkedNodes,
+                        quizModuleFilter = prev.quizModuleFilter,
+                        quizLevelFilter = prev.quizLevelFilter,
+                        currentQuizIndex = prev.currentQuizIndex,
+                        selectedM01ActivityId = prev.selectedM01ActivityId,
+                        selectedM02ActivityId = prev.selectedM02ActivityId,
+                        selectedM03ActivityId = prev.selectedM03ActivityId,
+                        selectedM04ActivityId = prev.selectedM04ActivityId,
+                        selectedM05ActivityId = prev.selectedM05ActivityId,
+                        selectedM06ActivityId = prev.selectedM06ActivityId,
+                        selectedM07ActivityId = prev.selectedM07ActivityId,
+                        selectedM08ActivityId = prev.selectedM08ActivityId,
+                        selectedM09ActivityId = prev.selectedM09ActivityId,
                         canNavigateBack = navigationHistory.isNotEmpty(),
                         isModuleFlashcardMode = false,
                         currentFlashcardIndex = it.glossaryFlashcardIndex,
@@ -1203,8 +1268,10 @@ class MriViewModel(
     }
 
     // --- Simulator ---
-    fun selectSimType(simType: SimType) {
-        pushCurrentSession()
+    fun selectSimType(simType: SimType, recordHistory: Boolean = true) {
+        if (recordHistory) {
+            pushCurrentSession()
+        }
         val simName = when (simType) {
             SimType.FISIKA_DASAR_M01 -> "Laboratorium Fisika Dasar M01"
             SimType.SPIN_LARMOR -> "Simulator Presesi Larmor"
@@ -1215,7 +1282,6 @@ class MriViewModel(
             SimType.SEKUENS_KONTRAS_M03 -> "Laboratorium Sekuens & Kontras"
             SimType.SAR_SAFETY -> "Simulator Keselamatan & SAR"
             SimType.ARTEFAK_QA_M08 -> "Laboratorium Artefak & QA"
-            SimType.SCAN_TIME_ESTIMATOR -> "Kalkulator Waktu Pindai"
             SimType.PROTOKOL_TA_SNR -> "Kalkulator Protokol TA & SNR"
             SimType.KONSOL_VENDOR -> "Peta Konsol Vendor MRI"
         }
@@ -1224,10 +1290,16 @@ class MriViewModel(
         savedStateHandle[KEY_SELECTED_SIM_TYPE] = simType.name
         triggerSectionTransition(simName) {
             _uiState.update {
+                val syncedM09Id = when (simType) {
+                    SimType.PROTOKOL_TA_SNR -> "ta_snr"
+                    SimType.KONSOL_VENDOR -> "console_tabs"
+                    else -> it.selectedM09ActivityId
+                }
                 it.copy(
                     currentTab = MainTab.SIMULASI,
                     selectedModule = null,
                     selectedSimType = simType,
+                    selectedM09ActivityId = syncedM09Id,
                     canNavigateBack = navigationHistory.isNotEmpty()
                 )
             }
@@ -1239,12 +1311,13 @@ class MriViewModel(
     }
 
     fun launchM01Lab(labType: String) {
+        pushCurrentSession()
         val mapped = when (labType) {
             "presesi" -> "presesi_bola"
             else -> labType
         }
         _uiState.update { it.copy(selectedM01ActivityId = mapped) }
-        selectSimType(SimType.FISIKA_DASAR_M01)
+        selectSimType(SimType.FISIKA_DASAR_M01, recordHistory = false)
     }
 
     fun selectM02Activity(activityId: String) {
@@ -1252,9 +1325,10 @@ class MriViewModel(
     }
 
     fun launchM02Lab(labType: String) {
+        pushCurrentSession()
         val mapped = if (labType == "contrast") "m2_fantom_otak" else labType
         _uiState.update { it.copy(selectedM02ActivityId = mapped) }
-        selectSimType(SimType.KONTRAS_TR_TE)
+        selectSimType(SimType.KONTRAS_TR_TE, recordHistory = false)
     }
 
     fun selectM03Activity(activityId: String) {
@@ -1262,8 +1336,9 @@ class MriViewModel(
     }
 
     fun launchM03Lab(labType: String) {
+        pushCurrentSession()
         _uiState.update { it.copy(selectedM03ActivityId = labType) }
-        selectSimType(SimType.SEKUENS_KONTRAS_M03)
+        selectSimType(SimType.SEKUENS_KONTRAS_M03, recordHistory = false)
     }
 
     fun selectM04Activity(activityId: String) {
@@ -1271,9 +1346,10 @@ class MriViewModel(
     }
 
     fun launchM04Lab(labType: String) {
+        pushCurrentSession()
         val mapped = if (labType == "kspace") "m4b_lab_terpadu" else labType
         _uiState.update { it.copy(selectedM04ActivityId = mapped) }
-        selectSimType(SimType.RUANG_K)
+        selectSimType(SimType.RUANG_K, recordHistory = false)
     }
 
     fun selectM05Activity(activityId: String) {
@@ -1281,8 +1357,9 @@ class MriViewModel(
     }
 
     fun launchM05Lab(labType: String) {
+        pushCurrentSession()
         _uiState.update { it.copy(selectedM05ActivityId = labType) }
-        selectSimType(SimType.PESAWAT_MAGNET_M05)
+        selectSimType(SimType.PESAWAT_MAGNET_M05, recordHistory = false)
     }
 
     fun selectM06Activity(activityId: String) {
@@ -1290,9 +1367,10 @@ class MriViewModel(
     }
 
     fun launchM06Lab(labType: String) {
+        pushCurrentSession()
         val mapped = if (labType == "m6a_sumbu_gradien") "m6a_peta_frekuensi" else labType
         _uiState.update { it.copy(selectedM06ActivityId = mapped) }
-        selectSimType(SimType.GRADIEN_RF_M06)
+        selectSimType(SimType.GRADIEN_RF_M06, recordHistory = false)
     }
 
     fun selectM07Activity(activityId: String) {
@@ -1300,9 +1378,10 @@ class MriViewModel(
     }
 
     fun launchM07Lab(labType: String) {
+        pushCurrentSession()
         val mapped = if (labType == "sar") "m7c_sar" else labType
         _uiState.update { it.copy(selectedM07ActivityId = mapped) }
-        selectSimType(SimType.SAR_SAFETY)
+        selectSimType(SimType.SAR_SAFETY, recordHistory = false)
     }
 
     fun selectM08Activity(activityId: String) {
@@ -1310,8 +1389,9 @@ class MriViewModel(
     }
 
     fun launchM08Lab(labType: String) {
+        pushCurrentSession()
         _uiState.update { it.copy(selectedM08ActivityId = labType) }
-        selectSimType(SimType.ARTEFAK_QA_M08)
+        selectSimType(SimType.ARTEFAK_QA_M08, recordHistory = false)
     }
 
     fun selectM09Activity(activityId: String) {
@@ -1319,9 +1399,32 @@ class MriViewModel(
     }
 
     fun launchM09Lab(labType: String) {
+        pushCurrentSession()
         val mapped = if (labType.startsWith("m9_")) "ta_snr" else labType
         _uiState.update { it.copy(selectedM09ActivityId = mapped) }
-        selectSimType(if (mapped == "console_tabs") SimType.KONSOL_VENDOR else SimType.PROTOKOL_TA_SNR)
+        selectSimType(
+            simType = if (mapped == "console_tabs") SimType.KONSOL_VENDOR else SimType.PROTOKOL_TA_SNR,
+            recordHistory = false
+        )
+    }
+
+    fun launchLab(labType: String) {
+        when {
+            labType == "ta_snr" || labType == "console_tabs" || labType.startsWith("m9_") -> launchM09Lab(labType)
+            labType.startsWith("m3_") || labType.startsWith("m3a_") || labType.startsWith("m3b_") || labType.startsWith("m3c_") -> launchM03Lab(labType)
+            labType == "kspace" || labType.startsWith("m4_") || labType.startsWith("m4a_") || labType.startsWith("m4b_") || labType.startsWith("m4c_") -> launchM04Lab(labType)
+            labType.startsWith("m5_") -> launchM05Lab(labType)
+            labType.startsWith("m6_") || labType.startsWith("m6a_") || labType.startsWith("m6b_") -> launchM06Lab(labType)
+            labType == "sar" || labType.startsWith("m7_") || labType.startsWith("m7a_") || labType.startsWith("m7b_") || labType.startsWith("m7c_") -> launchM07Lab(labType)
+            labType.startsWith("m8_") || labType.startsWith("m8a_") || labType.startsWith("m8b_") || labType.startsWith("m8c_") -> launchM08Lab(labType)
+            labType == "contrast" || labType.startsWith("m2_") -> launchM02Lab(labType)
+            labType.startsWith("m1_") || labType in listOf(
+                "pengantar_atom", "presesi", "presesi_bola", "larmor", "latihan_tebak_larmor",
+                "atom_h", "cek_inti", "populasi_spin", "spektrum_em", "nmv_3d",
+                "sudut_flip", "fase_fid", "bola_bloch", "tr_berulang", "tambahan_tr_te"
+            ) -> launchM01Lab(labType)
+            else -> selectSimType(SimType.RUANG_K)
+        }
     }
 
     fun selectTissue(tissue: TissueProperties) {

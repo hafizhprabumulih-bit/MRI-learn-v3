@@ -77,9 +77,9 @@ class CharacterCatalogGuardTest {
     }
 
     @Test
-    fun allNineSpecialistRolesHaveValidProfilesAndDefaultLoadouts() {
+    fun allElevenSpecialistRolesHaveValidProfilesAndDefaultLoadouts() {
         val avatars = MriRepository.avatars
-        assertEquals("Harus ada 9 peran spesialis", 9, avatars.size)
+        assertEquals("Harus ada 11 peran spesialis", 11, avatars.size)
 
         val mrsoAvatar = avatars.find { it.id == "petugas_proteksi_radiasi" }
         assertNotNull("Peran petugas_proteksi_radiasi harus ada", mrsoAvatar)
@@ -118,12 +118,16 @@ class CharacterCatalogGuardTest {
             "nano_exp_waspada.png", "nano_exp_bangga.png", "nano_exp_sedih.png",
             "nano_head_larmor.png", "nano_head_visor.png", "nano_head_cap.png",
             "nano_head_goggles.png", "nano_head_cyber.png", "nano_head_coil64.png",
+            "nano_head_mortarboard.png", "nano_head_beanie_mri.png", "nano_head_loupe.png",
             "nano_uniform_scrub_mint.png", "nano_uniform_labcoat.png", "nano_uniform_scrub_blue.png",
             "nano_uniform_scrub_teal.png", "nano_uniform_vest_mrso.png", "nano_uniform_cryo.png",
+            "nano_uniform_dosen.png", "nano_uniform_mahasiswa.png", "nano_uniform_leadfree.png",
             "nano_headset_radio.png", "nano_headset_intercom.png",
             "nano_headset_pneumatic.png", "nano_headset_sar.png",
+            "nano_headset_lecture.png", "nano_headset_comm_pro.png",
             "nano_tool_detector.png", "nano_tool_badge.png", "nano_tool_phantom.png",
-            "nano_tool_tablet.png", "nano_tool_oximeter.png", "nano_tool_coil.png"
+            "nano_tool_tablet.png", "nano_tool_oximeter.png", "nano_tool_coil.png",
+            "nano_tool_pointer.png", "nano_tool_handbook.png"
         )
         val missing = requiredNanoFiles.filter { !File(dir, it).isFile }
         assertTrue("File aset layer Nano hilang di res/drawable: $missing", missing.isEmpty())

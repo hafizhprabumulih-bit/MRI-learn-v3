@@ -17,28 +17,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import com.example.ui.components.rememberRestorableScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.AutoFixHigh
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.PrecisionManufacturing
 import androidx.compose.material.icons.filled.Quiz
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.Waves
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -68,18 +75,15 @@ import com.example.ui.theme.CardSlate
 import com.example.ui.theme.CardSlateBorder
 import com.example.ui.theme.CyanBright
 import com.example.ui.theme.CyanDark
-import com.example.ui.theme.CyanPrimary
 import com.example.ui.theme.DarkNavySlate
 import com.example.ui.theme.DeepObsidian
 import com.example.ui.theme.EmeraldDark
 import com.example.ui.theme.EmeraldSuccess
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
-import com.example.ui.theme.TextSecondary
 import com.example.viewmodel.MainTab
 import com.example.viewmodel.MriUiState
 import com.example.viewmodel.MriViewModel
-import com.example.viewmodel.SimType
 
 @Composable
 fun HomeScreen(
@@ -204,11 +208,12 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(14.dp))
 
         // Scrollable Content Below Pinned Header
+        val homeScrollState = rememberRestorableScrollState("tab_beranda", viewModel)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(homeScrollState)
         ) {
             // Hero Card matching user's photo with MRI scanner photo background
             HeroProgressCard(
@@ -220,9 +225,9 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Section Title: "Simulasi interaktif"
+            // Section Title: "Alat & Latihan Belajar"
             Text(
-                text = "Simulasi interaktif",
+                text = "Alat & Latihan Belajar",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary,
@@ -502,11 +507,12 @@ fun ModuleCard(
         0f
     }
 
+    val moduleNumber = module.code.drop(1).takeWhile { it.isDigit() }.toIntOrNull() ?: 9
     val moduleAccentColor = when {
         isComplete -> EmeraldSuccess
-        module.code.endsWith("1") || module.code.endsWith("5") || module.code.endsWith("9") -> CyanBright
-        module.code.endsWith("2") || module.code.endsWith("6") -> Color(0xFF2DD4BF)
-        module.code.endsWith("3") || module.code.endsWith("7") -> AmberWarning
+        moduleNumber in listOf(1, 5, 9) -> CyanBright
+        moduleNumber in listOf(2, 6) -> Color(0xFF2DD4BF)
+        moduleNumber in listOf(3, 7) -> AmberWarning
         else -> Color(0xFF38BDF8)
     }
 
@@ -533,12 +539,21 @@ fun ModuleCard(
                 val moduleIcon = when (module.code) {
                     "M01" -> Icons.Default.Science
                     "M02" -> Icons.Default.ShowChart
-                    "M03" -> Icons.Default.GraphicEq
-                    "M04" -> Icons.Default.GridOn
+                    "M03A" -> Icons.Default.GraphicEq
+                    "M03B" -> Icons.Default.Waves
+                    "M03C" -> Icons.Default.WaterDrop
+                    "M04A" -> Icons.Default.Layers
+                    "M04B" -> Icons.Default.GridOn
+                    "M04C" -> Icons.Default.Route
                     "M05" -> Icons.Default.PrecisionManufacturing
-                    "M06" -> Icons.Default.Tune
-                    "M07" -> Icons.Default.Security
-                    "M08" -> Icons.Default.AutoFixHigh
+                    "M06A" -> Icons.Default.Tune
+                    "M06B" -> Icons.Default.Sensors
+                    "M07A" -> Icons.Default.Security
+                    "M07B" -> Icons.Default.AcUnit
+                    "M07C" -> Icons.Default.Bolt
+                    "M08A" -> Icons.Default.AutoFixHigh
+                    "M08B" -> Icons.Default.Air
+                    "M08C" -> Icons.Default.FactCheck
                     else -> Icons.Default.Speed
                 }
                 Column(

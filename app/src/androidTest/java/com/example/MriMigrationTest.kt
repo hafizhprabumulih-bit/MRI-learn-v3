@@ -70,6 +70,12 @@ class MriMigrationTest {
         assertEquals("M01.T1.1", daysCursor.getString(daysCursor.getColumnIndexOrThrow("lastNodeCode")))
         assertEquals(0, daysCursor.getInt(daysCursor.getColumnIndexOrThrow("hasFlashcardActivity")))
         daysCursor.close()
+
+        val legacyTablesCursor = db.query(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('mri_nodes', 'quiz_questions')"
+        )
+        assertEquals(0, legacyTablesCursor.count)
+        legacyTablesCursor.close()
     }
 
     @Test

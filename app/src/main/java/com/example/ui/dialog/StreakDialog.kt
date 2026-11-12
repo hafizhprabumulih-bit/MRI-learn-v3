@@ -29,12 +29,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.ui.theme.AmberAccent
+import com.example.ui.theme.AmberDark
+import com.example.ui.theme.AmberWarning
 import com.example.ui.theme.CardSlate
+import com.example.ui.theme.AmberAccent
+import com.example.ui.theme.AmberDark
+import com.example.ui.theme.AmberWarning
 import com.example.ui.theme.CardSlateBorder
 import com.example.ui.theme.CyanPrimary
 import com.example.ui.theme.DarkNavySlate
@@ -54,7 +59,7 @@ fun StreakDialog(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = DarkNavySlate),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.6f))
+            border = androidx.compose.foundation.BorderStroke(1.dp, AmberWarning.copy(alpha = 0.6f))
         ) {
             Column(
                 modifier = Modifier
@@ -77,8 +82,8 @@ fun StreakDialog(
                     modifier = Modifier
                         .size(72.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF451A03))
-                        .border(2.dp, Color(0xFFF59E0B), CircleShape),
+                        .background(AmberDark)
+                        .border(2.dp, AmberWarning, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(text = "🔥", fontSize = 36.sp)
@@ -89,7 +94,7 @@ fun StreakDialog(
                     text = "$streakDays Hari Streak Belajar!",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFFFBBF24)
+                    color = AmberAccent
                 )
                 Text(
                     text = "Konsistensi telaah klinis harian adalah kunci penguasaan fisika MRI & keselamatan pasien",
@@ -120,7 +125,7 @@ fun StreakDialog(
                                 Text(
                                     text = day,
                                     fontSize = 10.sp,
-                                    color = if (isCompleted) Color(0xFFFBBF24) else TextMuted,
+                                    color = if (isCompleted) AmberAccent else TextMuted,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
@@ -128,8 +133,8 @@ fun StreakDialog(
                                     modifier = Modifier
                                         .size(24.dp)
                                         .clip(CircleShape)
-                                        .background(if (isCompleted) Color(0xFF78350F) else CardSlate)
-                                        .border(1.dp, if (isCompleted) Color(0xFFF59E0B) else CardSlateBorder, CircleShape),
+                                        .background(if (isCompleted) AmberDark else CardSlate)
+                                        .border(1.dp, if (isCompleted) AmberWarning else CardSlateBorder, CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (isCompleted) {

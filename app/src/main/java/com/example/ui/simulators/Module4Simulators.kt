@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,7 +24,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,6 +33,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,7 +43,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -65,7 +65,6 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.exp
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -90,18 +89,17 @@ enum class M04SimulationType(
     M04B_SAMPLING_NYQUIST("m4b_sampling_nyquist", "M04B", "B2", "Sampling & Nyquist", "M04B.T2.3/T2.4", "ADC dwell time & aliasing"),
     M04B_RECEIVE_BW("m4b_receive_bw", "M04B", "B3", "Receive Bandwidth", "M04B.T2.5", "rBW vs SNR & Chemical Shift"),
     M04B_FFT_GELOMBANG("m4b_fft_gelombang", "M04B", "B4", "FFT dari Gelombang", "M04B.T2.7", "Dekomposisi sinyal waktu → f"),
-    M04B_SINYAL_RESOLUSI("m4b_sinyal_resolusi", "M04B", "B5", "Sinyal vs Resolusi", "M04B.T2.8", "Pusat ruang-k vs tepi ruang-k"),
-    M04B_FOV_VOKSEL("m4b_fov_voksel", "M04B", "B6", "FOV & Ukuran Voksel", "M04B.T2.10.1", "FOV / Matriks & SNR relatif"),
+    M04B_SINYAL_RESOLUSI("m4b_sinyal_resolusi", "M04B", "B5", "Sinyal vs Resolusi", "M04B.T2.10.1", "Pusat ruang-k vs tepi ruang-k"),
+    M04B_FOV_VOKSEL("m4b_fov_voksel", "M04B", "B6", "FOV & Ukuran Voksel", "M04B.T2.10.5", "FOV / Matriks & SNR relatif"),
     M04B_LAB_TERPADU("m4b_lab_terpadu", "M04B", "B7", "Lab Ruang-k 2D", "M04B.T2.10.2", "Filter Low-Pass / High-Pass"),
-    M04B_KSPACE_DETIL("m4b_kspace_detil", "M04B", "B7.1", "Ruang-k Detail", "M04B.T2.10.3", "Radius tengah vs tepi citra"),
     M04B_FOV_MATRIKS("m4b_fov_matriks", "M04B", "B7.2", "FOV & Matriks", "M04B.T2.10.4", "Δk = 1/FOV & k_max"),
-    M04B_SIMULATOR_AKHIR("m4b_simulator_akhir", "M04B", "B7.3", "Simulator Akuisisi", "M04B.T2.10.5", "Kombinasi matriks, NEX & BW"),
+    M04B_SIMULATOR_AKHIR("m4b_simulator_akhir", "M04B", "B7.3", "Simulator Akuisisi", "M04B.T2.10.3", "Waktu pindai, matriks & NEX"),
 
     // M04C (6 aktivitas)
     M04C_PSEUDO_FREKUENSI("m4c_pseudo_frekuensi", "M04C", "C1", "Pseudo-Frekuensi Gy", "M04C.T3.1", "Pergeseran fase antar-TR"),
     M04C_SIMETRI_KONJUGAT("m4c_simetri_konjugat", "M04C", "C2", "Simetri Konjugat", "M04C.T3.3", "Partial Fourier / Half-NEX"),
-    M04C_TARIAN_KSPACE("m4c_tarian_kspace", "M04C", "C3", "Tarian Ruang-k", "M04C.T3.4", "Lintasan kx-ky oleh Gx & Gy"),
-    M04C_PILIHAN_PENGISIAN("m4c_pilihan_pengisian", "M04C", "C4", "Pilihan Pengisian", "M04C.T3.5", "Linear, Centric, Partial, Keyhole"),
+    M04C_TARIAN_KSPACE("m4c_tarian_kspace", "M04C", "C3", "Tarian Ruang-k", "M04C.T3.5", "Gerak titik oleh RF, Gy, Gx & 180°"),
+    M04C_PILIHAN_PENGISIAN("m4c_pilihan_pengisian", "M04C", "C4", "Pilihan Pengisian", "M04C.T3.4", "Linear, Centric, Partial, Keyhole"),
     M04C_URUTAN_AKUISISI("m4c_urutan_akuisisi", "M04C", "C5", "Urutan Akuisisi", "M04C.T3.6", "Sequential vs Interleaved"),
     M04C_JALUR_KSPACE("m4c_jalur_kspace", "M04C", "C6", "Jalur Ruang-k", "M04C.T3.7", "Cartesian, Radial, Spiral & EPI");
 
@@ -187,59 +185,55 @@ fun Module4LabHub(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                val rows = filteredItems.chunked(2)
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    rows.forEach { pair ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    filteredItems.forEach { item ->
+                        val isSelected = item == activeType
+                        Surface(
+                            onClick = { onSelectActivity(item.id) },
+                            modifier = Modifier.width(164.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (isSelected) CyanDark else DeepObsidian,
+                            border = BorderStroke(
+                                width = if (isSelected) 1.5.dp else 1.dp,
+                                color = if (isSelected) CyanBright else CardSlateBorder
+                            )
                         ) {
-                            pair.forEach { item ->
-                                val isSelected = item == activeType
-                                Surface(
-                                    onClick = { onSelectActivity(item.id) },
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = if (isSelected) CyanDark else DeepObsidian,
-                                    border = BorderStroke(
-                                        width = if (isSelected) 1.5.dp else 1.dp,
-                                        color = if (isSelected) CyanBright else CardSlateBorder
-                                    )
+                            Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Column(modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp)) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween
-                                        ) {
-                                            Text(
-                                                text = "${item.subModule}·${item.shortCode}",
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = if (isSelected) CyanBright else AmberWarning,
-                                                fontFamily = FontFamily.Monospace
-                                            )
-                                            Text(item.nodeTag, fontSize = 9.sp, color = TextMuted)
-                                        }
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Text(
-                                            text = item.title,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = if (isSelected) CyanBright else TextPrimary,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Text(
-                                            text = item.subtitle,
-                                            fontSize = 10.sp,
-                                            color = TextSecondary,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
+                                    Text(
+                                        text = "${item.subModule}·${item.shortCode}",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isSelected) CyanBright else AmberWarning,
+                                        fontFamily = FontFamily.Monospace
+                                    )
+                                    Text(item.nodeTag, fontSize = 9.sp, color = TextMuted)
                                 }
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = item.title,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (isSelected) CyanBright else TextPrimary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = item.subtitle,
+                                    fontSize = 10.sp,
+                                    color = TextSecondary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
-                            if (pair.size == 1) Spacer(modifier = Modifier.weight(1f))
                         }
                     }
                 }
@@ -259,12 +253,11 @@ fun Module4LabHub(
             M04SimulationType.M04B_SINYAL_RESOLUSI -> M04KSpaceCenterEdgeSim()
             M04SimulationType.M04B_FOV_VOKSEL -> M04FovVoxelSim()
             M04SimulationType.M04B_LAB_TERPADU -> M04KSpaceFilterSim()
-            M04SimulationType.M04B_KSPACE_DETIL -> M04KSpaceCenterEdgeSim()
             M04SimulationType.M04B_FOV_MATRIKS -> M04FovMatrixDeltaKSim()
             M04SimulationType.M04B_SIMULATOR_AKHIR -> M04AcquisitionTradeoffSim()
             M04SimulationType.M04C_PSEUDO_FREKUENSI -> M04PhaseEncodingSim()
             M04SimulationType.M04C_SIMETRI_KONJUGAT -> M04PartialFourierSim()
-            M04SimulationType.M04C_TARIAN_KSPACE -> M04TrajectoryDanceSim()
+            M04SimulationType.M04C_TARIAN_KSPACE -> M04KSpaceDanceStepSim()
             M04SimulationType.M04C_PILIHAN_PENGISIAN -> M04FillingOrderSim()
             M04SimulationType.M04C_URUTAN_AKUISISI -> M04AcquisitionOrderSim()
             M04SimulationType.M04C_JALUR_KSPACE -> M04TrajectoryDanceSim()
@@ -292,8 +285,8 @@ private fun M04CardShell(title: String, subtitle: String, content: @Composable (
 
 @Composable
 private fun M04GradientLarmorSim() {
-    var gradMtM by remember { mutableFloatStateOf(20f) }
-    var posCm by remember { mutableFloatStateOf(10f) }
+    var gradMtM by rememberSaveable { mutableFloatStateOf(20f) }
+    var posCm by rememberSaveable { mutableFloatStateOf(10f) }
     val b0 = 1.5
     val deltaB = gradMtM * 1e-3 * (posCm / 100.0)
     val freqMhz = 42.58 * (b0 + deltaB)
@@ -309,12 +302,14 @@ private fun M04GradientLarmorSim() {
                 .clipToBounds()
         ) {
             val midY = size.height / 2f
-            drawLine(CardSlateBorder, Offset(16f, midY), Offset(size.width - 16f, midY), 1.5f)
-            val slope = (gradMtM / 40f) * 44f
-            drawLine(CyanBright, Offset(24f, midY + slope), Offset(size.width - 24f, midY - slope), 3.5f)
+            val hPad = 12.dp.toPx()
+            val gPad = 16.dp.toPx()
+            drawLine(CardSlateBorder, Offset(hPad, midY), Offset(size.width - hPad, midY), 1.dp.toPx())
+            val slope = (gradMtM / 40f) * (size.height * 0.34f)
+            drawLine(CyanBright, Offset(gPad, midY + slope), Offset(size.width - gPad, midY - slope), 2.5.dp.toPx())
             val xMarker = size.width / 2f + (posCm / 20f) * (size.width * 0.42f)
             val yMarker = midY - (posCm / 20f) * slope
-            drawCircle(AmberWarning, radius = 7f, center = Offset(xMarker, yMarker))
+            drawCircle(AmberWarning, radius = 5.dp.toPx(), center = Offset(xMarker, yMarker))
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text("Gradien G: ${gradMtM.roundToInt()} mT/m | Posisi x: ${posCm.roundToInt()} cm", fontSize = 11.sp, color = TextPrimary)
@@ -326,8 +321,8 @@ private fun M04GradientLarmorSim() {
 
 @Composable
 private fun M04SliceSelectionSim() {
-    var gzMtM by remember { mutableFloatStateOf(20f) }
-    var rfBwKhz by remember { mutableFloatStateOf(2.0f) }
+    var gzMtM by rememberSaveable { mutableFloatStateOf(20f) }
+    var rfBwKhz by rememberSaveable { mutableFloatStateOf(2.0f) }
     val thicknessMm = (rfBwKhz * 1000.0 / (42.58e6 * gzMtM * 1e-3)) * 1000.0
 
     M04CardShell("A2. Pemilihan Irisan / Slice Selection (M04A.T1.2 / T1.5)", "Tebal irisan = Bandwidth RF / (γ · Gz). Gradien Gz lebih curam atau BW lebih sempit menghasilkan irisan lebih tipis.") {
@@ -341,8 +336,9 @@ private fun M04SliceSelectionSim() {
         ) {
             val wFrac = (thicknessMm / 25.0).toFloat().coerceIn(0.04f, 0.7f)
             val sliceW = size.width * wFrac
-            drawRect(CyanPrimary.copy(alpha = 0.28f), Offset(size.width / 2f - sliceW / 2f, 16f), Size(sliceW, size.height - 32f))
-            drawRect(CyanBright, Offset(size.width / 2f - sliceW / 2f, 16f), Size(sliceW, size.height - 32f), style = Stroke(2f))
+            val vPad = 12.dp.toPx()
+            drawRect(CyanPrimary.copy(alpha = 0.28f), Offset(size.width / 2f - sliceW / 2f, vPad), Size(sliceW, size.height - vPad * 2f))
+            drawRect(CyanBright, Offset(size.width / 2f - sliceW / 2f, vPad), Size(sliceW, size.height - vPad * 2f), style = Stroke(1.5.dp.toPx()))
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text("Tebal Irisan ≈ ${"%.2f".format(thicknessMm).replace('.', ',')} mm", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = CyanBright)
@@ -355,8 +351,8 @@ private fun M04SliceSelectionSim() {
 
 @Composable
 private fun M04FrequencyEncodingSim() {
-    var gxMtM by remember { mutableFloatStateOf(15f) }
-    var fovCm by remember { mutableFloatStateOf(24f) }
+    var gxMtM by rememberSaveable { mutableFloatStateOf(15f) }
+    var fovCm by rememberSaveable { mutableFloatStateOf(24f) }
     val spanKhz = 42.58 * gxMtM * (fovCm / 100.0)
 
     M04CardShell("A3. Pengodean Frekuensi / Readout (M04A.T1.6)", "Gradien Gx aktif saat echo dibaca sehingga posisi x terpetakan ke frekuensi.") {
@@ -369,7 +365,7 @@ private fun M04FrequencyEncodingSim() {
 
 @Composable
 private fun M04OneTrSequenceSim() {
-    var step by remember { mutableIntStateOf(0) }
+    var step by rememberSaveable { mutableIntStateOf(0) }
     val labels = listOf("1. RF 90° + Gz (Pilih Irisan)", "2. Gy (Pengodean Fase)", "3. RF 180° + Gz (Refocusing)", "4. Gx + ADC (Baca Echo)")
     M04CardShell("A4. Satu TR: Gz, Gy, Gx Bekerja Berurutan (M04A.T1.7)", "Pilih tahapan untuk melihat gradien yang aktif dalam satu siklus TR Spin Echo.") {
         Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -425,8 +421,8 @@ private fun M04DrawerKSpaceSim() {
 
 @Composable
 private fun M04NyquistSamplingSim() {
-    var signalFreq by remember { mutableFloatStateOf(4f) }
-    var sampleRate by remember { mutableFloatStateOf(12f) }
+    var signalFreq by rememberSaveable { mutableFloatStateOf(4f) }
+    var sampleRate by rememberSaveable { mutableFloatStateOf(12f) }
     val aliased = sampleRate < 2f * signalFreq
 
     M04CardShell("B2. Sampling & Batas Nyquist (M04B.T2.3 / T2.4)", "Frekuensi sampling harus ≥ 2 × frekuensi tertinggi (f_Nyquist), jika tidak terjadi aliasing (wrap-around).") {
@@ -445,13 +441,13 @@ private fun M04NyquistSamplingSim() {
                 val y = mid - sin(2f * PI.toFloat() * signalFreq * t) * (size.height * 0.36f)
                 if (px == 0) path.moveTo(px.toFloat(), y) else path.lineTo(px.toFloat(), y)
             }
-            drawPath(path, CyanPrimary, style = Stroke(2f))
+            drawPath(path, CyanPrimary, style = Stroke(1.5.dp.toPx()))
             val n = sampleRate.roundToInt().coerceAtLeast(2)
             for (k in 0..n) {
                 val t = k.toFloat() / n
                 val x = t * size.width
                 val y = mid - sin(2f * PI.toFloat() * signalFreq * t) * (size.height * 0.36f)
-                drawCircle(if (aliased) RoseDanger else EmeraldSuccess, radius = 5f, center = Offset(x, y))
+                drawCircle(if (aliased) RoseDanger else EmeraldSuccess, radius = 3.5.dp.toPx(), center = Offset(x, y))
             }
         }
         Spacer(modifier = Modifier.height(6.dp))
@@ -469,7 +465,7 @@ private fun M04NyquistSamplingSim() {
 
 @Composable
 private fun M04ReceiveBandwidthSim() {
-    var rbwKhz by remember { mutableFloatStateOf(32f) }
+    var rbwKhz by rememberSaveable { mutableFloatStateOf(32f) }
     val relSnr = sqrt(32f / rbwKhz)
     val chemShiftPx = (220f / (rbwKhz * 1000f / 256f))
 
@@ -512,7 +508,7 @@ private fun M04FftWaveSim() {
 @Composable
 private fun M04KSpaceCenterEdgeSim() {
     var mode by remember { mutableIntStateOf(0) } // 0 penuh, 1 tengah saja, 2 tepi saja
-    M04CardShell("B5/B7.1. Pusat vs Tepi Ruang-k (M04B.T2.8 / T2.10.3)", "Bandingkan efek mengisi pusat ruang-k saja (kontras tinggi, buram) vs tepi saja (tepi tajam, gelap).") {
+    M04CardShell("B5. Pusat vs Tepi Ruang-k (M04B.T2.10.1)", "Bandingkan efek mengisi pusat ruang-k saja (kontras tinggi, buram) vs tepi saja (tepi tajam, gelap).") {
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf("Penuh", "Pusat (Low-Pass)", "Tepi (High-Pass)").forEachIndexed { idx, lbl ->
                 FilterChip(selected = mode == idx, onClick = { mode = idx }, label = { Text(lbl, fontSize = 10.sp) })
@@ -539,7 +535,7 @@ private fun M04FovVoxelSim() {
     val pixelMm = fovMm / matrix
     val voxelMm3 = pixelMm * pixelMm * sliceMm
 
-    M04CardShell("B6. FOV & Ukuran Voksel (M04B.T2.10.1)", "Ukuran piksel = FOV / Matriks; Volume voksel = Δx · Δy · tebal irisan.") {
+    M04CardShell("B6. FOV & Ukuran Voksel (M04B.T2.10.5)", "Ukuran piksel = FOV / Matriks; Volume voksel = Δx · Δy · tebal irisan.") {
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf(128, 256, 512).forEach { m ->
                 FilterChip(selected = matrix == m, onClick = { matrix = m }, label = { Text("${m}×$m", fontSize = 10.sp) })
@@ -580,7 +576,7 @@ private fun M04AcquisitionTradeoffSim() {
     val scanSec = (trMs / 1000f) * pe * nex
     val relSnr = sqrt(nex.toFloat())
 
-    M04CardShell("B7.3. Simulator Trade-off Akuisisi (M04B.T2.10.5)", "Waktu pindai TA = TR × N_PE × NEX, sedangkan SNR ∝ √NEX.") {
+    M04CardShell("B7.3. Simulator Trade-off Akuisisi (M04B.T2.10.3 / T3.2)", "Waktu pindai TA = TR × N_PE × NEX, sedangkan SNR ∝ √NEX.") {
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf(1, 2, 4).forEach { n -> FilterChip(selected = nex == n, onClick = { nex = n }, label = { Text("NEX=$n", fontSize = 10.sp) }) }
             listOf(128, 256, 384).forEach { p -> FilterChip(selected = pe == p, onClick = { pe = p }, label = { Text("PE=$p", fontSize = 10.sp) }) }
@@ -612,9 +608,70 @@ private fun M04PartialFourierSim() {
 }
 
 @Composable
+private fun M04KSpaceDanceStepSim() {
+    var step by rememberSaveable { mutableIntStateOf(0) }
+    val labels = listOf("1. Eksitasi RF", "2. Gy (+): Baris Atas", "3. Gx (+): Kiri→Kanan", "4. Pulsa 180° (SE)")
+    val notes = listOf(
+        "Pulsa RF eksitasi menempatkan titik awal penelusuran tepat di pusat ruang-k (kx=0, ky=0).",
+        "Amplitudo & polaritas Gy menggeser posisi ke baris ky (+ atas / − bawah) dan menyiapkan dephasing awal Gx (−).",
+        "Gradien readout Gx (+) menyapu baris ruang-k secara horizontal dari kiri (−kx) ke kanan (+kx) saat ADC membaca gema.",
+        "Pada sekuens Spin Echo, pulsa refokus 180° membalik koordinat fase ke titik cermin berseberangan (−kx, −ky)."
+    )
+
+    M04CardShell("C3. Aturan Tarian Ruang-k (M04C.T3.5)", "Ikuti langkah demi langkah perpindahan titik ruang-k oleh RF, gradien Gy, gradien Gx, dan pulsa 180°.") {
+        Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            labels.forEachIndexed { idx, lbl ->
+                FilterChip(selected = step == idx, onClick = { step = idx }, label = { Text(lbl, fontSize = 10.sp) })
+            }
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(140.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(DeepObsidian)
+                .clipToBounds()
+        ) {
+            val cx = size.width / 2f
+            val cy = size.height / 2f
+            val rx = size.width * 0.34f
+            val ry = size.height * 0.34f
+            drawLine(CardSlateBorder, Offset(cx - rx, cy), Offset(cx + rx, cy), 1.5f)
+            drawLine(CardSlateBorder, Offset(cx, cy - ry), Offset(cx, cy + ry), 1.5f)
+
+            val center = Offset(cx, cy)
+            val preRead = Offset(cx - rx * 0.78f, cy - ry * 0.65f)
+            val endRead = Offset(cx + rx * 0.78f, cy - ry * 0.65f)
+            val inverted = Offset(cx - rx * 0.78f, cy + ry * 0.65f)
+
+            when (step) {
+                0 -> drawCircle(AmberWarning, 7.dp.toPx(), center)
+                1 -> {
+                    drawLine(CyanBright.copy(alpha = 0.5f), center, preRead, 2f)
+                    drawCircle(CyanBright, 7.dp.toPx(), preRead)
+                }
+                2 -> {
+                    drawLine(CardSlateBorder, center, preRead, 1.5f)
+                    drawLine(EmeraldSuccess, preRead, endRead, 3.dp.toPx())
+                    drawCircle(EmeraldSuccess, 7.dp.toPx(), endRead)
+                }
+                else -> {
+                    drawLine(CyanBright.copy(alpha = 0.45f), preRead, endRead, 2f)
+                    drawLine(AmberWarning, endRead, inverted, 2.5f)
+                    drawCircle(AmberWarning, 7.dp.toPx(), inverted)
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(notes[step], fontSize = 11.sp, color = CyanBright)
+    }
+}
+
+@Composable
 private fun M04TrajectoryDanceSim() {
     var traj by remember { mutableIntStateOf(0) } // 0 Cartesian, 1 Radial, 2 Spiral, 3 EPI
-    M04CardShell("C3/C6. Tarian & Jalur Ruang-k (M04C.T3.4 / T3.7)", "Bandingkan lintasan pengisian ruang-k: Cartesian, Radial, Spiral, dan Echo-Planar (EPI).") {
+    M04CardShell("C6. Jalur Pengisian Ruang-k (M04C.T3.7)", "Bandingkan lintasan pengisian ruang-k: Cartesian, Radial, Spiral, dan Echo-Planar (EPI).") {
         Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf("Cartesian", "Radial", "Spiral", "EPI").forEachIndexed { idx, lbl ->
                 FilterChip(selected = traj == idx, onClick = { traj = idx }, label = { Text(lbl, fontSize = 10.sp) })
@@ -659,13 +716,19 @@ private fun M04TrajectoryDanceSim() {
                 }
                 else -> {
                     val p = Path()
+                    val rowStep = r / 3.5f
                     for (i in -3..3) {
-                        val y = cy + i * (r / 3.5f)
+                        val y = cy + i * rowStep
                         val left = cx - r
                         val right = cx + r
                         if (i == -3) p.moveTo(left, y)
-                        if (i % 2 == 0) { p.lineTo(right, y); p.lineTo(right, y + r / 3.5f) }
-                        else { p.lineTo(left, y); p.lineTo(left, y + r / 3.5f) }
+                        if (i % 2 == 0) {
+                            p.lineTo(right, y)
+                            if (i < 3) p.lineTo(right, y + rowStep)
+                        } else {
+                            p.lineTo(left, y)
+                            if (i < 3) p.lineTo(left, y + rowStep)
+                        }
                     }
                     drawPath(p, CyanBright, style = Stroke(2f))
                 }

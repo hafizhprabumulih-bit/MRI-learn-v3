@@ -71,8 +71,6 @@ class CurriculumSeedGuardTest {
         assertEquals(MriRepository.toMriModuleEntities().size, db.mriCurriculumDao().getModulesCount())
         assertEquals(MriRepository.toCurriculumNodeEntities().size, db.curriculumDao().getNodesCount())
         assertEquals(MriRepository.toCurriculumQuizEntities().size, db.curriculumDao().getQuizzesCount())
-        assertEquals(0, db.mriCurriculumDao().getNodesCount())
-        assertEquals(0, db.mriCurriculumDao().getQuizQuestionsCount())
     }
 
     @Test

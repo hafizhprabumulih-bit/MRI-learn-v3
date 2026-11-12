@@ -26,7 +26,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Check
@@ -38,7 +37,6 @@ import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -47,7 +45,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -80,6 +77,7 @@ import com.example.data.MriRepository
 import com.example.ui.components.AnimatedBookmarkPill
 import com.example.ui.components.FlashcardDeckSection
 import com.example.ui.components.StudyModeToggleBar
+import com.example.ui.components.rememberRestorableScrollState
 import com.example.ui.simulators.*
 import com.example.ui.theme.AmberAccent
 import com.example.ui.theme.AmberDark
@@ -100,7 +98,6 @@ import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.viewmodel.MriUiState
 import com.example.viewmodel.MriViewModel
-import com.example.viewmodel.SimType
 import java.util.Locale
 import kotlin.math.log10
 import kotlin.math.pow
@@ -126,11 +123,13 @@ fun ModuleDetailScreen(
         0f
     }
 
+    val detailScrollState = rememberRestorableScrollState("module_${module.id}", viewModel)
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(DeepObsidian)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(detailScrollState)
             .padding(16.dp)
     ) {
         // Header Modul dengan Indikator Lingkaran Progres Belajar di Dalam Kartu Penjelasan
@@ -358,20 +357,7 @@ fun ModuleDetailScreen(
                             onToggleCompleted = { viewModel.toggleNodeCompletion(node.code) },
                             onMarkNodeCompleted = { code -> viewModel.markNodeCompleted(code.ifBlank { node.code }) },
                             onToggleBookmark = { viewModel.toggleNodeBookmark(node.code) },
-                            onLaunchLab = { lab ->
-                                when {
-                                    lab == "ta_snr" || lab == "console_tabs" || lab.startsWith("m9_") -> viewModel.launchM09Lab(lab)
-                                    lab.startsWith("m3_") || lab.startsWith("m3a_") || lab.startsWith("m3b_") || lab.startsWith("m3c_") -> viewModel.launchM03Lab(lab)
-                                    lab == "kspace" || lab.startsWith("m4_") || lab.startsWith("m4a_") || lab.startsWith("m4b_") || lab.startsWith("m4c_") -> viewModel.launchM04Lab(lab)
-                                    lab.startsWith("m5_") -> viewModel.launchM05Lab(lab)
-                                    lab.startsWith("m6_") || lab.startsWith("m6a_") || lab.startsWith("m6b_") -> viewModel.launchM06Lab(lab)
-                                    lab == "sar" || lab.startsWith("m7_") || lab.startsWith("m7a_") || lab.startsWith("m7b_") || lab.startsWith("m7c_") -> viewModel.launchM07Lab(lab)
-                                    lab.startsWith("m8_") || lab.startsWith("m8a_") || lab.startsWith("m8b_") || lab.startsWith("m8c_") -> viewModel.launchM08Lab(lab)
-                                    lab == "contrast" || lab.startsWith("m2_") -> viewModel.launchM02Lab(lab)
-                                    lab.startsWith("m1_") || lab in listOf("presesi", "larmor", "atom_h", "cek_inti", "populasi_spin", "spektrum_em", "nmv_3d", "sudut_flip", "fase_fid", "bola_bloch", "tr_berulang") -> viewModel.launchM01Lab(lab)
-                                    else -> viewModel.selectSimType(SimType.RUANG_K)
-                                }
-                            }
+                            onLaunchLab = viewModel::launchLab
                         )
                     }
                 }
@@ -1686,7 +1672,8 @@ private fun InlineEmSpectrumExplorer() {
         logHz < 11.5f -> "Gelombang Mikro (Non-Pengion)"
         logHz < 14.1f -> "Inframerah (Non-Pengion)"
         logHz < 14.9f -> "Cahaya Tampak (Non-Pengion)"
-        logHz < 16.5f -> "Ultraviolet (Mulai Pengion)"
+        logHz < 15.5f -> "Ultraviolet Dekat (Non-Pengion)"
+        logHz < 16.5f -> "Ultraviolet Ekstrem (Radiasi Pengion)"
         logHz < 19f -> "Sinar-X (Radiasi Pengion)"
         else -> "Sinar Gamma (Radiasi Pengion)"
     }
@@ -1785,11 +1772,11 @@ private fun InlineEmSpectrumExplorer() {
                 presets.forEach { (label, presetLogHz, presetIonizing) ->
                     val isSelected = when (label) {
                         "Radio (MRI)" -> logHz < 9.0f
-                        "Gel. Mikro" -> logHz in 9.0f..11.5f
-                        "Inframerah" -> logHz in 11.5f..14.1f
-                        "Cahaya Tampak" -> logHz in 14.1f..14.9f
-                        "Ultraviolet" -> logHz in 14.9f..16.5f
-                        "Sinar-X" -> logHz in 16.5f..19.0f
+                        "Gel. Mikro" -> logHz >= 9.0f && logHz < 11.5f
+                        "Inframerah" -> logHz >= 11.5f && logHz < 14.1f
+                        "Cahaya Tampak" -> logHz >= 14.1f && logHz < 14.9f
+                        "Ultraviolet" -> logHz >= 14.9f && logHz < 16.5f
+                        "Sinar-X" -> logHz >= 16.5f && logHz < 19.0f
                         else -> logHz >= 19.0f
                     }
                     val chipBorder = if (isSelected) {

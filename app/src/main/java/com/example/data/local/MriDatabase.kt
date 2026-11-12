@@ -14,8 +14,6 @@ import com.example.data.CurriculumSnapshot
         QuizAttemptEntity::class,
         StudyDayEntity::class,
         MriModuleEntity::class,
-        MriNodeEntity::class,
-        QuizQuestionEntity::class,
         CurriculumNodeEntity::class,
         CurriculumQuizEntity::class
     ],
@@ -36,8 +34,6 @@ abstract class MriDatabase : RoomDatabase() {
         val currDao = curriculumDao()
         withTransaction {
             mriDao.clearModules()
-            mriDao.clearNodes()
-            mriDao.clearQuizQuestions()
             currDao.clearNodes()
             currDao.clearQuizzes()
             mriDao.insertModules(snapshot.modules)

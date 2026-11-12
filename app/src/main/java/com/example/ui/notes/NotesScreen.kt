@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import com.example.ui.components.rememberRestorableScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -34,7 +34,6 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.FileDownload
-import androidx.compose.material.icons.filled.NoteAlt
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,7 +41,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -107,13 +105,17 @@ fun NotesScreen(
         if (uri != null) {
             runCatching {
                 val jsonPayload = viewModel.exportNotesToJson()
-                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                val stream = context.contentResolver.openOutputStream(uri)
+                    ?: throw java.io.IOException("Aliran penyimpanan tujuan tidak tersedia.")
+                stream.use { outputStream ->
                     outputStream.write(jsonPayload.toByteArray(Charsets.UTF_8))
                 }
-                exportStatusMessage = "Catatan berhasil diunduh ke file JSON pilihan Anda."
-            }.onFailure {
-                exportStatusMessage = "Cadangan JSON telah disimpan di penyimpanan aplikasi."
+                exportStatusMessage = "Catatan berhasil diekspor ke file JSON pilihan Anda."
+            }.onFailure { err ->
+                exportStatusMessage = "Gagal mengekspor file JSON ke lokasi pilihan (${err.localizedMessage ?: "akses ditolak"})."
             }
+        } else {
+            exportStatusMessage = "Pemilihan lokasi ekspor dibatalkan."
         }
     }
 
@@ -258,11 +260,12 @@ fun NotesScreen(
                 }
             }
 
+            val notesScrollState = rememberRestorableScrollState("tab_catatan", viewModel)
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(notesScrollState)
             ) {
                 if (filteredNotes.isEmpty()) {
                     Surface(
@@ -291,7 +294,7 @@ fun NotesScreen(
                                 color = TextPrimary
                             )
                             Text(
-                                text = "Klik tombol 'Tulis' di kanan bawah untuk membuat catatan baru.",
+                                text = "Klik tombol 'Tulis Catatan' di kanan bawah untuk membuat catatan baru.",
                                 fontSize = 11.sp,
                                 color = TextSecondary,
                                 modifier = Modifier.padding(top = 4.dp)

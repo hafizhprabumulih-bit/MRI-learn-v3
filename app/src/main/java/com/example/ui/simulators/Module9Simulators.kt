@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -36,6 +35,8 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +44,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -72,9 +72,7 @@ import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import java.util.Locale
-import kotlin.math.cos
 import kotlin.math.roundToInt
-import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
 
@@ -112,6 +110,23 @@ private fun computeProtocolMetrics(p: ProtocolParams): ProtocolMetrics {
 }
 
 private val BASE_PROTOCOL = ProtocolParams()
+private val ProtocolParamsSaver = listSaver<ProtocolParams, Any>(
+    save = { listOf(it.trMs, it.fovMm, it.nf, it.np, it.tkMm, it.nex, it.bwHzPx, it.etl, it.ns, it.rFactor) },
+    restore = {
+        ProtocolParams(
+            trMs = it[0] as Int,
+            fovMm = it[1] as Int,
+            nf = it[2] as Int,
+            np = it[3] as Int,
+            tkMm = it[4] as Float,
+            nex = it[5] as Int,
+            bwHzPx = it[6] as Int,
+            etl = it[7] as Int,
+            ns = it[8] as Int,
+            rFactor = it[9] as Int
+        )
+    }
+)
 private val BASE_METRICS = computeProtocolMetrics(BASE_PROTOCOL)
 private const val MISSION_PRESET_NAME = "Kasus: pasien gelisah"
 
@@ -256,14 +271,14 @@ fun Module9LabSuite(
 // -------------------------------------------------------------
 @Composable
 fun ProtocolTaSnrSimulator() {
-    var params by remember { mutableStateOf(BASE_PROTOCOL) }
-    var activePresetName by remember { mutableStateOf("Awal") }
-    var isMissionActive by remember { mutableStateOf(false) }
-    var activePhantomIdx by remember { mutableIntStateOf(0) }
+    var params by rememberSaveable(stateSaver = ProtocolParamsSaver) { mutableStateOf(BASE_PROTOCOL) }
+    var activePresetName by rememberSaveable { mutableStateOf("Awal") }
+    var isMissionActive by rememberSaveable { mutableStateOf(false) }
+    var activePhantomIdx by rememberSaveable { mutableIntStateOf(0) }
 
     // Mode irisan (Δz = BW_RF ÷ (γ × Gz))
-    var bwRfKhz by remember { mutableFloatStateOf(1.0f) }
-    var gzMtPerM by remember { mutableFloatStateOf(20f) }
+    var bwRfKhz by rememberSaveable { mutableFloatStateOf(1.0f) }
+    var gzMtPerM by rememberSaveable { mutableFloatStateOf(20f) }
 
     val metrics = remember(params) { computeProtocolMetrics(params) }
     val relSnr = (metrics.rawSnr / BASE_METRICS.rawSnr).coerceAtLeast(0.01f)

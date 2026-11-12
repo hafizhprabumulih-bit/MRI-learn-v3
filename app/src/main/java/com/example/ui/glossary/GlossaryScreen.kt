@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -46,7 +45,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -58,9 +56,8 @@ import com.example.data.MriRepository
 import com.example.ui.components.AnimatedBookmarkPill
 import com.example.ui.components.FlashcardDeckSection
 import com.example.ui.components.StudyModeToggleBar
+import com.example.ui.components.rememberRestorableScrollState
 import com.example.ui.theme.AmberAccent
-import com.example.ui.theme.AmberDark
-import com.example.ui.theme.CardSlate
 import com.example.ui.theme.CardSlateBorder
 import com.example.ui.theme.CyanBright
 import com.example.ui.theme.CyanDark
@@ -155,11 +152,12 @@ fun GlossaryScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         // 2. SCROLLABLE CONTENT: Hanya daftar kartu kamus / flashcards yang bergerak saat di-swipe!
+        val glossaryScrollState = rememberRestorableScrollState("tab_glosarium", viewModel)
         Column(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(glossaryScrollState)
         ) {
             Spacer(modifier = Modifier.height(12.dp))
 

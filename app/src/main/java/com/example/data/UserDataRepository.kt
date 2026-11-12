@@ -14,10 +14,8 @@ import com.example.data.local.CurriculumNodeEntity
 import com.example.data.local.CurriculumQuizEntity
 import com.example.data.local.MriDatabase
 import com.example.data.local.MriModuleEntity
-import com.example.data.local.MriNodeEntity
 import com.example.data.local.NodeProgressEntity
 import com.example.data.local.QuizAttemptEntity
-import com.example.data.local.QuizQuestionEntity
 import com.example.data.local.StudyDayEntity
 import com.example.data.local.StudyNoteEntity
 import com.example.data.local.normalizeLegacyNodeCodes
@@ -54,7 +52,6 @@ class UserDataRepository(
         val EQUIPPED_HEADSET = stringPreferencesKey("equipped_headset")
         val EQUIPPED_ACCESSORY = stringPreferencesKey("equipped_accessory")
         val BACKGROUND_ID = stringPreferencesKey("background_id")
-        val ACCENT_COLOR = stringPreferencesKey("accent_color")
     }
 
     suspend fun normalizeLegacyNodeCodesIfNeeded() {
@@ -93,8 +90,7 @@ class UserDataRepository(
             equippedUniform = prefs[PreferencesKeys.EQUIPPED_UNIFORM] ?: "uniform_scrub_mint",
             equippedHeadset = prefs[PreferencesKeys.EQUIPPED_HEADSET] ?: "headset_radio",
             equippedAccessory = prefs[PreferencesKeys.EQUIPPED_ACCESSORY] ?: "acc_magnet_detector",
-            backgroundId = prefs[PreferencesKeys.BACKGROUND_ID] ?: "bg_control_room",
-            accentColor = prefs[PreferencesKeys.ACCENT_COLOR] ?: "cyan"
+            backgroundId = prefs[PreferencesKeys.BACKGROUND_ID] ?: "bg_control_room"
         )
     }
 
@@ -106,7 +102,6 @@ class UserDataRepository(
             prefs[PreferencesKeys.EQUIPPED_HEADSET] = state.equippedHeadset
             prefs[PreferencesKeys.EQUIPPED_ACCESSORY] = state.equippedAccessory
             prefs[PreferencesKeys.BACKGROUND_ID] = state.backgroundId
-            prefs[PreferencesKeys.ACCENT_COLOR] = state.accentColor
         }
     }
 
@@ -256,24 +251,6 @@ class UserDataRepository(
 
     fun observeCurriculumQuizzesByModuleAndLevel(moduleId: String, level: Int): Flow<List<CurriculumQuizEntity>> =
         database.curriculumDao().observeQuizzesByModuleAndLevel(moduleId, level)
-
-    fun observeAllCurriculumNodes(): Flow<List<CurriculumNodeEntity>> =
-        database.curriculumDao().observeAllNodes()
-
-    fun observeNodesByModule(moduleId: String): Flow<List<CurriculumNodeEntity>> =
-        database.curriculumDao().observeNodesByModule(moduleId)
-
-    fun observeNodesByModuleAndLevel(moduleId: String, level: Int): Flow<List<CurriculumNodeEntity>> =
-        database.curriculumDao().observeNodesByModuleAndLevel(moduleId, level)
-
-    fun observeAllQuizQuestions(): Flow<List<CurriculumQuizEntity>> =
-        database.curriculumDao().observeAllQuizzes()
-
-    fun observeAllQuizzes(): Flow<List<CurriculumQuizEntity>> =
-        database.curriculumDao().observeAllQuizzes()
-
-    fun observeQuizQuestionsByModule(moduleId: String): Flow<List<CurriculumQuizEntity>> =
-        database.curriculumDao().observeQuizzesByModule(moduleId)
 
     // Node Progress DAO
     fun observeCompletedNodes(): Flow<List<NodeProgressEntity>> =
