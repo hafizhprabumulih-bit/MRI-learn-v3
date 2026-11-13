@@ -1219,6 +1219,7 @@ private fun M01PresesiBolaSim() {
     var tiltDeg by remember { mutableFloatStateOf(35f) }
     var spinUp by remember { mutableStateOf(true) }
     var isPlaying by remember { mutableStateOf(true) }
+    var directVectorRotate by remember { mutableStateOf(false) }
     var az by remember { mutableFloatStateOf(0.5f) }
     var el by remember { mutableFloatStateOf(0.35f) }
     var phi by remember { mutableFloatStateOf(0f) }
@@ -1244,19 +1245,40 @@ private fun M01PresesiBolaSim() {
 
     M01SimCardShell(
         title = "Presesi Mengelilingi B₀ (T1.6)",
-        subtitle = "Seret bola 3D untuk memutar pandangan. Sudut miring mengubah lebar kerucut, sedangkan B₀ & γ mengubah frekuensi."
+        subtitle = "Seret bola 3D untuk memutar kamera atau pilih 'Putar Vektor M⃗' untuk memiringkan vektor magnetisasi secara langsung."
     ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            FilterChip(
+                selected = !directVectorRotate,
+                onClick = { directVectorRotate = false },
+                label = { Text("Putar Kamera 3D", fontSize = 10.sp) },
+                colors = FilterChipDefaults.filterChipColors(selectedContainerColor = CyanDark, selectedLabelColor = CyanBright)
+            )
+            FilterChip(
+                selected = directVectorRotate,
+                onClick = { directVectorRotate = true },
+                label = { Text("Putar Vektor M⃗", fontSize = 10.sp) },
+                colors = FilterChipDefaults.filterChipColors(selectedContainerColor = CyanDark, selectedLabelColor = AmberWarning)
+            )
+        }
+        Spacer(modifier = Modifier.height(6.dp))
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(175.dp)
+                .height(190.dp)
                 .clip(RoundedCornerShape(14.dp))
                 .background(DeepObsidian)
                 .clipToBounds()
-                .pointerInput(Unit) {
-                    detectDragGestures { _, drag ->
-                        az -= drag.x * 0.01f
-                        el = (el + drag.y * 0.01f).coerceIn(-0.4f, 1.3f)
+                .pointerInput(directVectorRotate) {
+                    detectDragGestures { change, drag ->
+                        change.consume()
+                        if (directVectorRotate) {
+                            tiltDeg = (tiltDeg + drag.y * 0.45f).coerceIn(5f, 175f)
+                            phi = (phi + drag.x * 0.015f) % (2f * PI.toFloat())
+                        } else {
+                            az -= drag.x * 0.01f
+                            el = (el + drag.y * 0.01f).coerceIn(-0.4f, 1.3f)
+                        }
                     }
                 }
         ) {
@@ -1278,9 +1300,12 @@ private fun M01PresesiBolaSim() {
             }
             drawPath(conePath, color = AmberWarning.copy(alpha = 0.65f), style = Stroke(2f))
             val tip = projectSphere(cx, cy, r, az, el, sin(th) * cos(phi), sin(th) * sin(phi), zDir * cos(th))
-            drawArrowLine(Offset(cx, cy), tip, AmberWarning, 3.5f)
+            val projZ = projectSphere(cx, cy, r, az, el, 0f, 0f, zDir * cos(th))
             val projXy = projectSphere(cx, cy, r, az, el, sin(th) * cos(phi), sin(th) * sin(phi), 0f)
-            drawLine(EmeraldSuccess, Offset(cx, cy), projXy, strokeWidth = 2f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 5f), 0f))
+            drawLine(CyanBright.copy(alpha = 0.55f), tip, projZ, strokeWidth = 1.4f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f))
+            drawLine(EmeraldSuccess.copy(alpha = 0.55f), tip, projXy, strokeWidth = 1.4f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f))
+            drawArrowLine(Offset(cx, cy), projXy, EmeraldSuccess, 2.5f)
+            drawArrowLine(Offset(cx, cy), tip, AmberWarning, 3.8f)
         }
         Spacer(modifier = Modifier.height(6.dp))
         // Grafik komponen x(t)
@@ -1311,7 +1336,7 @@ private fun M01PresesiBolaSim() {
         }
         Text("B₀: ${formatId(b0.toDouble(), 1)} T | Sudut: ${tiltDeg.roundToInt()}° | f₀ = ${formatId(f0, 2)} MHz", fontSize = 11.sp, color = CyanBright)
         Slider(value = b0, onValueChange = { b0 = (it * 10).roundToInt() / 10f }, valueRange = 0.5f..3.0f)
-        Slider(value = tiltDeg, onValueChange = { tiltDeg = it }, valueRange = 10f..90f)
+        Slider(value = tiltDeg, onValueChange = { tiltDeg = it }, valueRange = 5f..175f)
         M01PlayResetRow(
             isPlaying = isPlaying,
             onTogglePlay = { isPlaying = !isPlaying },

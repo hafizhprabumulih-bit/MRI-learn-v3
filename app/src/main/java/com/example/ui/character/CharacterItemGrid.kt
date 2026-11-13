@@ -244,7 +244,7 @@ fun CharacterItemCard(
 
     Card(
         modifier = modifier
-            .width(178.dp)
+            .width(168.dp)
             .alpha(if (isUnlocked) 1f else 0.55f)
             .graphicsLayer {
                 scaleX = cardScale
@@ -258,7 +258,7 @@ fun CharacterItemCard(
                 popTrigger = true
                 onClick()
             },
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) CharCardSelected else CharCardSurface
         ),
@@ -270,19 +270,19 @@ fun CharacterItemCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(8.dp)
         ) {
             // 1. Kotak Pratinjau Besar (Latar Ruangan maupun Item Tampilan Nano)
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(92.dp)
-                    .clip(RoundedCornerShape(13.dp))
+                    .height(82.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .background(CharRoomBg)
                     .border(
                         width = 1.dp,
                         color = if (isSelected) accentPalette.primaryColor else CharBorderSlate,
-                        shape = RoundedCornerShape(13.dp)
+                        shape = RoundedCornerShape(12.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -370,12 +370,12 @@ fun CharacterItemCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // 2. Judul Item (Tanpa teks penjelasan panjang agar kartu ringkas & fokus)
             Text(
                 text = item.name,
-                fontSize = 13.sp,
+                fontSize = 12.5.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = CharTextPrimary,
                 maxLines = 1,

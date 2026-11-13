@@ -16,18 +16,17 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.example.R
 import com.example.data.CharacterAccentPalette
 import com.example.data.CharacterCatalog
 import com.example.ui.theme.CharAccentMint
 import com.example.ui.theme.CharRoomBg
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.min
-import kotlin.math.sin
 import com.example.ui.theme.CharStageBase
 import com.example.ui.theme.CharStageDeep
 import com.example.ui.theme.CharStagePlatformFill
+import kotlin.math.PI
+import kotlin.math.sin
 
 @Composable
 fun StageBackgroundCanvas(
@@ -36,9 +35,6 @@ fun StageBackgroundCanvas(
     glowPulse: Float,
     rfWavePhase: Float,
     isWaveActive: Boolean,
-    isCoherenceGameActive: Boolean = false,
-    gamePulseProgress: Float = 0f,
-    gameHitFlash: Float = 0f,
     modifier: Modifier = Modifier
 ) {
     val bgItem = CharacterCatalog.getItem(backgroundId)
@@ -59,24 +55,24 @@ fun StageBackgroundCanvas(
             val w = size.width
             val h = size.height
 
-            // Gradien harmonisasi atas-tengah-bawah yang disesuaikan untuk panggung lebih besar
+            // Gradien harmonisasi atas-tengah-bawah
             drawRect(
                 brush = Brush.verticalGradient(
                     colorStops = arrayOf(
-                        0.0f to CharStageDeep.copy(alpha = 0.50f),
-                        0.42f to CharStageBase.copy(alpha = 0.28f),
-                        0.78f to CharStageBase.copy(alpha = 0.48f),
-                        1.0f to CharRoomBg.copy(alpha = 0.86f)
+                        0.0f to CharStageDeep.copy(alpha = 0.48f),
+                        0.42f to CharStageBase.copy(alpha = 0.25f),
+                        0.78f to CharStageBase.copy(alpha = 0.46f),
+                        1.0f to CharRoomBg.copy(alpha = 0.85f)
                     )
                 )
             )
 
             // Cahaya Radial lembut di belakang karakter (tepat di tengah sumbu AvatarView)
-            val avatarCenter = Offset(w * 0.50f, h * 0.585f)
+            val avatarCenter = Offset(w * 0.50f, h * 0.56f)
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        accentPalette.primaryColor.copy(alpha = (0.26f + gameHitFlash * 0.25f) * glowPulse),
+                        accentPalette.primaryColor.copy(alpha = 0.26f * glowPulse),
                         CharStageDeep.copy(alpha = 0.14f),
                         Color.Transparent
                     ),
@@ -87,8 +83,8 @@ fun StageBackgroundCanvas(
                 center = avatarCenter
             )
 
-            // Panggung Elips Bercahaya Tempat Karakter Berdiri (mengikuti skala tinggi panggung baru)
-            val platformY = h * 0.815f
+            // Panggung Elips Bercahaya Tempat Karakter Berdiri
+            val platformY = h * 0.81f
             val outerPlatformH = 20.dp.toPx()
             val innerPlatformH = 11.dp.toPx()
             drawOval(
@@ -99,67 +95,22 @@ fun StageBackgroundCanvas(
                         Color.Transparent
                     ),
                     center = Offset(w * 0.50f, platformY),
-                    radius = w * 0.39f
+                    radius = w * 0.40f
                 ),
                 topLeft = Offset(w * 0.14f, platformY - outerPlatformH / 2f),
                 size = Size(w * 0.72f, outerPlatformH)
             )
             drawOval(
                 color = CharStagePlatformFill.copy(alpha = 0.88f),
-                topLeft = Offset(w * 0.26f, platformY - innerPlatformH / 2f),
-                size = Size(w * 0.48f, innerPlatformH)
+                topLeft = Offset(w * 0.25f, platformY - innerPlatformH / 2f),
+                size = Size(w * 0.50f, innerPlatformH)
             )
             drawOval(
                 color = accentPalette.primaryColor,
-                topLeft = Offset(w * 0.26f, platformY - innerPlatformH / 2f),
-                size = Size(w * 0.48f, innerPlatformH),
+                topLeft = Offset(w * 0.25f, platformY - innerPlatformH / 2f),
+                size = Size(w * 0.50f, innerPlatformH),
                 style = Stroke(width = 1.2.dp.toPx())
             )
-
-            // Mini-Game: Tangkap Sinyal & Jaga Koherensi! (Cincin Target Resonansi Larmor + Pulsa FID)
-            if (isCoherenceGameActive) {
-                val minDim = min(w, h)
-                val targetRadius = minDim * 0.34f
-                val targetBandInner = targetRadius * 0.88f
-                val inSweetSpot = gamePulseProgress in 0.70f..0.95f
-                val pulseRadius = minDim * (0.10f + 0.31f * gamePulseProgress)
-
-                // Cincin target luar
-                drawCircle(
-                    color = if (inSweetSpot) CharAccentMint.copy(alpha = 0.90f)
-                    else accentPalette.primaryColor.copy(alpha = 0.45f),
-                    radius = targetRadius,
-                    center = avatarCenter,
-                    style = Stroke(width = if (inSweetSpot) 3.5.dp.toPx() else 2.dp.toPx())
-                )
-                drawCircle(
-                    color = accentPalette.glowColor.copy(alpha = 0.22f),
-                    radius = targetBandInner,
-                    center = avatarCenter,
-                    style = Stroke(width = 1.dp.toPx())
-                )
-
-                // Pulsa RF mengembang dari inti Nano ke cincin target
-                drawCircle(
-                    color = if (inSweetSpot) CharAccentMint else accentPalette.glowColor.copy(alpha = 0.85f),
-                    radius = pulseRadius,
-                    center = avatarCenter,
-                    style = Stroke(width = 2.8.dp.toPx())
-                )
-
-                // 6 Titik Spin Proton mengelilingi cincin pulsa
-                val spinAngleBase = rfWavePhase * 2f * PI.toFloat()
-                for (i in 0 until 6) {
-                    val ang = spinAngleBase + (i * (2f * PI.toFloat() / 6f))
-                    val px = avatarCenter.x + cos(ang) * pulseRadius
-                    val py = avatarCenter.y + sin(ang) * pulseRadius
-                    drawCircle(
-                        color = if (inSweetSpot) CharAccentMint else accentPalette.glowColor,
-                        radius = 4.dp.toPx(),
-                        center = Offset(px, py)
-                    )
-                }
-            }
 
             // Gelombang Pemindaian Pulsa RF 90° / Animasi Gelombang Interaktif
             if (isWaveActive) {
@@ -181,7 +132,7 @@ fun StageBackgroundCanvas(
                 // Gelombang Sinus RF mengalir di belakang karakter
                 val phaseRad = rfWavePhase * 2f * PI.toFloat()
                 for (waveIdx in 0..1) {
-                    val baseY = h * (if (waveIdx == 0) 0.54f else 0.62f)
+                    val baseY = h * (if (waveIdx == 0) 0.52f else 0.60f)
                     val amp = h * (if (waveIdx == 0) 0.055f else 0.040f)
                     val waveColor = if (waveIdx == 0) {
                         accentPalette.glowColor.copy(alpha = 0.72f)

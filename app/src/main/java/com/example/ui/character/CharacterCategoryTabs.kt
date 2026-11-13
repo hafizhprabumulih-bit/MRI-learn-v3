@@ -64,10 +64,10 @@ fun CharacterCategoryTabs(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .background(CharCardSurface)
-                .border(1.dp, CharBorderSlate, RoundedCornerShape(18.dp))
-                .padding(5.dp),
+                .border(1.dp, CharBorderSlate, RoundedCornerShape(16.dp))
+                .padding(4.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -76,8 +76,8 @@ fun CharacterCategoryTabs(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(40.dp)
-                        .clip(RoundedCornerShape(14.dp))
+                        .height(36.dp)
+                        .clip(RoundedCornerShape(12.dp))
                         .background(if (isGroupActive) accentPalette.primaryColor else Color.Transparent)
                         .clickable {
                             when (group) {
@@ -105,7 +105,7 @@ fun CharacterCategoryTabs(
 
         // 2. Sub-Tab Kategori Tampilan (Kepala | Seragam | Headset | Alat Klinis)
         if (activeGroup == CharacterTabGroup.TAMPILAN) {
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -120,15 +120,15 @@ fun CharacterCategoryTabs(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .clickable { onSelectCategory(cat) }
-                            .padding(vertical = 4.dp, horizontal = 2.dp)
+                            .padding(vertical = 2.dp, horizontal = 2.dp)
                     ) {
                         Text(
                             text = stringResource(labelRes),
-                            fontSize = 13.sp,
+                            fontSize = 12.5.sp,
                             fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
                             color = if (isSelected) accentPalette.primaryColor else CharTextSecondary
                         )
-                        Spacer(modifier = Modifier.height(5.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Box(
                             modifier = Modifier
                                 .width(44.dp)

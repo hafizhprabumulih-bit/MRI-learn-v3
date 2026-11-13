@@ -116,7 +116,7 @@ class CharacterCatalogGuardTest {
             "nano_body_base.png",
             "nano_exp_netral.png", "nano_exp_senang.png", "nano_exp_berpikir.png",
             "nano_exp_waspada.png", "nano_exp_bangga.png", "nano_exp_sedih.png",
-            "nano_head_larmor.png", "nano_head_visor.png", "nano_head_cap.png",
+            "nano_head_larmor.png", "nano_head_visor.png",
             "nano_head_goggles.png", "nano_head_cyber.png", "nano_head_coil64.png",
             "nano_head_mortarboard.png", "nano_head_beanie_mri.png", "nano_head_loupe.png",
             "nano_uniform_scrub_mint.png", "nano_uniform_labcoat.png", "nano_uniform_scrub_blue.png",

@@ -21,7 +21,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,13 +33,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Refresh
@@ -94,14 +90,6 @@ import kotlin.math.sin
 
 enum class NanoBodyZone { HEAD, TORSO, TOOL }
 
-data class QuickFlashChallenge(
-    val question: String,
-    val optionA: String,
-    val optionB: String,
-    val correctIndex: Int,
-    val moduleRef: String
-)
-
 @Composable
 fun InteractiveCharacterStage(
     workingState: CharacterCustomizationState,
@@ -120,13 +108,6 @@ fun InteractiveCharacterStage(
     forcedExpression: Expression?,
     larmorSpinTrigger: Int,
     heartBurstTrigger: Int,
-    isCoherenceGameActive: Boolean,
-    gamePulseProgress: Float,
-    gameHitFlash: Float,
-    coherenceScore: Int,
-    coherenceCombo: Int,
-    activeFlashChallenge: QuickFlashChallenge?,
-    onToggleCoherenceGame: () -> Unit,
     onOpenSnapshotStudio: () -> Unit,
     onToggleWave: () -> Unit,
     onReset: () -> Unit,
@@ -136,11 +117,6 @@ fun InteractiveCharacterStage(
     onDoubleTapLarmorSpin: () -> Unit,
     onLongPressShiftCard: () -> Unit,
     onRubHead: () -> Unit,
-    onCoherenceTap: (Float) -> Unit,
-    onAskQuizTip: () -> Unit,
-    onAskZoneCheck: () -> Unit,
-    onAskFlashChallenge: () -> Unit,
-    onAnswerFlashChallenge: (Int) -> Unit,
     onPrevAvatar: () -> Unit,
     onNextAvatar: () -> Unit,
     modifier: Modifier = Modifier
@@ -183,7 +159,7 @@ fun InteractiveCharacterStage(
         label = "jump_scale"
     )
     val jumpOffsetY by animateFloatAsState(
-        targetValue = if (isJumping) -12f else 0f,
+        targetValue = if (isJumping) -10f else 0f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMedium
@@ -212,7 +188,7 @@ fun InteractiveCharacterStage(
 
     val bgItem = CharacterCatalog.getItem(workingState.backgroundId)
 
-    // Deteksi bahaya keselamatan MRI secara deterministik (bukan random modulo)
+    // Deteksi bahaya keselamatan MRI secara deterministik
     val isNoiseHazard = workingState.backgroundId == "bg_scanner_suite" &&
         workingState.equippedHeadset == "headset_none"
     val isCryoHazard = workingState.backgroundId == "bg_chiller_room" &&
@@ -247,31 +223,28 @@ fun InteractiveCharacterStage(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(454.dp)
+            .height(392.dp)
             .clip(RoundedCornerShape(22.dp))
             .background(CharStageBase)
             .border(1.5.dp, CharBorderSlate, RoundedCornerShape(22.dp))
     ) {
-        // 1. Latar Belakang Gambar Ruangan + Panggung Elips + Cincin Mini-Game
+        // 1. Latar Belakang Gambar Ruangan + Panggung Elips
         StageBackgroundCanvas(
             backgroundId = workingState.backgroundId,
             accentPalette = accentPalette,
             glowPulse = glowPulse,
             rfWavePhase = rfWavePhase,
-            isWaveActive = isWaveActive || isCoherenceGameActive,
-            isCoherenceGameActive = isCoherenceGameActive,
-            gamePulseProgress = gamePulseProgress,
-            gameHitFlash = gameHitFlash
+            isWaveActive = isWaveActive
         )
 
         // 2. Konten Panggung Utama
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Bagian Atas: Judul + 5 Tombol Aksi + Balon Chat & Chip Tanya Nano
+            // Bagian Atas: Judul + Tombol Aksi + Balon Chat
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -281,7 +254,7 @@ fun InteractiveCharacterStage(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = stringResource(R.string.char_room_title),
-                            fontSize = 17.sp,
+                            fontSize = 16.5.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = CharTextPrimary
                         )
@@ -300,21 +273,6 @@ fun InteractiveCharacterStage(
                         horizontalArrangement = Arrangement.spacedBy(5.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Mini-Game Koherensi RF
-                        StageActionSquareButton(
-                            isActive = isCoherenceGameActive,
-                            activeColor = CharAccentMint.copy(alpha = 0.28f),
-                            activeBorder = CharAccentMint,
-                            onClick = onToggleCoherenceGame
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Bolt,
-                                contentDescription = "Mini-Game Tangkap Sinyal",
-                                tint = if (isCoherenceGameActive) CharAccentMint else CharTextPrimary,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-
                         // Snapshot Studio Foto Kartu
                         StageActionSquareButton(
                             isActive = false,
@@ -398,7 +356,7 @@ fun InteractiveCharacterStage(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
                 // Awan Chat (Balon Ucapan)
                 Column(
@@ -413,109 +371,45 @@ fun InteractiveCharacterStage(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(CharSpeechBubbleBg.copy(alpha = 0.78f))
+                                .clip(RoundedCornerShape(13.dp))
+                                .background(CharSpeechBubbleBg.copy(alpha = 0.80f))
                                 .border(
                                     width = 1.dp,
                                     color = accentPalette.primaryColor.copy(alpha = 0.45f),
-                                    shape = RoundedCornerShape(14.dp)
+                                    shape = RoundedCornerShape(13.dp)
                                 )
                                 .clickable { onAvatarTap() }
-                                .padding(horizontal = 12.dp, vertical = 7.dp)
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
                             Text(
                                 text = text,
                                 fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = CharSpeechBubbleText,
-                                lineHeight = 15.sp,
-                                maxLines = if (activeFlashChallenge != null) 3 else 2,
+                                lineHeight = 14.5.sp,
+                                maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
 
-                    Canvas(modifier = Modifier.size(width = 16.dp, height = 7.dp)) {
+                    Canvas(modifier = Modifier.size(width = 16.dp, height = 6.dp)) {
                         val triangle = Path().apply {
                             moveTo(0f, 0f)
                             lineTo(size.width, 0f)
                             lineTo(size.width / 2f, size.height)
                             close()
                         }
-                        drawPath(path = triangle, color = CharSpeechBubbleBg.copy(alpha = 0.78f))
-                    }
-
-                    // Chip Cepat: Status Mini-Game / Tes Kilat / Tanya Nano
-                    Spacer(modifier = Modifier.height(4.dp))
-                    if (isCoherenceGameActive) {
-                        Surface(
-                            shape = RoundedCornerShape(99.dp),
-                            color = CharStageDeep.copy(alpha = 0.85f),
-                            border = BorderStroke(1.dp, CharAccentMint.copy(alpha = 0.75f))
-                        ) {
-                            Text(
-                                text = "⚡ Koherensi: $coherenceScore · Kombo x$coherenceCombo · Ketuk Nano saat cincin menyatu!",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = CharAccentMint,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    } else if (activeFlashChallenge != null) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            QuickBubbleActionChip(
-                                text = "A: ${activeFlashChallenge.optionA}",
-                                accentColor = accentPalette.primaryColor,
-                                onClick = { onAnswerFlashChallenge(0) },
-                                modifier = Modifier.weight(1f)
-                            )
-                            QuickBubbleActionChip(
-                                text = "B: ${activeFlashChallenge.optionB}",
-                                accentColor = accentPalette.primaryColor,
-                                onClick = { onAnswerFlashChallenge(1) },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                    } else {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            QuickBubbleActionChip(
-                                text = "💡 Tips Kuis",
-                                accentColor = accentPalette.primaryColor,
-                                onClick = onAskQuizTip
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            QuickBubbleActionChip(
-                                text = "🛡️ Cek Zona IV",
-                                accentColor = accentPalette.primaryColor,
-                                onClick = onAskZoneCheck
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            QuickBubbleActionChip(
-                                text = "⚡ Tes Kilat",
-                                accentColor = CharAccentMint,
-                                onClick = onAskFlashChallenge
-                            )
-                        }
+                        drawPath(path = triangle, color = CharSpeechBubbleBg.copy(alpha = 0.80f))
                     }
                 }
             }
 
-            // Bagian Tengah: Panah < , Avatar Nano Diperbesar (242dp) dengan Multi-Gestur, Panah >
+            // Bagian Tengah: Panah < , Avatar Nano Lebih Besar (264dp + scale 1.08f) dengan Multi-Gestur, Panah >
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(242.dp)
+                    .weight(1f)
             ) {
                 Box(
                     modifier = Modifier
@@ -537,73 +431,68 @@ fun InteractiveCharacterStage(
                 }
 
                 // Partikel Mengelus Kepala ("Elus Nano")
-                AnimatedVisibility(
-                    visible = showHeartBadge,
-                    enter = fadeIn(tween(150)),
-                    exit = fadeOut(tween(400)),
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .offset(x = 74.dp, y = 8.dp)
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(99.dp),
-                        color = CharStageDeep.copy(alpha = 0.9f),
-                        border = BorderStroke(1.dp, CharAccentMint)
+                Column(modifier = Modifier.align(Alignment.TopCenter).offset(x = 76.dp, y = 4.dp)) {
+                    AnimatedVisibility(
+                        visible = showHeartBadge,
+                        enter = fadeIn(tween(150)),
+                        exit = fadeOut(tween(400))
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        Surface(
+                            shape = RoundedCornerShape(99.dp),
+                            color = CharStageDeep.copy(alpha = 0.9f),
+                            border = BorderStroke(1.dp, CharAccentMint)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = null,
-                                tint = CharAccentMint,
-                                modifier = Modifier.size(12.dp)
-                            )
-                            Text(
-                                text = "+1 Mood ($shiftMood)",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = CharTextPrimary
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Favorite,
+                                    contentDescription = null,
+                                    tint = CharAccentMint,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                                Text(
+                                    text = "+1 Mood ($shiftMood)",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = CharTextPrimary
+                                )
+                            }
                         }
                     }
                 }
 
-                // Avatar Berlapis "Nano" (242dp) + Multi-Gestur (Tap Zona, Double-Tap Larmor Spin, Long-Press, Usap Kepala)
+                // Avatar Berlapis "Nano" Diperbesar + Multi-Gestur (Tap Zona, Double-Tap Larmor Spin, Long-Press, Usap Kepala)
                 var rubDragAccum by remember { mutableFloatStateOf(0f) }
                 var dragStartedTop by remember { mutableStateOf(false) }
 
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .size(242.dp)
+                        .size(264.dp)
                         .offset(y = (floatOffset + jumpOffsetY).dp)
                         .graphicsLayer {
-                            scaleX = jumpScale
-                            scaleY = jumpScale
+                            scaleX = jumpScale * 1.08f
+                            scaleY = jumpScale * 1.08f
                             rotationZ = tiltAngle + rfSwayDeg
                             rotationY = larmorSpinAngle
                             cameraDistance = 12f * density
                         }
-                        .pointerInput(isCoherenceGameActive, gamePulseProgress, currentAvatar.id) {
+                        .pointerInput(currentAvatar.id) {
                             detectTapGestures(
                                 onDoubleTap = { onDoubleTapLarmorSpin() },
                                 onLongPress = { onLongPressShiftCard() },
                                 onTap = { offset ->
-                                    if (isCoherenceGameActive) {
-                                        onCoherenceTap(gamePulseProgress)
-                                    } else {
-                                        val fracY = (offset.y / size.height.toFloat()).coerceIn(0f, 1f)
-                                        val fracX = (offset.x / size.width.toFloat()).coerceIn(0f, 1f)
-                                        val zone = when {
-                                            fracY < 0.44f -> NanoBodyZone.HEAD
-                                            fracX >= 0.62f -> NanoBodyZone.TOOL
-                                            else -> NanoBodyZone.TORSO
-                                        }
-                                        onBodyZoneTap(zone)
+                                    val fracY = (offset.y / size.height.toFloat()).coerceIn(0f, 1f)
+                                    val fracX = (offset.x / size.width.toFloat()).coerceIn(0f, 1f)
+                                    val zone = when {
+                                        fracY < 0.44f -> NanoBodyZone.HEAD
+                                        fracX >= 0.62f -> NanoBodyZone.TOOL
+                                        else -> NanoBodyZone.TORSO
                                     }
+                                    onBodyZoneTap(zone)
                                 }
                             )
                         }
@@ -634,7 +523,7 @@ fun InteractiveCharacterStage(
                         role = currentAvatar.id,
                         equipped = workingState,
                         expression = currentExpression,
-                        modifier = Modifier.size(242.dp)
+                        modifier = Modifier.size(264.dp)
                     )
                 }
 
@@ -669,7 +558,7 @@ fun InteractiveCharacterStage(
                     } else {
                         specialistRole
                     },
-                    fontSize = 14.5.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = CharTextPrimary,
                     textAlign = TextAlign.Center,
@@ -713,32 +602,5 @@ private fun StageActionSquareButton(
         contentAlignment = Alignment.Center
     ) {
         content()
-    }
-}
-
-@Composable
-private fun QuickBubbleActionChip(
-    text: String,
-    accentColor: androidx.compose.ui.graphics.Color,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier,
-        shape = RoundedCornerShape(99.dp),
-        color = CharStageDeep.copy(alpha = 0.86f),
-        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.60f))
-    ) {
-        Text(
-            text = text,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = CharTextPrimary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp)
-        )
     }
 }
