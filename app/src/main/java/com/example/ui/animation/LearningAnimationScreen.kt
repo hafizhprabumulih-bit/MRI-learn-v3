@@ -3,6 +3,7 @@ package com.example.ui.animation
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,6 +51,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -312,77 +314,129 @@ fun LearningAnimationScreen(
 }
 
 // -------------------------------------------------------------
-// Kanvas Animasi 1: Spin Echo 90° - 180° Refokusing
+// Kanvas Animasi 1: Spin Echo 90° - 180° Refokusing (3D Interaktif)
 // -------------------------------------------------------------
 @Composable
 fun SpinEchoCanvas(step: Int, isPlaying: Boolean, rotAngleProvider: () -> Float) {
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        val rotAngle = rotAngleProvider()
-        val cx = size.width / 2f
-        val cy = size.height / 2f
-        val radius = 70f
+    var camAzimuth by rememberSaveable { mutableFloatStateOf(0.55f) }
+    var camElevation by rememberSaveable { mutableFloatStateOf(0.42f) }
 
-        // Sumbu Z (Longitudinal) dan Bidang XY (Transversal)
-        drawLine(color = CardSlateBorder, start = Offset(cx, cy + 85f), end = Offset(cx, cy - 85f), strokeWidth = 1.5.dp.toPx())
-        drawOval(color = CardSlateBorder.copy(alpha = 0.5f), topLeft = Offset(cx - radius, cy - 20f), size = Size(radius * 2f, 40f), style = Stroke(1.dp.toPx()))
+    Box(modifier = Modifier.fillMaxSize()) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectDragGestures { change, drag ->
+                        change.consume()
+                        camAzimuth -= drag.x * 0.011f
+                        camElevation = (camElevation + drag.y * 0.011f).coerceIn(-1.4f, 1.4f)
+                    }
+                }
+        ) {
+            val rotAngle = rotAngleProvider()
+            val cx = size.width / 2f
+            val cy = size.height / 2f + 6.dp.toPx()
+            val radius = (minOf(size.width, size.height) * 0.36f)
 
-        when (step) {
-            1 -> {
-                // Step 1: Eksitasi 90° -> Vektor berpresesi di bidang XY
-                val rad = Math.toRadians(rotAngle.toDouble())
-                val vx = cx + radius * cos(rad).toFloat()
-                val vy = cy + 20f * sin(rad).toFloat()
-                drawLine(color = CyanBright, start = Offset(cx, cy), end = Offset(vx, vy), strokeWidth = 4.dp.toPx())
-                drawCircle(color = CyanBright, radius = 6.dp.toPx(), center = Offset(vx, vy))
-                // Pulsa 90 badge
-                drawCircle(color = EmeraldSuccess, radius = 4.dp.toPx(), center = Offset(cx, cy - 70f))
+            fun proj3D(x: Float, y: Float, z: Float): Offset {
+                val ca = cos(camAzimuth)
+                val sa = sin(camAzimuth)
+                val ce = cos(camElevation)
+                val se = sin(camElevation)
+                val x1 = x * ca - y * sa
+                val y1 = x * sa + y * ca
+                val y2 = y1 * se + z * ce
+                val depth = y1 * ce - z * se
+                val persp = (3.4f / (3.4f - depth * 0.4f)).coerceIn(0.78f, 1.3f)
+                return Offset(cx + x1 * radius * persp, cy - y2 * radius * persp)
             }
-            2 -> {
-                // Step 2: Dephasing T2* (Spin cepat mendahului, lambat tertinggal)
-                val fastAngle = Math.toRadians((rotAngle * 1.5).toDouble())
-                val slowAngle = Math.toRadians((rotAngle * 0.7).toDouble())
-                val midAngle = Math.toRadians(rotAngle.toDouble())
 
-                // Spin cepat (hijau)
-                val fx = cx + radius * cos(fastAngle).toFloat()
-                val fy = cy + 20f * sin(fastAngle).toFloat()
-                drawLine(color = EmeraldSuccess, start = Offset(cx, cy), end = Offset(fx, fy), strokeWidth = 3.dp.toPx())
-
-                // Spin sedang (cyan)
-                val mx = cx + radius * cos(midAngle).toFloat()
-                val my = cy + 20f * sin(midAngle).toFloat()
-                drawLine(color = CyanBright, start = Offset(cx, cy), end = Offset(mx, my), strokeWidth = 3.dp.toPx())
-
-                // Spin lambat (rose)
-                val sx = cx + radius * cos(slowAngle).toFloat()
-                val sy = cy + 20f * sin(slowAngle).toFloat()
-                drawLine(color = RoseDanger, start = Offset(cx, cy), end = Offset(sx, sy), strokeWidth = 3.dp.toPx())
+            // Bola 3D dan Bidang Ekuator XY
+            drawCircle(
+                color = CardSlateBorder.copy(alpha = 0.35f),
+                radius = radius,
+                center = Offset(cx, cy),
+                style = Stroke(1.2.dp.toPx())
+            )
+            val eqPath = Path()
+            for (i in 0..48) {
+                val a = (i / 48f) * (2f * Math.PI.toFloat())
+                val p = proj3D(cos(a), sin(a), 0f)
+                if (i == 0) eqPath.moveTo(p.x, p.y) else eqPath.lineTo(p.x, p.y)
             }
-            3 -> {
-                // Step 3: Pulsa Refokusing 180° membalikkan arah!
-                val phase = (rotAngle / 360f) * 0.6f
-                val spread = (1f - phase) * 14f
-                drawLine(color = EmeraldSuccess, start = Offset(cx, cy), end = Offset(cx - radius * 0.85f, cy - spread), strokeWidth = 3.dp.toPx())
-                drawLine(color = CyanBright, start = Offset(cx, cy), end = Offset(cx - radius, cy), strokeWidth = 3.dp.toPx())
-                drawLine(color = RoseDanger, start = Offset(cx, cy), end = Offset(cx - radius * 1.05f, cy + spread), strokeWidth = 3.dp.toPx())
+            drawPath(eqPath, color = CyanPrimary.copy(alpha = 0.12f))
+            drawPath(eqPath, color = CardSlateBorder.copy(alpha = 0.65f), style = Stroke(1.2.dp.toPx()))
 
-                // Flash 180 RF Pulse
-                drawCircle(color = AmberWarning, radius = 8.dp.toPx(), center = Offset(cx, cy))
-            }
-            4 -> {
-                // Step 4: Rephasing & Echo Peak terbentuk di TE!
-                val ripple = 14f + (rotAngle / 360f) * 16f
-                drawLine(color = CyanBright, start = Offset(cx, cy), end = Offset(cx - radius * 1.2f, cy), strokeWidth = 5.dp.toPx())
-                drawCircle(color = CyanBright, radius = 9.dp.toPx(), center = Offset(cx - radius * 1.2f, cy))
-                // Ripple Echo Sinyal
-                drawCircle(
-                    color = CyanBright.copy(alpha = (1f - (rotAngle / 360f) * 0.6f).coerceIn(0.2f, 0.8f)),
-                    radius = ripple.dp.toPx(),
-                    center = Offset(cx - radius * 1.2f, cy),
-                    style = Stroke(2.dp.toPx())
-                )
+            // Sumbu Z (Longitudinal B0)
+            val zBottom = proj3D(0f, 0f, -1.05f)
+            val zTop = proj3D(0f, 0f, 1.18f)
+            val origin = proj3D(0f, 0f, 0f)
+            drawLine(color = CardSlateBorder, start = zBottom, end = zTop, strokeWidth = 1.8.dp.toPx())
+            drawCircle(color = CyanBright, radius = 4.dp.toPx(), center = zTop)
+
+            when (step) {
+                1 -> {
+                    // Step 1: Eksitasi 90° -> Vektor berpresesi di bidang XY
+                    val rad = Math.toRadians(rotAngle.toDouble()).toFloat()
+                    val tip = proj3D(cos(rad), sin(rad), 0f)
+                    drawLine(color = CyanBright, start = origin, end = tip, strokeWidth = 4.dp.toPx())
+                    drawCircle(color = CyanBright, radius = 6.dp.toPx(), center = tip)
+                    drawCircle(color = EmeraldSuccess, radius = 4.dp.toPx(), center = zTop)
+                }
+                2 -> {
+                    // Step 2: Dephasing T2* (Spin cepat mendahului, lambat tertinggal)
+                    val fastAngle = Math.toRadians((rotAngle * 1.5)).toFloat()
+                    val slowAngle = Math.toRadians((rotAngle * 0.7)).toFloat()
+                    val midAngle = Math.toRadians(rotAngle.toDouble()).toFloat()
+
+                    val fTip = proj3D(cos(fastAngle), sin(fastAngle), 0f)
+                    val mTip = proj3D(cos(midAngle), sin(midAngle), 0f)
+                    val sTip = proj3D(cos(slowAngle), sin(slowAngle), 0f)
+
+                    drawLine(color = EmeraldSuccess, start = origin, end = fTip, strokeWidth = 3.dp.toPx())
+                    drawCircle(color = EmeraldSuccess, radius = 4.5.dp.toPx(), center = fTip)
+                    drawLine(color = CyanBright, start = origin, end = mTip, strokeWidth = 3.dp.toPx())
+                    drawCircle(color = CyanBright, radius = 4.5.dp.toPx(), center = mTip)
+                    drawLine(color = RoseDanger, start = origin, end = sTip, strokeWidth = 3.dp.toPx())
+                    drawCircle(color = RoseDanger, radius = 4.5.dp.toPx(), center = sTip)
+                }
+                3 -> {
+                    // Step 3: Pulsa Refokusing 180° membalikkan arah fase
+                    val phase = (rotAngle / 360f) * 0.6f
+                    val spreadRad = (1f - phase) * 0.45f
+                    val fTip = proj3D(-cos(spreadRad), -sin(spreadRad), 0f)
+                    val mTip = proj3D(-1f, 0f, 0f)
+                    val sTip = proj3D(-cos(spreadRad), sin(spreadRad), 0f)
+
+                    drawLine(color = EmeraldSuccess, start = origin, end = fTip, strokeWidth = 3.dp.toPx())
+                    drawLine(color = CyanBright, start = origin, end = mTip, strokeWidth = 3.dp.toPx())
+                    drawLine(color = RoseDanger, start = origin, end = sTip, strokeWidth = 3.dp.toPx())
+                    drawCircle(color = AmberWarning, radius = 8.dp.toPx(), center = origin)
+                }
+                4 -> {
+                    // Step 4: Rephasing & Echo Peak terbentuk di TE!
+                    val ripple = 14f + (rotAngle / 360f) * 16f
+                    val echoTip = proj3D(-1.08f, 0f, 0f)
+                    drawLine(color = CyanBright, start = origin, end = echoTip, strokeWidth = 5.dp.toPx())
+                    drawCircle(color = CyanBright, radius = 8.5.dp.toPx(), center = echoTip)
+                    drawCircle(
+                        color = CyanBright.copy(alpha = (1f - (rotAngle / 360f) * 0.6f).coerceIn(0.2f, 0.8f)),
+                        radius = ripple.dp.toPx(),
+                        center = echoTip,
+                        style = Stroke(2.dp.toPx())
+                    )
+                }
             }
         }
+
+        Text(
+            text = "Geser kanvas untuk memutar tampilan 3D",
+            fontSize = 10.sp,
+            color = TextMuted,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(8.dp)
+        )
     }
 }
 

@@ -205,7 +205,7 @@ object CharacterCatalog {
                 "Selamat datang di sesi kuliah MRI! Pastikan konsep dasar presesi Larmor (M01) sudah mantap.",
                 "Ingat hubungan T1 dan T2 jaringan: CSF terang di T2w karena T2 sangat panjang, namun gelap di T1w.",
                 "Keselamatan Zona I–IV ACR adalah kompetensi wajib sebelum mahasiswa memegang konsol klinis.",
-                "Ketuk item di bawah untuk mencocokkan perlengkapan ajar dosen atau uji dirimu lewat Mode Tanya Nano!"
+                "Ketuk item di bawah untuk mencocokkan perlengkapan ruang kuliah dan praktikum MRI!"
             )
         ),
         "mahasiswa" to SpecialistProfile(
@@ -216,7 +216,7 @@ object CharacterCatalog {
             greetings = listOf(
                 "Hai rekan belajar! Ayo taklukkan simpul M01 sampai M09 bersama step-by-step.",
                 "Jangan lupa cek buku saku MRI sebelum mengatur parameter TR, TE, dan Flip Angle di simulator!",
-                "Kalau ragu soal kuis yang masih salah, coba ketuk chip Tanya Nano di gelembung atasku ya!",
+                "Pastikan prinsip kontras T1, T2, dan FLAIR sudah kamu kuasai sebelum masuk sesi kuis!",
                 "Semangat jaga streak belajar harian biar target kelulusan modul tercapai!"
             )
         )
@@ -250,18 +250,6 @@ object CharacterCatalog {
             secondaryColorHex = 0xFF1FB6E8,
             drawableRes = R.drawable.nano_head_visor,
             unlockRequirement = UnlockRequirement("m01", "MO1: Fisika Dasar MRI", 5, "Syarat rencana: 5 simpul MO1")
-        ),
-        CharacterItem(
-            id = "hair_cap",
-            name = "Topi Bedah Steril",
-            category = CharacterCategory.RAMBUT,
-            description = "Penutup kepala medis higienis untuk tindakan intervensi MRI.",
-            clinicalBenefit = "Standar higienitas ruang tindakan iMRI",
-            badgeLabel = "Steril",
-            previewColorHex = 0xFF3CC4A3,
-            secondaryColorHex = 0xFFE6F2FB,
-            drawableRes = R.drawable.nano_head_cap,
-            unlockRequirement = UnlockRequirement("m02", "MO2: Relaksasi & Kontras", 5, "Syarat rencana: Selesaikan MO2")
         ),
         CharacterItem(
             id = "hair_goggles",
@@ -309,7 +297,7 @@ object CharacterCatalog {
             previewColorHex = 0xFF1E3A5F,
             secondaryColorHex = 0xFF22D3EE,
             drawableRes = R.drawable.nano_head_mortarboard,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         ),
         CharacterItem(
             id = "hair_beanie_mri",
@@ -321,7 +309,7 @@ object CharacterCatalog {
             previewColorHex = 0xFF14B8D4,
             secondaryColorHex = 0xFFF97316,
             drawableRes = R.drawable.nano_head_beanie_mri,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         ),
         CharacterItem(
             id = "hair_loupe",
@@ -333,7 +321,7 @@ object CharacterCatalog {
             previewColorHex = 0xFF334155,
             secondaryColorHex = 0xFF22D3EE,
             drawableRes = R.drawable.nano_head_loupe,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         )
     )
 
@@ -420,7 +408,7 @@ object CharacterCatalog {
             previewColorHex = 0xFF1E3A5F,
             secondaryColorHex = 0xFF06B6D4,
             drawableRes = R.drawable.nano_uniform_dosen,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         ),
         CharacterItem(
             id = "uniform_mahasiswa",
@@ -432,7 +420,7 @@ object CharacterCatalog {
             previewColorHex = 0xFF38BDF8,
             secondaryColorHex = 0xFFBFDBFE,
             drawableRes = R.drawable.nano_uniform_mahasiswa,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         ),
         CharacterItem(
             id = "uniform_leadfree",
@@ -444,7 +432,7 @@ object CharacterCatalog {
             previewColorHex = 0xFF115E59,
             secondaryColorHex = 0xFF34D399,
             drawableRes = R.drawable.nano_uniform_leadfree,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         )
     )
 
@@ -519,7 +507,7 @@ object CharacterCatalog {
             previewColorHex = 0xFF94A3B8,
             secondaryColorHex = 0xFF06B6D4,
             drawableRes = R.drawable.nano_headset_lecture,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         ),
         CharacterItem(
             id = "headset_comm_pro",
@@ -531,7 +519,7 @@ object CharacterCatalog {
             previewColorHex = 0xFF1E3A5F,
             secondaryColorHex = 0xFF06B6D4,
             drawableRes = R.drawable.nano_headset_comm_pro,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         )
     )
 
@@ -618,7 +606,7 @@ object CharacterCatalog {
             previewColorHex = 0xFFE2E8F0,
             secondaryColorHex = 0xFFF43F5E,
             drawableRes = R.drawable.nano_tool_pointer,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         ),
         CharacterItem(
             id = "acc_handbook_mri",
@@ -630,7 +618,7 @@ object CharacterCatalog {
             previewColorHex = 0xFF06B6D4,
             secondaryColorHex = 0xFF0E7490,
             drawableRes = R.drawable.nano_tool_handbook,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         )
     )
 
@@ -741,7 +729,7 @@ object CharacterCatalog {
             previewColorHex = 0xFF29598A,
             secondaryColorHex = 0xFF22D3EE,
             drawableRes = R.drawable.bg_lecture_hall,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         ),
         CharacterItem(
             id = "bg_simulation_center",
@@ -753,7 +741,7 @@ object CharacterCatalog {
             previewColorHex = 0xFF1F4975,
             secondaryColorHex = 0xFF06B6D4,
             drawableRes = R.drawable.bg_simulation_center,
-            unlockRequirement = UnlockRequirement(description = "Tersedia sejak awal")
+            unlockRequirement = UnlockRequirement(futureNote = "Tersedia sejak awal")
         )
     )
 

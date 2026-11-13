@@ -137,7 +137,7 @@ object AvatarLayerRegistry {
             )
             "perawat" -> CharacterCustomizationState(
                 avatarId = avatarId,
-                equippedHair = "hair_cap",
+                equippedHair = "hair_default",
                 equippedUniform = "uniform_scrub_teal",
                 equippedHeadset = "headset_none",
                 equippedAccessory = "acc_oximeter",
@@ -145,7 +145,7 @@ object AvatarLayerRegistry {
             )
             "dokter_bedah" -> CharacterCustomizationState(
                 avatarId = avatarId,
-                equippedHair = "hair_cap",
+                equippedHair = "hair_loupe",
                 equippedUniform = "uniform_scrub_blue",
                 equippedHeadset = "headset_none",
                 equippedAccessory = "acc_badge_zona4",
@@ -212,7 +212,6 @@ object AvatarLayerRegistry {
         val (drawableRes, lockedNode) = when (headId) {
             "hair_default" -> R.drawable.nano_head_larmor to null
             "hair_visor" -> R.drawable.nano_head_visor to "m01"
-            "hair_cap" -> R.drawable.nano_head_cap to "m02"
             "hair_goggles" -> R.drawable.nano_head_goggles to "m03a"
             "hair_cyber" -> R.drawable.nano_head_cyber to "m05"
             "hair_crown_rf" -> R.drawable.nano_head_coil64 to "m07"

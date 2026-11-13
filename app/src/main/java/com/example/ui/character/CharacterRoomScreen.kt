@@ -18,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,45 +38,6 @@ import com.example.ui.theme.CharRoomBg
 import com.example.viewmodel.MriUiState
 import com.example.viewmodel.MriViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-
-private val FLASH_DRILLS = listOf(
-    QuickFlashChallenge(
-        question = "Tes Kilat (M02): Pada citra T2-weighted murni, bagaimana intensitas sinyal cairan serebrospinal (CSF)?",
-        optionA = "Hiperintens (Terang)",
-        optionB = "Hipointens (Gelap)",
-        correctIndex = 0,
-        moduleRef = "M02"
-    ),
-    QuickFlashChallenge(
-        question = "Tes Kilat (M01): Frekuensi presesi Larmor proton ¹H pada pesawat 1,5 Tesla adalah sekitar…",
-        optionA = "63,87 MHz",
-        optionB = "127,7 MHz",
-        correctIndex = 0,
-        moduleRef = "M01"
-    ),
-    QuickFlashChallenge(
-        question = "Tes Kilat (M07A): Zona manakah yang wajib memakai pelindung telinga & bebas feromagnetik ketat?",
-        optionA = "Zona IV (Ruang Magnet)",
-        optionB = "Zona I (Publik)",
-        correctIndex = 0,
-        moduleRef = "M07A"
-    ),
-    QuickFlashChallenge(
-        question = "Tes Kilat (M04B): Bagian Ruang-k manakah yang menentukan kontras gambar MRI paling dominan?",
-        optionA = "Pusat Ruang-k",
-        optionB = "Perifer / Tepi Ruang-k",
-        correctIndex = 0,
-        moduleRef = "M04B"
-    ),
-    QuickFlashChallenge(
-        question = "Tes Kilat (M05): Suhu operasional helium cair menjaga kumparan magnet superkonduktor pada…",
-        optionA = "4,2 Kelvin (-269 °C)",
-        optionB = "77 Kelvin (-196 °C)",
-        correctIndex = 0,
-        moduleRef = "M05"
-    )
-)
 
 @Composable
 fun CharacterRoomScreen(
@@ -86,8 +46,9 @@ fun CharacterRoomScreen(
 ) {
     // Gunakan rememberSaveable per field primitif agar tahan rotasi layar tanpa membebani Bundle
     val saved = state.characterCustomization
+    val sanitizedSavedHair = if (saved.equippedHair == "hair_cap") "hair_default" else saved.equippedHair
     var avatarId by rememberSaveable(saved.avatarId) { mutableStateOf(saved.avatarId) }
-    var equippedHair by rememberSaveable(saved.equippedHair) { mutableStateOf(saved.equippedHair) }
+    var equippedHair by rememberSaveable(sanitizedSavedHair) { mutableStateOf(sanitizedSavedHair) }
     var equippedUniform by rememberSaveable(saved.equippedUniform) { mutableStateOf(saved.equippedUniform) }
     var equippedHeadset by rememberSaveable(saved.equippedHeadset) { mutableStateOf(saved.equippedHeadset) }
     var equippedAccessory by rememberSaveable(saved.equippedAccessory) { mutableStateOf(saved.equippedAccessory) }
@@ -120,22 +81,13 @@ fun CharacterRoomScreen(
     var isJumping by remember { mutableStateOf(false) }
     var isWaveActive by rememberSaveable { mutableStateOf(false) }
 
-    // State Interaksi Tambahan (Body Zones, Rub, Double-Tap Larmor Spin, Shift Card, Studio, Tanya Nano, Mini-Game)
+    // State Interaksi (Body Zones, Rub, Double-Tap Larmor Spin, Shift Card, Studio)
     var forcedExpression by remember { mutableStateOf<Expression?>(null) }
     var larmorSpinTrigger by remember { mutableIntStateOf(0) }
     var heartBurstTrigger by remember { mutableIntStateOf(0) }
     var shiftMood by rememberSaveable { mutableIntStateOf(3) }
     var showShiftDialog by rememberSaveable { mutableStateOf(false) }
     var showSnapshotStudio by rememberSaveable { mutableStateOf(false) }
-
-    var activeFlashIndex by remember { mutableStateOf<Int?>(null) }
-    var flashCursor by rememberSaveable { mutableIntStateOf(0) }
-
-    var isCoherenceGameActive by remember { mutableStateOf(false) }
-    var gamePulseProgress by remember { mutableFloatStateOf(0.1f) }
-    var gameHitFlash by remember { mutableFloatStateOf(0f) }
-    var coherenceScore by rememberSaveable { mutableIntStateOf(0) }
-    var coherenceCombo by rememberSaveable { mutableIntStateOf(0) }
 
     val avatars = MriRepository.avatars
     val currentAvatarIndex = avatars.indexOfFirst { it.id == workingState.avatarId }.coerceAtLeast(0)
@@ -157,30 +109,6 @@ fun CharacterRoomScreen(
         }
     }
 
-    // Loop animasi Mini-Game "Tangkap Sinyal & Jaga Koherensi!"
-    LaunchedEffect(isCoherenceGameActive) {
-        if (isCoherenceGameActive) {
-            coherenceCombo = 0
-            gamePulseProgress = 0.1f
-            while (isActive && isCoherenceGameActive) {
-                delay(16)
-                gamePulseProgress += 0.0135f
-                if (gameHitFlash > 0f) {
-                    gameHitFlash = (gameHitFlash - 0.04f).coerceAtLeast(0f)
-                }
-                if (gamePulseProgress >= 1.05f) {
-                    gamePulseProgress = 0.08f
-                    if (coherenceCombo > 0) {
-                        coherenceCombo = 0
-                    }
-                }
-            }
-        } else {
-            gamePulseProgress = 0f
-            gameHitFlash = 0f
-        }
-    }
-
     val haptic = LocalHapticFeedback.current
 
     fun triggerAvatarTap(
@@ -192,7 +120,6 @@ fun CharacterRoomScreen(
         interactionCount++
         isJumping = true
         forcedExpression = expression
-        activeFlashIndex = null
         if (customMessage != null) {
             customBubbleText = customMessage
         } else {
@@ -213,7 +140,7 @@ fun CharacterRoomScreen(
         equippedAccessory = roleLoadout.equippedAccessory
     }
 
-    val defaultDisplayedText = customBubbleText
+    val displayedBubbleText = customBubbleText
         ?: if (interactionCount == 0 && state.studyStreakDays == 0) {
             "Streak belajar belum aktif hari ini! Yuk selesaikan 1 simpul agar koherensi belajar terjaga."
         } else {
@@ -221,9 +148,6 @@ fun CharacterRoomScreen(
                 specialistProfile.greetings.first()
             }
         }
-
-    val activeFlashChallenge = activeFlashIndex?.let { FLASH_DRILLS[it % FLASH_DRILLS.size] }
-    val displayedBubbleText = activeFlashChallenge?.question ?: defaultDisplayedText
     val resetMsg = stringResource(R.string.char_room_reset_msg)
 
     Box(
@@ -235,9 +159,9 @@ fun CharacterRoomScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 14.dp, vertical = 8.dp)
+                .padding(horizontal = 14.dp, vertical = 6.dp)
         ) {
-            // 1. Panggung Interaktif Ruang Karakter Diperbesar
+            // 1. Panggung Interaktif Ruang Karakter
             InteractiveCharacterStage(
                 workingState = workingState,
                 currentAvatar = currentAvatar,
@@ -255,28 +179,6 @@ fun CharacterRoomScreen(
                 forcedExpression = forcedExpression,
                 larmorSpinTrigger = larmorSpinTrigger,
                 heartBurstTrigger = heartBurstTrigger,
-                isCoherenceGameActive = isCoherenceGameActive,
-                gamePulseProgress = gamePulseProgress,
-                gameHitFlash = gameHitFlash,
-                coherenceScore = coherenceScore,
-                coherenceCombo = coherenceCombo,
-                activeFlashChallenge = activeFlashChallenge,
-                onToggleCoherenceGame = {
-                    isCoherenceGameActive = !isCoherenceGameActive
-                    activeFlashIndex = null
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    if (isCoherenceGameActive) {
-                        triggerAvatarTap(
-                            customMessage = "Mini-Game Koherensi RF aktif! Ketuk Nano tepat saat cincin mendekati batas luar!",
-                            expression = Expression.SENANG
-                        )
-                    } else {
-                        triggerAvatarTap(
-                            customMessage = "Mini-Game selesai dengan skor $coherenceScore! Siap lanjut belajar?",
-                            expression = Expression.BANGGA
-                        )
-                    }
-                },
                 onOpenSnapshotStudio = {
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     showSnapshotStudio = true
@@ -373,88 +275,6 @@ fun CharacterRoomScreen(
                         expression = Expression.SENANG
                     )
                 },
-                onCoherenceTap = { progress ->
-                    val hitSuccess = progress in 0.66f..0.98f
-                    if (hitSuccess) {
-                        coherenceCombo++
-                        val gained = 10 * coherenceCombo
-                        coherenceScore += gained
-                        gameHitFlash = 1f
-                        gamePulseProgress = 0.08f
-                        triggerAvatarTap(
-                            customMessage = "Tepat resonansi Larmor! Kombo x$coherenceCombo (+$gained poin)",
-                            hapticType = HapticFeedbackType.LongPress,
-                            expression = if (coherenceCombo >= 3) Expression.BANGGA else Expression.SENANG
-                        )
-                    } else {
-                        coherenceCombo = 0
-                        gamePulseProgress = 0.08f
-                        triggerAvatarTap(
-                            customMessage = "Sinyal FID keburu meluruh! Ketuk saat cincin biru tepat di lingkaran luar.",
-                            expression = Expression.SEDIH
-                        )
-                    }
-                },
-                onAskQuizTip = {
-                    val wrongAttempt = state.quizAttempts
-                        .groupBy { it.quizId }
-                        .mapValues { (_, list) -> list.maxByOrNull { it.answeredAt } }
-                        .values
-                        .firstOrNull { it != null && !it.isCorrect }
-                    val targetQuiz = wrongAttempt?.let { att ->
-                        state.quizzesList.find { it.id == att.quizId }
-                    }
-                    val tipMsg = if (targetQuiz != null) {
-                        "Tips [${targetQuiz.nodeCode}]: ${targetQuiz.explanation}"
-                    } else {
-                        "Mantap! Tidak ada soal salah tercatat. Jaga konsep TR/TE (M02) & keselamatan Zona IV (M07)!"
-                    }
-                    triggerAvatarTap(tipMsg, expression = Expression.BERPIKIR)
-                },
-                onAskZoneCheck = {
-                    val hazards = mutableListOf<String>()
-                    if (workingState.backgroundId == "bg_scanner_suite" && workingState.equippedHeadset == "headset_none") {
-                        hazards.add("tidak ada pelindung telinga di ruang 3T")
-                    }
-                    if (workingState.backgroundId == "bg_chiller_room" && workingState.equippedUniform != "uniform_armor") {
-                        hazards.add("butuh Suit Kryogenik di ruang Helium 4,2K")
-                    }
-                    if (hazards.isEmpty()) {
-                        triggerAvatarTap(
-                            customMessage = "Audit Zona IV Lulus! Perlengkapan (${currentAvatar.label}) aman dari proyektil & bising.",
-                            hapticType = HapticFeedbackType.LongPress,
-                            expression = Expression.BANGGA
-                        )
-                    } else {
-                        triggerAvatarTap(
-                            customMessage = "Bahaya Zona IV terdeteksi: ${hazards.joinToString(" & ")}!",
-                            hapticType = HapticFeedbackType.LongPress,
-                            expression = Expression.WASPADA
-                        )
-                    }
-                },
-                onAskFlashChallenge = {
-                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    activeFlashIndex = flashCursor
-                    flashCursor = (flashCursor + 1) % FLASH_DRILLS.size
-                    forcedExpression = Expression.BERPIKIR
-                },
-                onAnswerFlashChallenge = { chosenIdx ->
-                    val challenge = activeFlashChallenge ?: return@InteractiveCharacterStage
-                    activeFlashIndex = null
-                    if (chosenIdx == challenge.correctIndex) {
-                        triggerAvatarTap(
-                            customMessage = "Benar sekali! Penguasaan konsep ${challenge.moduleRef} kamu sangat tajam!",
-                            hapticType = HapticFeedbackType.LongPress,
-                            expression = Expression.BANGGA
-                        )
-                    } else {
-                        triggerAvatarTap(
-                            customMessage = "Kurang tepat — review ulang materi ${challenge.moduleRef} agar konsep makin mantap!",
-                            expression = Expression.SEDIH
-                        )
-                    }
-                },
                 onPrevAvatar = {
                     val prevIndex = if (currentAvatarIndex - 1 < 0) avatars.lastIndex else currentAvatarIndex - 1
                     val newAv = avatars[prevIndex]
@@ -471,7 +291,7 @@ fun CharacterRoomScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(7.dp))
 
             // 2. Navigasi Tab Segmen (Karakter | Tampilan | Latar) + Sub-Tab
             CharacterCategoryTabs(
@@ -483,13 +303,13 @@ fun CharacterRoomScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(7.dp))
 
             // 3. Pilihan Item yang Sliding ke Samping (LazyRow Horizontal)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 196.dp),
+                    .heightIn(min = 138.dp),
                 contentAlignment = Alignment.TopStart
             ) {
                 if (selectedCategory == CharacterCategory.KARAKTER) {
@@ -516,7 +336,7 @@ fun CharacterRoomScreen(
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 4.dp),
+                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 2.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         items(currentItems, key = { it.id }) { item ->
